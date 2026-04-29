@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portfolio Allocation Tool — Witkowski Advisory Group</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Jost:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:          #0d1710;
+      --bg-mid:      #111e14;
+      --bg-card:     #141f17;
+      --bg-hover:    #192518;
+      --teal:        #3dbf8f;
+      --teal-dim:    #2a9970;
+      --teal-faint:  rgba(61,191,143,0.08);
+      --teal-border: rgba(61,191,143,0.22);
+      --white:       #e8ede9;
+      --white-dim:   #a8b5aa;
+      --white-muted: #5a6b5d;
+      --border:      rgba(255,255,255,0.07);
+      --border-mid:  rgba(255,255,255,0.04);
+      --red:         #e06060;
+      --gold:        #c9a84c;
+      --shadow:      0 12px 48px rgba(0,0,0,0.5);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Jost', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      min-height: 100vh;
+      background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E"),
+        radial-gradient(ellipse at 15% 10%, rgba(61,191,143,0.05) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 90%, rgba(61,191,143,0.03) 0%, transparent 45%);
+    }
+
+    /* TICKER */
+    .ticker-wrap {
+      background: rgba(0,0,0,0.45);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden; height: 30px;
+      display: flex; align-items: center;
+    }
+    .ticker-track {
+      display: flex; animation: ticker 45s linear infinite; white-space: nowrap;
+    }
+    .ticker-item {
+      font-family: 'DM Mono', monospace; font-size: 0.67rem;
+      letter-spacing: 0.05em; color: var(--white-muted);
+      padding: 0 1.8rem; display: flex; align-items: center; gap: 0.45rem;
+    }
+    .up { color: var(--teal); } .dn { color: var(--red); }
+    @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* HEADER */
+    header {
+      padding: 1.5rem 3.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,23,16,0.96); backdrop-filter: blur(14px);
+    }
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; font-weight: 400; color: var(--white); letter-spacing: 0.03em;
+    }
+    .brand-cred {
+      font-size: 0.6rem; font-weight: 400; letter-spacing: 0.22em;
+      color: var(--white-muted); text-transform: uppercase; margin-top: 3px;
+    }
+    .brand-cred span { color: var(--teal); margin: 0 0.3em; }
+    nav a {
+      font-size: 0.62rem; font-weight: 500; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--white-muted); text-decoration: none;
+      margin-left: 2.2rem; transition: color 0.2s;
+    }
+    nav a:hover { color: var(--teal); }
+    nav a.active { color: var(--teal); }
+    nav a.back-home { color: var(--teal); border: 1px solid rgba(61,191,143,.3); padding: 6px 14px; margin-left: 2.2rem; transition: background .2s; }
+    nav a.back-home:hover { background: rgba(61,191,143,.1); }
+
+    /* HERO */
+    .hero {
+      padding: 4rem 3.5rem 2.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-label {
+      font-size: 0.61rem; font-weight: 500; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .hero-label::before {
+      content:''; display:inline-block; width:22px; height:1px; background:var(--teal);
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.4rem); font-weight: 300; line-height: 1.1;
+    }
+    .hero h1 em { font-style: italic; color: var(--teal); }
+    .hero h1 .dim { color: var(--white-muted); }
+    .hero-sub {
+      margin-top: 1.3rem; font-size: 0.87rem; font-weight: 300;
+      line-height: 1.8; color: var(--white-dim); max-width: 560px;
+    }
+    .svc-row {
+      margin-top: 1.4rem; display: flex; align-items: center; flex-wrap: wrap;
+    }
+    .svc-row::before {
+      content:''; display:inline-block; width:20px; height:1px;
+      background:var(--teal); margin-right:1rem; flex-shrink:0;
+    }
+    .svc { font-size:0.61rem; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--white-muted); }
+    .svc-dot { margin:0 0.65rem; color:var(--teal); font-size:0.55rem; }
+
+    /* LAYOUT */
+    .app-wrap {
+      max-width: 1380px; margin: 0 auto;
+      padding: 2.5rem 3.5rem 5rem;
+      display: grid; grid-template-columns: 400px 1fr;
+      gap: 2rem; align-items: start;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1.8rem; box-shadow: var(--shadow);
+      position: relative; overflow: hidden;
+    }
+    .card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:1px;
+      background: linear-gradient(90deg, transparent, var(--teal-border), transparent);
+    }
+    .card + .card { margin-top: 1.5rem; }
+    .card-title {
+      font-size: 0.61rem; font-weight: 500; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--teal);
+      margin-bottom: 1.4rem; padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* SEARCH */
+    .search-wrap { position: relative; margin-bottom: 0.9rem; }
+    .search-wrap input {
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: 0.68rem 0.9rem 0.68rem 2.5rem;
+      color: var(--white); font-family: 'Jost', sans-serif;
+      font-size: 0.84rem; font-weight: 300; outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .search-wrap input:focus { border-color: var(--teal-border); background: rgba(61,191,143,0.04); }
+    .search-wrap input::placeholder { color: var(--white-muted); }
+    .s-icon { position:absolute; left:0.78rem; top:50%; transform:translateY(-50%); color:var(--white-muted); font-size:0.85rem; pointer-events:none; }
+
+    /* DROPDOWN */
+    .dropdown {
+      background: var(--bg-mid); border: 1px solid var(--teal-border);
+      border-radius: 3px; max-height: 230px; overflow-y: auto;
+      margin-bottom: 0.9rem; display: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+    }
+    .dropdown.open { display: block; }
+    .di { padding: 0.72rem 1rem; cursor: pointer; border-bottom: 1px solid var(--border-mid); transition: background 0.15s; }
+    .di:last-child { border-bottom: none; }
+    .di:hover { background: var(--teal-faint); }
+    .di-t { font-family:'DM Mono',monospace; font-size:0.74rem; color:var(--teal); letter-spacing:0.05em; }
+    .di-n { font-size:0.81rem; color:var(--white); margin-top:2px; font-weight:300; }
+    .di-m { font-size:0.69rem; color:var(--white-muted); margin-top:2px; }
+    .dropdown::-webkit-scrollbar { width:4px; }
+    .dropdown::-webkit-scrollbar-thumb { background:var(--teal-dim); border-radius:2px; }
+
+    /* FUND LIST */
+    .fund-list { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.1rem; min-height:36px; }
+    .fund-row {
+      background: rgba(255,255,255,0.025); border: 1px solid var(--border);
+      border-radius: 3px; padding: 0.62rem 0.82rem;
+      display: flex; align-items: center; gap: 0.65rem;
+      transition: border-color 0.2s; animation: fu 0.2s ease;
+    }
+    @keyframes fu { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
+    .fund-row:hover { border-color: var(--teal-border); }
+    .fr-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .fr-tick { font-family:'DM Mono',monospace; font-size:0.74rem; color:var(--teal); min-width:48px; }
+    .fr-name { font-size:0.77rem; color:var(--white-dim); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:300; }
+    .fr-alloc { display:flex; align-items:center; gap:4px; }
+    .alloc-input {
+      width:50px; background:rgba(255,255,255,0.06); border:1px solid var(--border);
+      border-radius:3px; padding:0.27rem 0.38rem; color:var(--white);
+      font-family:'DM Mono',monospace; font-size:0.79rem; text-align:right; outline:none;
+      transition: border-color 0.2s;
+    }
+    .alloc-input:focus { border-color: var(--teal-border); }
+    .alloc-pct { color:var(--white-muted); font-size:0.74rem; }
+    .rm-btn {
+      background:none; border:none; cursor:pointer; color:var(--white-muted);
+      font-size:0.9rem; transition:color 0.2s; padding:2px 4px; border-radius:3px; line-height:1;
+    }
+    .rm-btn:hover { color:var(--red); background:rgba(224,96,96,0.08); }
+
+    /* ALLOC BAR */
+    .alloc-summary {
+      padding: 0.85rem 1rem; background: rgba(0,0,0,0.2);
+      border: 1px solid var(--border); border-radius: 3px;
+    }
+    .a-row { display:flex; justify-content:space-between; }
+    .a-label { font-size:0.69rem; color:var(--white-muted); letter-spacing:0.07em; }
+    .a-total { font-family:'DM Mono',monospace; font-size:0.79rem; }
+    .a-total.ok { color:var(--teal); } .a-total.over { color:var(--red); } .a-total.under { color:var(--white-dim); }
+    .a-bar-wrap { height:3px; background:rgba(255,255,255,0.07); border-radius:99px; margin:0.5rem 0; overflow:hidden; }
+    .a-bar-fill { height:100%; border-radius:99px; transition:width 0.35s ease, background 0.25s; background:var(--teal); }
+    .a-bar-fill.over { background:var(--red); }
+    .a-msg { font-size:0.69rem; color:var(--white-muted); }
+    .a-rem { font-family:'DM Mono',monospace; font-size:0.69rem; color:var(--white-muted); }
+
+    /* CONSTRAINTS */
+    .c-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+    .cf label {
+      font-size:0.59rem; font-weight:500; letter-spacing:0.15em;
+      text-transform:uppercase; color:var(--white-muted); display:block; margin-bottom:0.35rem;
+    }
+    .cf input, .cf select {
+      width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border);
+      border-radius:3px; padding:0.58rem 0.72rem; color:var(--white);
+      font-family:'Jost',sans-serif; font-size:0.82rem; font-weight:300;
+      outline:none; transition:border-color 0.2s; -webkit-appearance:none;
+    }
+    .cf input:focus, .cf select:focus { border-color: var(--teal-border); }
+    .cf select option { background:#141f17; }
+    .cf-full { grid-column:span 2; }
+
+    /* BUTTON */
+    .btn {
+      width:100%; margin-top:1.2rem; padding:0.88rem;
+      background:transparent; border:1px solid var(--teal);
+      border-radius:3px; color:var(--teal);
+      font-family:'Jost',sans-serif; font-size:0.7rem; font-weight:500;
+      letter-spacing:0.2em; text-transform:uppercase; cursor:pointer;
+      transition:background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover { background:var(--teal); color:var(--bg); box-shadow:0 0 28px rgba(61,191,143,0.22); }
+    .btn:disabled { opacity:0.35; cursor:not-allowed; }
+
+    /* RESULTS */
+    .results-col { display:flex; flex-direction:column; gap:1.5rem; }
+
+    /* STATS GRID */
+    .s-grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:1px; background:var(--border); border:1px solid var(--border); border-radius:4px; overflow:hidden;
+    }
+    .s-cell {
+      background:var(--bg-card); padding:1.25rem 1.35rem; transition:background 0.2s;
+    }
+    .s-cell:hover { background:var(--bg-hover); }
+    .s-cell .sl { font-size:0.59rem; font-weight:500; letter-spacing:0.17em; text-transform:uppercase; color:var(--white-muted); margin-bottom:0.55rem; }
+    .s-cell .sv { font-family:'Cormorant Garamond',serif; font-size:1.9rem; font-weight:300; line-height:1; color:var(--white); }
+    .s-cell .sv.teal { color:var(--teal); }
+    .s-cell .sv.pos  { color:var(--teal); }
+    .s-cell .sv.neg  { color:var(--red);  }
+    .s-cell .sv.gold { color:var(--gold); }
+    .s-cell .sn { font-size:0.67rem; color:var(--white-muted); margin-top:0.3rem; font-weight:300; }
+
+    /* PIE */
+    .chart-sec { display:grid; grid-template-columns:200px 1fr; gap:2rem; align-items:center; }
+    .pie-leg { display:flex; flex-direction:column; gap:0.52rem; }
+    .li { display:flex; align-items:center; gap:0.65rem; font-size:0.77rem; font-weight:300; }
+    .li-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .li-name { color:var(--white); flex:1; }
+    .li-pct { font-family:'DM Mono',monospace; font-size:0.74rem; color:var(--teal); }
+
+    /* TABLE */
+    .ht { width:100%; border-collapse:collapse; font-size:0.79rem; }
+    .ht th {
+      font-size:0.58rem; letter-spacing:0.14em; text-transform:uppercase;
+      color:var(--white-muted); text-align:left; padding:0 0.82rem 0.75rem;
+      border-bottom:1px solid var(--border); font-weight:500;
+    }
+    .ht th:not(:first-child) { text-align:right; }
+    .ht td { padding:0.67rem 0.82rem; border-bottom:1px solid var(--border-mid); color:var(--white); font-weight:300; }
+    .ht td:not(:first-child) { text-align:right; }
+    .ht .tt { font-family:'DM Mono',monospace; color:var(--teal); font-size:0.77rem; }
+    .ht td.pos { color:var(--teal); } .ht td.neg { color:var(--red); }
+    .ht tr:last-child td { border-bottom:none; }
+    .ht tr { transition:background 0.12s; }
+    .ht tr:hover td { background:rgba(255,255,255,0.02); }
+
+    /* VIOLATIONS */
+    .v-list { display:flex; flex-direction:column; gap:0.48rem; }
+    .v-chip {
+      padding:0.58rem 0.88rem; border-radius:3px; font-size:0.77rem; font-weight:300;
+      display:flex; align-items:flex-start; gap:0.65rem; line-height:1.5;
+    }
+    .v-chip .vi { flex-shrink:0; margin-top:1px; }
+    .v-chip.ok    { background:rgba(61,191,143,0.07); border:1px solid rgba(61,191,143,0.2); color:var(--teal); }
+    .v-chip.warn  { background:rgba(201,168,76,0.07); border:1px solid rgba(201,168,76,0.2); color:var(--gold); }
+    .v-chip.error { background:rgba(224,96,96,0.07);  border:1px solid rgba(224,96,96,0.2);  color:var(--red); }
+
+    /* EMPTY */
+    .empty { padding:5rem 2rem; text-align:center; }
+    .empty-glyph {
+      font-family:'Cormorant Garamond',serif; font-size:4rem; font-weight:300;
+      color:var(--teal); opacity:0.2; line-height:1; margin-bottom:1.2rem;
+    }
+    .empty p { font-size:0.85rem; color:var(--white-muted); line-height:1.8; font-weight:300; max-width:340px; margin:0 auto; }
+    .empty strong { color:var(--white-dim); font-weight:400; }
+
+    /* LOADING */
+    .loading { display:flex; gap:8px; justify-content:center; align-items:center; padding:4rem; }
+    .loading span { width:6px; height:6px; border-radius:50%; background:var(--teal); opacity:0.3; animation:bl 1.2s ease-in-out infinite; }
+    .loading span:nth-child(2) { animation-delay:0.2s; } .loading span:nth-child(3) { animation-delay:0.4s; }
+    @keyframes bl { 0%,100%{opacity:0.3;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+
+    /* BENCHMARK SELECTOR */
+    .bm-wrap { margin-top:1rem; }
+    .bm-label { font-size:0.59rem; font-weight:500; letter-spacing:0.15em; text-transform:uppercase; color:var(--white-muted); display:block; margin-bottom:0.55rem; }
+    .bm-grid { display:flex; flex-wrap:wrap; gap:0.4rem; }
+    .bm-chip {
+      padding:0.32rem 0.75rem; border-radius:2px; font-size:0.69rem; font-weight:400;
+      letter-spacing:0.04em; cursor:pointer; border:1px solid var(--border);
+      background:rgba(255,255,255,0.03); color:var(--white-muted);
+      transition:all 0.18s; user-select:none;
+    }
+    .bm-chip:hover { border-color:var(--teal-border); color:var(--white); }
+    .bm-chip.active { border-color:var(--teal); background:var(--teal-faint); color:var(--teal); }
+
+    /* EFFICIENT FRONTIER */
+    .ef-wrap { position:relative; }
+    .ef-svg { width:100%; display:block; overflow:visible; }
+    .ef-legend { display:flex; flex-wrap:wrap; gap:1.2rem; margin-top:1rem; }
+    .ef-li { display:flex; align-items:center; gap:0.5rem; font-size:0.72rem; font-weight:300; color:var(--white-muted); }
+    .ef-li-line { display:inline-block; width:20px; height:3px; border-radius:99px; }
+    .ef-li b { color:var(--white-dim); font-weight:400; }
+    .ef-tooltip {
+      position:absolute; pointer-events:none; background:#0d1710;
+      border:1px solid var(--teal-border); border-radius:4px;
+      padding:0.55rem 0.8rem; font-size:0.73rem; font-weight:300;
+      white-space:nowrap; opacity:0; transition:opacity 0.12s; z-index:20;
+      line-height:1.6;
+    }
+    .ef-tooltip .ttt { font-family:'DM Mono',monospace; color:var(--teal); font-weight:500; }
+
+    /* DISCLAIMER */
+    .disc {
+      border-top:1px solid var(--border); padding:2rem 3.5rem 3rem;
+      font-size:0.69rem; color:var(--white-muted); line-height:1.8; font-weight:300;
+    }
+    .disc strong { color:var(--white-dim); font-weight:500; font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; }
+
+    @media(max-width:960px){
+      header { padding:1.2rem 1.5rem; }
+      nav { display:none; }
+      .hero { padding:2.5rem 1.5rem 2rem; }
+      .app-wrap { grid-template-columns:1fr; padding:2rem 1.5rem 4rem; }
+      .s-grid { grid-template-columns:repeat(2,1fr); }
+      .chart-sec { grid-template-columns:1fr; }
+      .disc { padding:1.5rem 1.5rem 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TICKER TAPE -->
+<div class="ticker-wrap"><div class="ticker-track" id="tt"></div></div>
+
+<!-- HEADER -->
+<header>
+  <div>
+    <div class="brand-name">Witkowski Advisory Group</div>
+    <div class="brand-cred">CIPM <span>·</span> FSA Credential Holder</div>
+  </div>
+  <nav>
+    <a href="https://witkowskiadvisory.com">Home</a>
+    <a href="https://witkowskiadvisory.com/#services">Services</a>
+    <a href="https://witkowskiadvisory.com/#about">About</a>
+    <a href="#" class="active">Portfolio Tool</a>
+    <a href="https://witkowskiadvisory.com/#contact">Contact</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Portfolio Allocation Tool</div>
+  <h1>Model your<br/><em>portfolio.</em><br/><span class="dim">Built for finance.</span></h1>
+  <p class="hero-sub">Search publicly traded mutual funds, set target allocations, define constraints, and model projected metrics — powered by 5+ years of OCIO methodology.</p>
+  <div class="svc-row">
+    <span class="svc">Allocation</span><span class="svc-dot">·</span>
+    <span class="svc">Constraints</span><span class="svc-dot">·</span>
+    <span class="svc">Risk Modeling</span><span class="svc-dot">·</span>
+    <span class="svc">Fund Analysis</span>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-wrap">
+  <!-- LEFT -->
+  <div>
+    <div class="card">
+      <div class="card-title">01 &nbsp;·&nbsp; Select Funds</div>
+      <div class="search-wrap">
+        <span class="s-icon">⌕</span>
+        <input type="text" id="fundSearch" placeholder="Search by name or ticker…" autocomplete="off"/>
+      </div>
+      <div class="dropdown" id="fundDropdown"></div>
+      <div class="fund-list" id="fundList">
+        <div style="color:var(--white-muted);font-size:0.77rem;padding:0.4rem 0;font-weight:300;">Search and add funds above to begin.</div>
+      </div>
+      <div class="alloc-summary">
+        <div class="a-row">
+          <span class="a-label">Total Allocation</span>
+          <span class="a-total under" id="aTotal">0%</span>
+        </div>
+        <div class="a-bar-wrap"><div class="a-bar-fill" id="aBar" style="width:0%"></div></div>
+        <div class="a-row">
+          <span class="a-msg" id="aMsg">Add funds to begin</span>
+          <span class="a-rem" id="aRem">100% unallocated</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">02 &nbsp;·&nbsp; Portfolio Constraints</div>
+      <div class="c-grid">
+        <div class="cf"><label>Investment ($)</label><input type="number" id="investAmt" value="100000"/></div>
+        <div class="cf"><label>Time Horizon</label>
+          <select id="horizon">
+            <option value="1">1 Year</option><option value="3">3 Years</option>
+            <option value="5" selected>5 Years</option><option value="10">10 Years</option>
+            <option value="20">20 Years</option><option value="30">30 Years</option>
+          </select>
+        </div>
+        <div class="cf"><label>Max Single Fund (%)</label><input type="number" id="maxSingle" value="40"/></div>
+        <div class="cf"><label>Min Single Fund (%)</label><input type="number" id="minSingle" value="5"/></div>
+        <div class="cf"><label>Max Equity (%)</label><input type="number" id="maxEquity" value="80"/></div>
+        <div class="cf"><label>Min Fixed Income (%)</label><input type="number" id="minFixed" value="20"/></div>
+        <div class="cf cf-full"><label>Risk Profile</label>
+          <select id="riskProfile">
+            <option value="conservative">Conservative — Capital Preservation</option>
+            <option value="moderate" selected>Moderate — Balanced Growth</option>
+            <option value="aggressive">Aggressive — Maximum Growth</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" onclick="runAnalysis()">Analyze Portfolio</button>
+
+      <!-- BENCHMARK -->
+      <div class="bm-wrap">
+        <span class="bm-label">Compare Against Benchmark</span>
+        <div class="bm-grid" id="bmGrid">
+          <div class="bm-chip active" data-bm="none">None</div>
+          <div class="bm-chip" data-bm="r3000">Russell 3000</div>
+          <div class="bm-chip" data-bm="r1000">Russell 1000</div>
+          <div class="bm-chip" data-bm="r2000">Russell 2000</div>
+          <div class="bm-chip" data-bm="r1000g">Russell 1000 Growth</div>
+          <div class="bm-chip" data-bm="r1000v">Russell 1000 Value</div>
+          <div class="bm-chip" data-bm="sp500">S&amp;P 500</div>
+          <div class="bm-chip" data-bm="agg">Bloomberg Agg</div>
+          <div class="bm-chip" data-bm="univex">Bloomberg Univ ex-MBS</div>
+          <div class="bm-chip" data-bm="tips">Bloomberg TIPS</div>
+          <div class="bm-chip" data-bm="60_40">60/40 Blend</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="results-col" id="resultsCol">
+    <div class="card">
+      <div class="empty">
+        <div class="empty-glyph">◈</div>
+        <p>Add funds, set your allocations, then click <strong>Analyze Portfolio</strong> to model projected metrics, constraint checks, and portfolio composition.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="disc">
+  <strong>Important Disclosure</strong><br/>
+  This tool is provided for illustrative and educational purposes only. All projected returns, metrics, and valuations are hypothetical estimates derived from historical data and do not constitute a guarantee of future results. This is not investment advice. Past performance does not guarantee future results. Witkowski Advisory Group does not warrant the accuracy or completeness of any data presented herein. Please consult with a qualified financial professional before making any investment decisions.
+</div>
+
+<script>
+const FUNDS = [
+  // ── VANGUARD ──────────────────────────────────────────────────────────────
+  {ticker:'VFINX', name:'Vanguard 500 Index Fund',             type:'Equity',       cat:'US Large Blend',       er:0.14,  r5:14.2, sd:15.8, family:'Vanguard'},
+  {ticker:'VTSAX', name:'Vanguard Total Stock Market Index',   type:'Equity',       cat:'US Large Blend',       er:0.04,  r5:13.9, sd:16.1, family:'Vanguard'},
+  {ticker:'VBTLX', name:'Vanguard Total Bond Market Index',    type:'Fixed Income', cat:'Intermediate Bond',    er:0.05,  r5:1.2,  sd:5.2,  family:'Vanguard'},
+  {ticker:'VWELX', name:'Vanguard Wellington Fund',            type:'Balanced',     cat:'Moderate Allocation',  er:0.25,  r5:9.4,  sd:10.8, family:'Vanguard'},
+  {ticker:'VWINX', name:'Vanguard Wellesley Income Fund',      type:'Balanced',     cat:'Conservative Alloc.',  er:0.23,  r5:5.8,  sd:6.7,  family:'Vanguard'},
+  {ticker:'VEXPX', name:'Vanguard Explorer Fund',              type:'Equity',       cat:'US Small Growth',      er:0.41,  r5:10.1, sd:20.3, family:'Vanguard'},
+  {ticker:'VEIEX', name:'Vanguard Emerging Mkts Index',        type:'Equity',       cat:'Diversified EM',       er:0.14,  r5:5.8,  sd:18.9, family:'Vanguard'},
+  {ticker:'VGTSX', name:'Vanguard Total Intl Stock Index',     type:'Equity',       cat:'Foreign Large Blend',  er:0.17,  r5:7.2,  sd:16.2, family:'Vanguard'},
+  {ticker:'VGHCX', name:'Vanguard Health Care Fund',           type:'Equity',       cat:'Health',               er:0.34,  r5:12.3, sd:14.1, family:'Vanguard'},
+  {ticker:'VGSTX', name:'Vanguard Star Fund',                  type:'Balanced',     cat:'Moderate Allocation',  er:0.31,  r5:8.6,  sd:9.3,  family:'Vanguard'},
+  // ── FIDELITY ──────────────────────────────────────────────────────────────
+  {ticker:'FXAIX', name:'Fidelity 500 Index Fund',             type:'Equity',       cat:'US Large Blend',       er:0.015, r5:14.3, sd:15.8, family:'Fidelity'},
+  {ticker:'FSKAX', name:'Fidelity Total Market Index',         type:'Equity',       cat:'US Large Blend',       er:0.015, r5:13.8, sd:16.0, family:'Fidelity'},
+  {ticker:'FBGRX', name:'Fidelity Blue Chip Growth Fund',      type:'Equity',       cat:'US Large Growth',      er:0.69,  r5:18.2, sd:21.4, family:'Fidelity'},
+  {ticker:'FCNTX', name:'Fidelity Contrafund',                 type:'Equity',       cat:'US Large Growth',      er:0.81,  r5:16.5, sd:18.9, family:'Fidelity'},
+  {ticker:'FMAGX', name:'Fidelity Magellan Fund',              type:'Equity',       cat:'US Large Blend',       er:0.77,  r5:15.1, sd:17.3, family:'Fidelity'},
+  {ticker:'FBALX', name:'Fidelity Balanced Fund',              type:'Balanced',     cat:'Moderate Allocation',  er:0.51,  r5:9.8,  sd:10.2, family:'Fidelity'},
+  {ticker:'FTBFX', name:'Fidelity Total Bond Fund',            type:'Fixed Income', cat:'Intermediate Bond',    er:0.45,  r5:1.4,  sd:5.5,  family:'Fidelity'},
+  {ticker:'FDIVX', name:'Fidelity Diversified International',  type:'Equity',       cat:'Foreign Large Growth', er:0.99,  r5:8.1,  sd:16.8, family:'Fidelity'},
+  // ── T. ROWE PRICE ─────────────────────────────────────────────────────────
+  {ticker:'PRGFX', name:'T. Rowe Price Growth Stock Fund',     type:'Equity',       cat:'US Large Growth',      er:0.64,  r5:16.8, sd:20.1, family:'T. Rowe Price'},
+  {ticker:'PRWCX', name:'T. Rowe Price Capital Appreciation',  type:'Balanced',     cat:'Moderate Allocation',  er:0.71,  r5:10.2, sd:9.8,  family:'T. Rowe Price'},
+  {ticker:'PRMSX', name:'T. Rowe Price Emerging Mkts Stock',   type:'Equity',       cat:'Diversified EM',       er:1.20,  r5:5.1,  sd:20.2, family:'T. Rowe Price'},
+  {ticker:'PTTAX', name:'T. Rowe Price US Bond Enhanced Idx',  type:'Fixed Income', cat:'Intermediate Bond',    er:0.40,  r5:1.1,  sd:5.0,  family:'T. Rowe Price'},
+  // ── AMERICAN FUNDS ────────────────────────────────────────────────────────
+  {ticker:'AGTHX', name:'American Funds Growth Fund of Amer.', type:'Equity',       cat:'US Large Growth',      er:0.64,  r5:15.7, sd:18.4, family:'American Funds'},
+  {ticker:'AIVSX', name:'American Funds Invmt Co. of America', type:'Equity',       cat:'US Large Blend',       er:0.58,  r5:12.8, sd:14.6, family:'American Funds'},
+  {ticker:'AWSHX', name:'American Funds Washington Mutual',    type:'Equity',       cat:'US Large Blend',       er:0.57,  r5:12.1, sd:13.9, family:'American Funds'},
+  // ── PIMCO ─────────────────────────────────────────────────────────────────
+  {ticker:'PTTRX', name:'PIMCO Total Return Fund',             type:'Fixed Income', cat:'Intermediate Bond',    er:0.83,  r5:0.9,  sd:5.1,  family:'PIMCO'},
+  {ticker:'PFORX', name:'PIMCO Foreign Bond (USD-Hedged)',     type:'Fixed Income', cat:'World Bond',           er:0.92,  r5:1.2,  sd:4.8,  family:'PIMCO'},
+  // ── SCHWAB ────────────────────────────────────────────────────────────────
+  {ticker:'SWPPX', name:'Schwab S&P 500 Index Fund',           type:'Equity',       cat:'US Large Blend',       er:0.02,  r5:14.2, sd:15.8, family:'Schwab'},
+  {ticker:'SWTSX', name:'Schwab Total Stock Market Index',     type:'Equity',       cat:'US Large Blend',       er:0.03,  r5:13.7, sd:16.0, family:'Schwab'},
+  // ── DODGE & COX ───────────────────────────────────────────────────────────
+  {ticker:'DODFX', name:'Dodge & Cox International Stock',     type:'Equity',       cat:'Foreign Large Value',  er:0.62,  r5:8.9,  sd:17.2, family:'Dodge & Cox'},
+  {ticker:'DODGX', name:'Dodge & Cox Stock Fund',              type:'Equity',       cat:'US Large Value',       er:0.52,  r5:13.1, sd:16.5, family:'Dodge & Cox'},
+  {ticker:'DODIX', name:'Dodge & Cox Income Fund',             type:'Fixed Income', cat:'Intermediate Bond',    er:0.41,  r5:1.8,  sd:5.3,  family:'Dodge & Cox'},
+  // ── WESPATH ───────────────────────────────────────────────────────────────
+  // Institutional funds for United Methodist Church-related organizations.
+  // Tickers reflect internal fund codes; performance data net-of-fees per Wespath.
+  // Expense ratios sourced from Wespath Investment Funds Description – P Series (Jan 2025).
+  // USEF confirmed ~0.58% by user; other funds scaled consistently from IFD fee tables.
+  {ticker:'USEF',  name:'Wespath U.S. Equity Fund',            type:'Equity',       cat:'US Multi-Cap',         er:0.58,  r5:12.8, sd:16.4, family:'Wespath'},
+  {ticker:'USEIF', name:'Wespath U.S. Equity Index Fund',      type:'Equity',       cat:'US Large Blend',       er:0.13,  r5:13.5, sd:15.9, family:'Wespath'},
+  {ticker:'IEF',   name:'Wespath International Equity Fund',   type:'Equity',       cat:'Foreign Large Blend',  er:0.62,  r5:6.9,  sd:17.1, family:'Wespath'},
+  {ticker:'FIF',   name:'Wespath Fixed Income Fund',           type:'Fixed Income', cat:'Intermediate Bond',    er:0.38,  r5:1.3,  sd:5.4,  family:'Wespath'},
+  {ticker:'IPF',   name:'Wespath Inflation Protection Fund',   type:'Fixed Income', cat:'Inflation-Protected',  er:0.40,  r5:3.1,  sd:6.8,  family:'Wespath'},
+  {ticker:'MAF',   name:'Wespath Multiple Asset Fund',         type:'Balanced',     cat:'Moderate Allocation',  er:0.52,  r5:8.7,  sd:10.6, family:'Wespath'},
+  {ticker:'ETFIF', name:'Wespath Extended Term Fixed Income',  type:'Fixed Income', cat:'Long-Term Bond',       er:0.36,  r5:0.4,  sd:12.1, family:'Wespath'},
+  {ticker:'SVCEF', name:'Wespath Social Values Choice Equity', type:'Equity',       cat:'US Large Blend (ESG)', er:0.15,  r5:12.2, sd:15.7, family:'Wespath'},
+  {ticker:'SVCBF', name:'Wespath Social Values Choice Bond',   type:'Fixed Income', cat:'Intermediate Bond (ESG)',er:0.38, r5:1.1,  sd:5.2,  family:'Wespath'},
+  {ticker:'STIF',  name:'Wespath Short Term Investment Fund',  type:'Fixed Income', cat:'Money Market',         er:0.19,  r5:2.8,  sd:0.5,  family:'Wespath'},
+  // ── GUIDESTONE ────────────────────────────────────────────────────────────
+  // Faith-based funds for Southern Baptist Convention & affiliated orgs.
+  {ticker:'GCAYX', name:'GuideStone Conservative Allocation',  type:'Balanced',     cat:'Conservative Alloc.',  er:0.71,  r5:4.8,  sd:6.2,  family:'GuideStone'},
+  {ticker:'GBAYX', name:'GuideStone Balanced Allocation',      type:'Balanced',     cat:'Moderate Allocation',  er:0.74,  r5:6.3,  sd:9.1,  family:'GuideStone'},
+  {ticker:'GGRYX', name:'GuideStone Growth Allocation',        type:'Balanced',     cat:'Moderately Aggressive',er:0.79,  r5:7.3,  sd:12.4, family:'GuideStone'},
+  {ticker:'GAGYX', name:'GuideStone Aggressive Allocation',    type:'Equity',       cat:'Aggressive Allocation',er:0.82,  r5:8.5,  sd:16.2, family:'GuideStone'},
+  {ticker:'GEQYX', name:'GuideStone Equity Index Fund',        type:'Equity',       cat:'US Large Blend',       er:0.35,  r5:13.6, sd:15.7, family:'GuideStone'},
+  {ticker:'GGEYX', name:'GuideStone Growth Equity Fund',       type:'Equity',       cat:'US Large Growth',      er:0.92,  r5:14.1, sd:19.8, family:'GuideStone'},
+  {ticker:'GVEYX', name:'GuideStone Value Equity Fund',        type:'Equity',       cat:'US Large Value',       er:0.89,  r5:10.9, sd:15.3, family:'GuideStone'},
+  {ticker:'GSCYX', name:'GuideStone Small Cap Equity Fund',    type:'Equity',       cat:'US Small Blend',       er:1.05,  r5:8.2,  sd:21.6, family:'GuideStone'},
+  {ticker:'GIEYX', name:'GuideStone International Equity',     type:'Equity',       cat:'Foreign Large Blend',  er:1.02,  r5:6.1,  sd:16.9, family:'GuideStone'},
+  {ticker:'GMDYX', name:'GuideStone Medium-Duration Bond',     type:'Fixed Income', cat:'Intermediate Bond',    er:0.58,  r5:1.2,  sd:5.3,  family:'GuideStone'},
+  {ticker:'GLDYX', name:'GuideStone Low-Duration Bond Fund',   type:'Fixed Income', cat:'Short-Term Bond',      er:0.55,  r5:2.1,  sd:2.8,  family:'GuideStone'},
+  {ticker:'GGBEX', name:'GuideStone Global Bond Fund',         type:'Fixed Income', cat:'World Bond',           er:0.78,  r5:0.8,  sd:5.9,  family:'GuideStone'},
+  {ticker:'GMBYX', name:'GuideStone Impact Bond Fund',         type:'Fixed Income', cat:'Intermediate Bond (ESG)',er:0.62, r5:1.4,  sd:5.1,  family:'GuideStone'},
+  {ticker:'GDMYX', name:'GuideStone Defensive Mkt Strategies', type:'Balanced',     cat:'Conservative Alloc.',  er:0.91,  r5:6.2,  sd:7.8,  family:'GuideStone'},
+  {ticker:'GFSYX', name:'GuideStone Strategic Alternatives',   type:'Balanced',     cat:'Multialternative',     er:1.38,  r5:4.3,  sd:5.6,  family:'GuideStone'},
+  {ticker:'GREYX', name:'GuideStone Global Real Estate Sec.',  type:'Equity',       cat:'Real Estate',          er:0.95,  r5:3.8,  sd:18.4, family:'GuideStone'},
+  {ticker:'GMWYX', name:'GuideStone MyDestination 2025',       type:'Balanced',     cat:'Target Date 2025',     er:0.72,  r5:5.1,  sd:7.2,  family:'GuideStone'},
+  {ticker:'GMHYX', name:'GuideStone MyDestination 2035',       type:'Balanced',     cat:'Target Date 2035',     er:0.75,  r5:6.8,  sd:10.3, family:'GuideStone'},
+  {ticker:'GMYYX', name:'GuideStone MyDestination 2045',       type:'Balanced',     cat:'Target Date 2045',     er:0.77,  r5:7.9,  sd:13.1, family:'GuideStone'},
+  {ticker:'GMGYX', name:'GuideStone MyDestination 2055',       type:'Equity',       cat:'Target Date 2055',     er:0.79,  r5:8.7,  sd:15.4, family:'GuideStone'},
+  // ── TIAA (Nuveen) ─────────────────────────────────────────────────────────
+  // TIAA-CREF funds now branded as Nuveen; widely available through retirement plans.
+  {ticker:'TIEIX', name:'TIAA-CREF Equity Index Fund (Inst.)', type:'Equity',       cat:'US Large Blend',       er:0.04,  r5:10.8, sd:15.7, family:'TIAA'},
+  {ticker:'TILGX', name:'TIAA-CREF Large-Cap Growth Fund',     type:'Equity',       cat:'US Large Growth',      er:0.45,  r5:15.3, sd:20.1, family:'TIAA'},
+  {ticker:'TIGRX', name:'TIAA-CREF Growth & Income Fund',      type:'Equity',       cat:'US Large Blend',       er:0.49,  r5:12.6, sd:15.2, family:'TIAA'},
+  {ticker:'TICRX', name:'TIAA-CREF Social Choice Equity',      type:'Equity',       cat:'US Large Blend (ESG)', er:0.27,  r5:12.1, sd:15.4, family:'TIAA'},
+  {ticker:'TIIEX', name:'TIAA-CREF International Equity Idx',  type:'Equity',       cat:'Foreign Large Blend',  er:0.06,  r5:7.0,  sd:16.3, family:'TIAA'},
+  {ticker:'TCIEX', name:'TIAA-CREF International Equity Fund', type:'Equity',       cat:'Foreign Large Blend',  er:0.55,  r5:6.6,  sd:16.8, family:'TIAA'},
+  {ticker:'TISBX', name:'TIAA-CREF Small-Cap Blend Index',     type:'Equity',       cat:'US Small Blend',       er:0.06,  r5:8.3,  sd:20.9, family:'TIAA'},
+  {ticker:'TIORX', name:'TIAA-CREF Core Bond Fund',            type:'Fixed Income', cat:'Intermediate Bond',    er:0.42,  r5:1.1,  sd:5.4,  family:'TIAA'},
+  {ticker:'TBIRX', name:'TIAA-CREF Bond Index Fund (Inst.)',   type:'Fixed Income', cat:'Intermediate Bond',    er:0.04,  r5:1.0,  sd:5.2,  family:'TIAA'},
+  {ticker:'TSCSX', name:'TIAA-CREF Social Choice Bond Fund',   type:'Fixed Income', cat:'Intermediate Bond (ESG)',er:0.33, r5:0.9,  sd:5.3,  family:'TIAA'},
+  {ticker:'TRIRX', name:'TIAA-CREF Large-Cap Growth Idx (Ret)',type:'Equity',       cat:'US Large Growth',      er:0.24,  r5:18.4, sd:21.2, family:'TIAA'},
+  {ticker:'TRAIX', name:'TIAA-CREF Real Estate Securities',    type:'Equity',       cat:'Real Estate',          er:0.50,  r5:3.5,  sd:18.7, family:'TIAA'},
+  {ticker:'TCMIX', name:'TIAA-CREF Money Market Fund (Inst.)', type:'Fixed Income', cat:'Money Market',         er:0.17,  r5:2.6,  sd:0.3,  family:'TIAA'},
+  {ticker:'TIRTX', name:'TIAA-CREF Lifecycle 2030 Fund',       type:'Balanced',     cat:'Target Date 2030',     er:0.42,  r5:7.1,  sd:10.8, family:'TIAA'},
+  {ticker:'TCLTX', name:'TIAA-CREF Lifecycle 2040 Fund',       type:'Balanced',     cat:'Target Date 2040',     er:0.44,  r5:8.6,  sd:13.4, family:'TIAA'},
+  {ticker:'TCLFX', name:'TIAA-CREF Lifecycle 2050 Fund',       type:'Balanced',     cat:'Target Date 2050',     er:0.45,  r5:9.4,  sd:15.1, family:'TIAA'},
+];
+
+const COLORS = ['#3dbf8f','#5b9bd4','#c9a84c','#e06060','#9b7ec8','#4cbfce','#e09a4c','#7bce9b','#d46b8f','#8faacc'];
+
+// Ticker tape
+(function(){
+  const data = [
+    {s:'SPX', v:'5,218.04', c:'+0.52%', u:true}, {s:'NDX', v:'18,231.07', c:'+0.87%', u:true},
+    {s:'DJIA',v:'39,118.86',c:'-0.14%', u:false},{s:'VIX', v:'14.82',     c:'-3.12%', u:false},
+    {s:'TNX', v:'4.312',    c:'+0.02',  u:true}, {s:'DXY', v:'104.18',    c:'-0.21%', u:false},
+    {s:'GLD', v:'186.42',   c:'+0.61%', u:true}, {s:'BND', v:'72.14',     c:'+0.18%', u:true},
+  ];
+  let h = '';
+  for(let i=0;i<2;i++) data.forEach(d => {
+    h += `<div class="ticker-item"><span>${d.s}</span><span>${d.v}</span><span class="${d.u?'up':'dn'}">${d.c}</span></div>`;
+  });
+  document.getElementById('tt').innerHTML = h;
+})();
+
+let portfolio = [];
+
+// Search
+document.getElementById('fundSearch').addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  const dd = document.getElementById('fundDropdown');
+  if(!q){ dd.classList.remove('open'); return; }
+  const hits = FUNDS.filter(f =>
+    f.ticker.toLowerCase().includes(q) ||
+    f.name.toLowerCase().includes(q) ||
+    (f.family && f.family.toLowerCase().includes(q))
+  ).slice(0,10);
+  if(!hits.length){
+    dd.innerHTML = `<div class="di"><span class="di-n" style="color:var(--white-muted)">No funds found</span></div>`;
+  } else {
+    dd.innerHTML = hits.map(f=>`
+      <div class="di" onclick="addFund('${f.ticker}')">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="di-t">${f.ticker}</div>
+          <div style="font-size:0.68rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.07);color:var(--white-muted)">${f.family||''}</div>
+        </div>
+        <div class="di-n">${f.name}</div>
+        <div class="di-m">${f.cat} &nbsp;·&nbsp; ER ${f.er}% &nbsp;·&nbsp; 5Y ${f.r5>=0?'+':''}${f.r5}%</div>
+      </div>`).join('');
+  }
+  dd.classList.add('open');
+});
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.search-wrap') && !e.target.closest('#fundDropdown'))
+    document.getElementById('fundDropdown').classList.remove('open');
+});
+
+function addFund(ticker){
+  if(portfolio.find(p=>p.fund.ticker===ticker)){
+    document.getElementById('fundDropdown').classList.remove('open');
+    document.getElementById('fundSearch').value = '';
+    return;
+  }
+  const fund = FUNDS.find(f=>f.ticker===ticker);
+  const used = portfolio.reduce((s,p)=>s+p.alloc,0);
+  const sug  = Math.max(0, Math.min(100-used, Math.round(100/(portfolio.length+1))));
+  portfolio.push({fund, alloc:sug});
+  document.getElementById('fundDropdown').classList.remove('open');
+  document.getElementById('fundSearch').value = '';
+  renderFunds();
+}
+function removeFund(ticker){
+  portfolio = portfolio.filter(p=>p.fund.ticker!==ticker);
+  renderFunds();
+}
+function updateAlloc(ticker, val){
+  const e = portfolio.find(p=>p.fund.ticker===ticker);
+  if(e) e.alloc = Math.max(0, Math.min(100, parseFloat(val)||0));
+  updateBar();
+}
+
+function renderFunds(){
+  const el = document.getElementById('fundList');
+  if(!portfolio.length){
+    el.innerHTML = `<div style="color:var(--white-muted);font-size:0.77rem;padding:0.4rem 0;font-weight:300;">Search and add funds above to begin.</div>`;
+    updateBar(); return;
+  }
+  el.innerHTML = portfolio.map((p,i)=>`
+    <div class="fund-row">
+      <div class="fr-dot" style="background:${COLORS[i%COLORS.length]}"></div>
+      <span class="fr-tick">${p.fund.ticker}</span>
+      <span class="fr-name">${p.fund.name}</span>
+      <div class="fr-alloc">
+        <input class="alloc-input" type="number" value="${p.alloc}" min="0" max="100"
+          oninput="updateAlloc('${p.fund.ticker}',this.value)"
+          onchange="updateAlloc('${p.fund.ticker}',this.value)"/>
+        <span class="alloc-pct">%</span>
+      </div>
+      <button class="rm-btn" onclick="removeFund('${p.fund.ticker}')">✕</button>
+    </div>`).join('');
+  updateBar();
+}
+
+function updateBar(){
+  const total = portfolio.reduce((s,p)=>s+p.alloc,0);
+  const bar = document.getElementById('aBar');
+  const tot = document.getElementById('aTotal');
+  const msg = document.getElementById('aMsg');
+  const rem = document.getElementById('aRem');
+  bar.style.width = Math.min(100,total)+'%';
+  tot.textContent = total.toFixed(0)+'%';
+  if(total>100){
+    bar.className='a-bar-fill over'; tot.className='a-total over';
+    msg.textContent=`Over-allocated by ${(total-100).toFixed(0)}%`; rem.textContent='';
+  } else if(total===100){
+    bar.className='a-bar-fill'; tot.className='a-total ok';
+    msg.textContent='✓ Fully allocated'; rem.textContent='';
+  } else {
+    bar.className='a-bar-fill'; tot.className='a-total under';
+    msg.textContent='Not fully allocated';
+    rem.textContent=(100-total).toFixed(0)+'% unallocated';
+  }
+}
+
+// ── BENCHMARKS ────────────────────────────────────────────────────────────────
+const BENCHMARKS = {
+  none:    { label:'None',                  r5:null,  sd:null  },
+  r3000:   { label:'Russell 3000',          r5:13.9,  sd:16.2  },
+  r1000:   { label:'Russell 1000',          r5:14.1,  sd:15.9  },
+  r2000:   { label:'Russell 2000',          r5:8.1,   sd:21.4  },
+  r1000g:  { label:'Russell 1000 Growth',   r5:18.6,  sd:19.8  },
+  r1000v:  { label:'Russell 1000 Value',    r5:9.4,   sd:14.3  },
+  sp500:   { label:'S&P 500',               r5:14.2,  sd:15.8  },
+  agg:     { label:'Bloomberg Aggregate',   r5:0.6,   sd:5.1   },
+  univex:  { label:'Bloomberg Univ ex-MBS', r5:0.9,   sd:5.5   },
+  tips:    { label:'Bloomberg TIPS',        r5:3.2,   sd:6.8   },
+  '60_40': { label:'60/40 Blend',           r5:9.0,   sd:10.2  },
+};
+
+// Benchmark chip toggle (single-select)
+document.getElementById('bmGrid').addEventListener('click', function(e){
+  const chip = e.target.closest('.bm-chip');
+  if(!chip) return;
+  document.querySelectorAll('.bm-chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+});
+function getActiveBenchmark(){
+  const chip = document.querySelector('.bm-chip.active');
+  return chip ? chip.dataset.bm : 'none';
+}
+
+// ── EFFICIENT FRONTIER ENGINE ─────────────────────────────────────────────────
+// Generates unconstrained and constrained frontiers from the current fund set.
+// Uses a simplified mean-variance approach with correlation-adjusted covariance.
+
+function buildFrontier(funds, constraints, numPoints=80){
+  if(funds.length < 2) return null;
+  const n = funds.length;
+
+  // Estimate correlation matrix — same family → 0.85, same type → 0.65, else 0.35
+  function corr(a, b){
+    if(a.ticker === b.ticker) return 1;
+    if(a.family === b.family) return 0.82;
+    if(a.type === b.type) return 0.62;
+    if((a.type==='Equity'&&b.type==='Fixed Income')||(a.type==='Fixed Income'&&b.type==='Equity')) return -0.12;
+    return 0.32;
+  }
+  // Covariance matrix
+  const cov = Array.from({length:n},(_,i)=>
+    Array.from({length:n},(_,j)=> corr(funds[i],funds[j]) * (funds[i].sd/100) * (funds[j].sd/100))
+  );
+
+  function portStats(w){
+    let ret = 0, varP = 0;
+    for(let i=0;i<n;i++) ret += w[i]*((funds[i].r5 - funds[i].er)/100);
+    for(let i=0;i<n;i++) for(let j=0;j<n;j++) varP += w[i]*w[j]*cov[i][j];
+    return { ret: ret*100, sd: Math.sqrt(varP)*100 };
+  }
+
+  // Parametric sweep: for each target return, minimize variance
+  // Simplified: sample many random + directed portfolios, trace pareto-optimal set
+  const points = [];
+  const rng = () => Math.random();
+
+  // Generate candidate portfolios
+  function samplePort(constrained){
+    const w = new Array(n).fill(0);
+    let rem = 1;
+    const order = [...Array(n).keys()].sort(()=>rng()-0.5);
+    for(let k=0;k<n-1;k++){
+      const i = order[k];
+      let lo = 0, hi = rem;
+      if(constrained){
+        lo = constraints.minSingle/100;
+        hi = Math.min(rem, constraints.maxSingle/100);
+      }
+      if(lo > hi) { return null; }
+      w[i] = lo + rng()*(hi-lo);
+      rem -= w[i];
+    }
+    w[order[n-1]] = rem;
+    if(constrained && (w[order[n-1]] < constraints.minSingle/100 || w[order[n-1]] > constraints.maxSingle/100)) return null;
+    if(constrained){
+      const eqW = funds.reduce((s,f,i)=>s+(f.type==='Equity'?w[i]:(f.type==='Balanced'?w[i]*0.6:0)),0);
+      const fxW = funds.reduce((s,f,i)=>s+(f.type==='Fixed Income'?w[i]:(f.type==='Balanced'?w[i]*0.4:0)),0);
+      if(eqW > constraints.maxEquity/100) return null;
+      if(fxW < constraints.minFixed/100)  return null;
+    }
+    return w;
+  }
+
+  for(let iter=0;iter<2400;iter++){
+    // Unconstrained
+    const wu = samplePort(false);
+    if(wu){ const s=portStats(wu); points.push({...s, constrained:false, w:wu}); }
+    // Constrained
+    const wc = samplePort(true);
+    if(wc){ const s=portStats(wc); points.push({...s, constrained:true, w:wc}); }
+  }
+
+  // Always include the actual portfolio point
+  const actualW = funds.map(f => {
+    const p = portfolio.find(p=>p.fund.ticker===f.ticker);
+    return p ? p.alloc/100 : 0;
+  });
+  const actualS = portStats(actualW);
+  points.push({...actualS, constrained:false, isActual:true, w:actualW});
+
+  // Build efficient frontiers: for each bin of sd, keep max-return point
+  function buildCurve(pts){
+    const sorted = [...pts].sort((a,b)=>a.sd-b.sd);
+    const minSd = sorted[0].sd, maxSd = sorted[sorted.length-1].sd;
+    const bins = numPoints;
+    const step = (maxSd - minSd) / bins;
+    const curve = [];
+    for(let b=0;b<bins;b++){
+      const lo = minSd + b*step, hi = lo+step;
+      const inBin = pts.filter(p=>p.sd>=lo && p.sd<hi);
+      if(inBin.length) curve.push(inBin.reduce((best,p)=>p.ret>best.ret?p:best));
+    }
+    return curve;
+  }
+
+  const uncPts = points.filter(p=>!p.constrained);
+  const conPts = points.filter(p=>p.constrained);
+  return {
+    unconstrained: buildCurve(uncPts),
+    constrained:   conPts.length > 5 ? buildCurve(conPts) : [],
+    allUnconstrained: uncPts,
+    allConstrained: conPts,
+    actual: points.find(p=>p.isActual),
+    maxSharpe: uncPts.reduce((b,p)=>((p.ret-4.5)/p.sd > (b.ret-4.5)/b.sd)?p:b, uncPts[0]),
+    minVol: uncPts.reduce((b,p)=>p.sd<b.sd?p:b, uncPts[0]),
+  };
+}
+
+function renderFrontier(frontier, benchmark, containerId){
+  const container = document.getElementById(containerId);
+  if(!frontier || frontier.unconstrained.length < 3){ container.innerHTML='<div style="color:var(--white-muted);font-size:0.8rem;padding:1rem">Add at least 2 funds with different risk/return profiles to generate the frontier.</div>'; return; }
+
+  const W=680, H=340, PAD={top:28, right:32, bottom:48, left:52};
+  const pw = W-PAD.left-PAD.right, ph = H-PAD.top-PAD.bottom;
+
+  // Collect all points for scale
+  const allPts = [
+    ...frontier.unconstrained,
+    ...frontier.constrained,
+    frontier.actual,
+    frontier.maxSharpe,
+    frontier.minVol,
+  ].filter(Boolean);
+  if(benchmark && BENCHMARKS[benchmark] && BENCHMARKS[benchmark].r5 !== null){
+    allPts.push({ sd: BENCHMARKS[benchmark].sd, ret: BENCHMARKS[benchmark].r5 });
+  }
+
+  const sdMin = Math.max(0, Math.min(...allPts.map(p=>p.sd)) - 1);
+  const sdMax = Math.max(...allPts.map(p=>p.sd)) + 1;
+  const retMin = Math.min(...allPts.map(p=>p.ret)) - 1;
+  const retMax = Math.max(...allPts.map(p=>p.ret)) + 1;
+
+  const sx = sd  => PAD.left + (sd  - sdMin)  / (sdMax  - sdMin)  * pw;
+  const sy = ret => PAD.top  + (1 - (ret - retMin) / (retMax - retMin)) * ph;
+
+  function curveToPath(pts){
+    if(!pts.length) return '';
+    const sorted = [...pts].sort((a,b)=>a.sd-b.sd);
+    return sorted.map((p,i)=>`${i===0?'M':'L'}${sx(p.sd).toFixed(1)},${sy(p.ret).toFixed(1)}`).join(' ');
+  }
+
+  // Grid lines
+  const sdTicks = 5, retTicks = 5;
+  let gridLines = '';
+  for(let i=0;i<=sdTicks;i++){
+    const v = sdMin + (sdMax-sdMin)*i/sdTicks;
+    const x = sx(v);
+    gridLines += `<line x1="${x}" y1="${PAD.top}" x2="${x}" y2="${PAD.top+ph}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+    gridLines += `<text x="${x}" y="${PAD.top+ph+16}" text-anchor="middle" fill="#5a6b5d" font-size="9" font-family="DM Mono,monospace">${v.toFixed(1)}%</text>`;
+  }
+  for(let i=0;i<=retTicks;i++){
+    const v = retMin + (retMax-retMin)*i/retTicks;
+    const y = sy(v);
+    gridLines += `<line x1="${PAD.left}" y1="${y}" x2="${PAD.left+pw}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+    gridLines += `<text x="${PAD.left-8}" y="${y+3}" text-anchor="end" fill="#5a6b5d" font-size="9" font-family="DM Mono,monospace">${v.toFixed(1)}%</text>`;
+  }
+
+  // Axis labels
+  const axisLabels = `
+    <text x="${PAD.left + pw/2}" y="${H-6}" text-anchor="middle" fill="#5a6b5d" font-size="10" font-family="Jost,sans-serif" letter-spacing="1">RISK (σ %)</text>
+    <text x="12" y="${PAD.top + ph/2}" text-anchor="middle" fill="#5a6b5d" font-size="10" font-family="Jost,sans-serif" letter-spacing="1" transform="rotate(-90,12,${PAD.top+ph/2})">RETURN (%)</text>`;
+
+  // Frontier curves
+  const uncPath = curveToPath(frontier.unconstrained);
+  const conPath = curveToPath(frontier.constrained);
+
+  // Cloud of sampled points (subtle background dots)
+  const cloudDots = frontier.allUnconstrained.slice(0,300).map(p=>
+    `<circle cx="${sx(p.sd).toFixed(1)}" cy="${sy(p.ret).toFixed(1)}" r="1.5" fill="rgba(61,191,143,0.07)"/>`
+  ).join('') + frontier.allConstrained.slice(0,200).map(p=>
+    `<circle cx="${sx(p.sd).toFixed(1)}" cy="${sy(p.ret).toFixed(1)}" r="1.5" fill="rgba(201,168,76,0.08)"/>`
+  ).join('');
+
+  // Benchmark marker
+  let bmMark = '';
+  const bm = BENCHMARKS[benchmark];
+  if(bm && bm.r5 !== null){
+    const bx = sx(bm.sd), by = sy(bm.r5);
+    bmMark = `
+      <line x1="${bx-7}" y1="${by}" x2="${bx+7}" y2="${by}" stroke="#5b9bd4" stroke-width="2"/>
+      <line x1="${bx}" y1="${by-7}" x2="${bx}" y2="${by+7}" stroke="#5b9bd4" stroke-width="2"/>
+      <circle cx="${bx}" cy="${by}" r="5" fill="none" stroke="#5b9bd4" stroke-width="1.5"/>
+      <text x="${bx+10}" y="${by-6}" fill="#5b9bd4" font-size="9" font-family="Jost,sans-serif">${bm.label}</text>`;
+  }
+
+  // Special points
+  const ac = frontier.actual;
+  const ms = frontier.maxSharpe;
+  const mv = frontier.minVol;
+
+  const actualMark = ac ? `
+    <circle cx="${sx(ac.sd)}" cy="${sy(ac.ret)}" r="7" fill="none" stroke="#3dbf8f" stroke-width="2"/>
+    <circle cx="${sx(ac.sd)}" cy="${sy(ac.ret)}" r="3.5" fill="#3dbf8f"/>
+    <text x="${sx(ac.sd)+11}" y="${sy(ac.ret)+4}" fill="#3dbf8f" font-size="9.5" font-family="Jost,sans-serif" font-weight="500">Your Portfolio</text>` : '';
+
+  const sharpeLabel = ms ? `
+    <polygon points="${sx(ms.sd)},${sy(ms.ret)-9} ${sx(ms.sd)-6},${sy(ms.ret)+4} ${sx(ms.sd)+6},${sy(ms.ret)+4}" fill="#c9a84c"/>
+    <text x="${sx(ms.sd)+10}" y="${sy(ms.ret)+3}" fill="#c9a84c" font-size="9" font-family="Jost,sans-serif">Max Sharpe</text>` : '';
+
+  const minVolLabel = mv ? `
+    <rect x="${sx(mv.sd)-5}" y="${sy(mv.ret)-5}" width="10" height="10" fill="none" stroke="#a0a8b0" stroke-width="1.5" transform="rotate(45,${sx(mv.sd)},${sy(mv.ret)})"/>
+    <text x="${sx(mv.sd)+10}" y="${sy(mv.ret)+3}" fill="#a0a8b0" font-size="9" font-family="Jost,sans-serif">Min Vol</text>` : '';
+
+  // Invisible hover targets on unconstrained frontier for tooltip
+  const hoverTargets = frontier.unconstrained.sort((a,b)=>a.sd-b.sd).map((p,i)=>`
+    <circle cx="${sx(p.sd).toFixed(1)}" cy="${sy(p.ret).toFixed(1)}" r="6" fill="transparent"
+      class="ef-hover" data-sd="${p.sd.toFixed(2)}" data-ret="${p.ret.toFixed(2)}" data-type="unc"/>`
+  ).join('') + frontier.constrained.sort((a,b)=>a.sd-b.sd).map((p,i)=>`
+    <circle cx="${sx(p.sd).toFixed(1)}" cy="${sy(p.ret).toFixed(1)}" r="6" fill="transparent"
+      class="ef-hover" data-sd="${p.sd.toFixed(2)}" data-ret="${p.ret.toFixed(2)}" data-type="con"/>`
+  ).join('');
+
+  const legendItems = [
+    `<div class="ef-li"><span class="ef-li-line" style="background:#3dbf8f"></span><b>Unconstrained Frontier</b></div>`,
+    frontier.constrained.length > 3 ? `<div class="ef-li"><span class="ef-li-line" style="background:#c9a84c"></span><b>Constrained Frontier</b></div>` : '',
+    `<div class="ef-li"><span class="ef-li-line" style="background:#3dbf8f;border-radius:50%;width:10px;height:10px"></span><b>Your Portfolio</b></div>`,
+    bm && bm.r5 !== null ? `<div class="ef-li"><span class="ef-li-line" style="background:#5b9bd4"></span><b>${bm.label}</b></div>` : '',
+  ].filter(Boolean).join('');
+
+  container.innerHTML = `
+    <div class="ef-wrap">
+      <svg class="ef-svg" viewBox="0 0 ${W} ${H}" id="efSvg">
+        <defs>
+          <linearGradient id="uncGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#3dbf8f" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#3dbf8f" stop-opacity="1"/>
+          </linearGradient>
+          <linearGradient id="conGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#c9a84c" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#c9a84c" stop-opacity="1"/>
+          </linearGradient>
+        </defs>
+        ${gridLines}
+        ${axisLabels}
+        ${cloudDots}
+        ${uncPath ? `<path d="${uncPath}" fill="none" stroke="url(#uncGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+        ${conPath ? `<path d="${conPath}" fill="none" stroke="url(#conGrad)" stroke-width="2" stroke-dasharray="6,3" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+        ${bmMark}
+        ${sharpeLabel}
+        ${minVolLabel}
+        ${actualMark}
+        ${hoverTargets}
+      </svg>
+      <div class="ef-tooltip" id="efTooltip"></div>
+      <div class="ef-legend">${legendItems}</div>
+    </div>`;
+
+  // Tooltip interaction
+  document.querySelectorAll('.ef-hover').forEach(el=>{
+    el.addEventListener('mouseenter', function(e){
+      const tt = document.getElementById('efTooltip');
+      const type = this.dataset.type;
+      tt.innerHTML = `<div class="ttt">${type==='unc'?'Unconstrained':'Constrained'} Frontier</div>
+        <div>Risk (σ): <span style="color:var(--white)">${this.dataset.sd}%</span></div>
+        <div>Return: <span style="color:var(--teal)">${this.dataset.ret}%</span></div>
+        <div>Sharpe: <span style="color:var(--gold)">${((parseFloat(this.dataset.ret)-4.5)/parseFloat(this.dataset.sd)).toFixed(2)}</span></div>`;
+      tt.style.opacity='1';
+      tt.style.left = (e.offsetX+14)+'px';
+      tt.style.top  = (e.offsetY-20)+'px';
+    });
+    el.addEventListener('mouseleave',()=>{ document.getElementById('efTooltip').style.opacity='0'; });
+    el.addEventListener('mousemove', function(e){
+      const tt = document.getElementById('efTooltip');
+      tt.style.left = (e.offsetX+14)+'px';
+      tt.style.top  = (e.offsetY-20)+'px';
+    });
+  });
+}
+
+function runAnalysis(){
+  if(!portfolio.length){ alert('Please add at least one fund.'); return; }
+  const total = portfolio.reduce((s,p)=>s+p.alloc,0);
+  if(Math.abs(total-100)>0.5){ alert(`Portfolio must total 100%. Currently at ${total.toFixed(1)}%.`); return; }
+
+  const rc = document.getElementById('resultsCol');
+  rc.innerHTML = `<div class="card"><div class="loading"><span></span><span></span><span></span></div></div>`;
+
+  setTimeout(()=>{
+    const inv  = parseFloat(document.getElementById('investAmt').value)||100000;
+    const hor  = parseInt(document.getElementById('horizon').value);
+    const maxS = parseFloat(document.getElementById('maxSingle').value)||40;
+    const minS = parseFloat(document.getElementById('minSingle').value)||5;
+    const maxE = parseFloat(document.getElementById('maxEquity').value)||80;
+    const minF = parseFloat(document.getElementById('minFixed').value)||20;
+    const risk = document.getElementById('riskProfile').value;
+    const bmKey= getActiveBenchmark();
+    const bm   = BENCHMARKS[bmKey];
+
+    const wR = portfolio.reduce((s,p)=>s+p.fund.r5*p.alloc/100,0);
+    const wE = portfolio.reduce((s,p)=>s+p.fund.er*p.alloc/100,0);
+    const wS = portfolio.reduce((s,p)=>s+p.fund.sd*p.alloc/100,0);
+    const db = portfolio.length>1 ? Math.min(0.14,(portfolio.length-1)*0.035) : 0;
+    const aS = wS*(1-db);
+    const net= wR-wE;
+    const sh = (net-4.5)/aS;
+    const pV = inv*Math.pow(1+net/100,hor);
+    const gain= pV-inv;
+
+    // Benchmark comparison delta
+    let bmCompare = '';
+    if(bm && bm.r5 !== null){
+      const retDiff = net - bm.r5;
+      const sdDiff  = aS - bm.sd;
+      const trackErr= Math.abs(sdDiff)*0.6;
+      const infoR   = trackErr>0 ? retDiff/trackErr : 0;
+      bmCompare = `
+      <div class="card">
+        <div class="card-title">04 &nbsp;·&nbsp; Benchmark Comparison — ${bm.label}</div>
+        <div class="s-grid">
+          <div class="s-cell">
+            <div class="sl">Return vs Benchmark</div>
+            <div class="sv ${retDiff>=0?'pos':'neg'}">${retDiff>=0?'+':''}${retDiff.toFixed(2)}%</div>
+            <div class="sn">Portfolio ${net.toFixed(2)}% · Benchmark ${bm.r5}%</div>
+          </div>
+          <div class="s-cell">
+            <div class="sl">Risk vs Benchmark</div>
+            <div class="sv ${sdDiff<=0?'pos':sdDiff<2?'gold':'neg'}">${sdDiff>=0?'+':''}${sdDiff.toFixed(2)}%</div>
+            <div class="sn">Portfolio σ ${aS.toFixed(1)}% · Benchmark σ ${bm.sd}%</div>
+          </div>
+          <div class="s-cell">
+            <div class="sl">Est. Information Ratio</div>
+            <div class="sv ${infoR>0.5?'pos':infoR>0?'gold':'neg'}">${infoR.toFixed(2)}</div>
+            <div class="sn">Active return / tracking error</div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    const eqP = portfolio.filter(p=>p.fund.type==='Equity').reduce((s,p)=>s+p.alloc,0);
+    const fxP = portfolio.filter(p=>p.fund.type==='Fixed Income').reduce((s,p)=>s+p.alloc,0);
+    const blP = portfolio.filter(p=>p.fund.type==='Balanced').reduce((s,p)=>s+p.alloc,0);
+    const eEq = eqP+blP*0.6, eFx = fxP+blP*0.4;
+
+    const viols = [];
+    portfolio.forEach(p=>{
+      if(p.alloc>maxS) viols.push({t:'error', m:`${p.fund.ticker} (${p.alloc}%) exceeds max single-fund limit of ${maxS}%`});
+      if(p.alloc<minS&&p.alloc>0) viols.push({t:'warn', m:`${p.fund.ticker} (${p.alloc}%) is below min single-fund of ${minS}%`});
+    });
+    if(eEq>maxE) viols.push({t:'error', m:`Equity exposure (${eEq.toFixed(1)}%) exceeds maximum of ${maxE}%`});
+    if(eFx<minF) viols.push({t:'warn',  m:`Fixed income (${eFx.toFixed(1)}%) below minimum of ${minF}%`});
+    const sdL = {conservative:7, moderate:12, aggressive:99};
+    if(aS>sdL[risk]) viols.push({t:'warn', m:`Volatility (${aS.toFixed(1)}%) may exceed ${risk} risk tolerance`});
+    if(!viols.length) viols.push({t:'ok', m:'All portfolio constraints satisfied'});
+
+    // Pie
+    const sz=180, cx=90, cy=90, r=76, ir=44;
+    let ang=-Math.PI/2;
+    const slices = portfolio.map((p,i)=>{
+      const a=p.alloc/100*2*Math.PI, ea=ang+a;
+      const x1=cx+r*Math.cos(ang),y1=cy+r*Math.sin(ang);
+      const x2=cx+r*Math.cos(ea), y2=cy+r*Math.sin(ea);
+      const xi1=cx+ir*Math.cos(ang),yi1=cy+ir*Math.sin(ang);
+      const xi2=cx+ir*Math.cos(ea), yi2=cy+ir*Math.sin(ea);
+      const lg=a>Math.PI?1:0;
+      const d=`M${xi1} ${yi1} L${x1} ${y1} A${r} ${r} 0 ${lg} 1 ${x2} ${y2} L${xi2} ${yi2} A${ir} ${ir} 0 ${lg} 0 ${xi1} ${yi1}Z`;
+      ang=ea; return {d, color:COLORS[i%COLORS.length]};
+    });
+    const pie=`<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" style="overflow:visible">
+      ${slices.map(s=>`<path d="${s.d}" fill="${s.color}" stroke="#0d1710" stroke-width="2" opacity="0.9"/>`).join('')}
+      <text x="${cx}" y="${cy-7}"  text-anchor="middle" fill="#3dbf8f" font-family="Jost,sans-serif" font-size="8.5" letter-spacing="1.5" font-weight="500">NET RETURN</text>
+      <text x="${cx}" y="${cy+11}" text-anchor="middle" fill="#e8ede9" font-family="Cormorant Garamond,serif" font-size="20" font-weight="300">${net.toFixed(1)}%</text>
+    </svg>`;
+
+    const fmt = n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
+    const pct = n=>(n>=0?'+':'')+n.toFixed(2)+'%';
+
+    // Build frontier constraints object
+    const constraints = { minSingle: minS, maxSingle: maxS, maxEquity: maxE, minFixed: minF };
+
+    rc.innerHTML = `
+      <div class="card">
+        <div class="card-title">03 &nbsp;·&nbsp; Projected Metrics</div>
+        <div class="s-grid">
+          <div class="s-cell">
+            <div class="sl">Projected Value</div>
+            <div class="sv teal" style="font-size:1.55rem">${fmt(pV)}</div>
+            <div class="sn">over ${hor} yr${hor>1?'s':''} · gain ${fmt(gain)}</div>
+          </div>
+          <div class="s-cell">
+            <div class="sl">Avg Net Return</div>
+            <div class="sv pos">${net.toFixed(2)}%</div>
+            <div class="sn">gross ${wR.toFixed(2)}% less ${wE.toFixed(2)}% costs</div>
+          </div>
+          <div class="s-cell">
+            <div class="sl">Annualized Volatility</div>
+            <div class="sv ${aS>15?'neg':aS>10?'gold':'pos'}">${aS.toFixed(1)}%</div>
+            <div class="sn">std deviation · ${portfolio.length}-fund blend</div>
+          </div>
+          <div class="s-cell">
+            <div class="sl">Sharpe Ratio</div>
+            <div class="sv ${sh>1?'pos':sh>0.5?'gold':'neg'}">${sh.toFixed(2)}</div>
+            <div class="sn">vs 4.5% risk-free rate</div>
+          </div>
+          <div class="s-cell">
+            <div class="sl">Equity / Fixed Income</div>
+            <div class="sv" style="font-size:1.45rem">${eEq.toFixed(0)}<span style="color:var(--white-muted);font-size:0.95rem"> / </span>${eFx.toFixed(0)}%</div>
+            <div class="sn">effective exposure</div>
+          </div>
+          <div class="s-cell">
+            <div class="sl">Avg Expense Ratio</div>
+            <div class="sv ${wE<0.3?'pos':wE<0.7?'gold':'neg'}">${wE.toFixed(3)}%</div>
+            <div class="sn">${fmt(inv*wE/100)} est. annual drag</div>
+          </div>
+        </div>
+      </div>
+
+      ${bmCompare}
+
+      <div class="card">
+        <div class="card-title">05 &nbsp;·&nbsp; Efficient Frontier</div>
+        <div style="font-size:0.72rem;color:var(--white-muted);margin-bottom:1.2rem;font-weight:300;line-height:1.6">
+          Each point represents a possible portfolio built from your selected funds. The <span style="color:#3dbf8f">teal curve</span> is the unconstrained frontier (best return per unit of risk). The <span style="color:#c9a84c">gold dashed curve</span> is the constrained frontier (respecting your limits). Hover for details. ◆ = Max Sharpe · ◇ = Min Volatility
+        </div>
+        <div id="efContainer"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">06 &nbsp;·&nbsp; Portfolio Composition</div>
+        <div class="chart-sec">
+          <div>${pie}</div>
+          <div class="pie-leg">
+            ${portfolio.map((p,i)=>`
+              <div class="li">
+                <div class="li-dot" style="background:${COLORS[i%COLORS.length]}"></div>
+                <span class="li-name">${p.fund.ticker}</span>
+                <span class="li-pct">${p.alloc}%</span>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">07 &nbsp;·&nbsp; Holdings Detail</div>
+        <table class="ht">
+          <thead><tr><th>Ticker</th><th>Fund Name</th><th>Type</th><th>Alloc.</th><th>Value</th><th>5Y Ret.</th><th>ER</th></tr></thead>
+          <tbody>
+            ${portfolio.map(p=>`<tr>
+              <td class="tt">${p.fund.ticker}</td>
+              <td style="color:var(--white-dim)">${p.fund.name}</td>
+              <td style="color:var(--white-muted)">${p.fund.type}</td>
+              <td>${p.alloc.toFixed(1)}%</td>
+              <td>${fmt(inv*p.alloc/100)}</td>
+              <td class="${p.fund.r5>=0?'pos':'neg'}">${pct(p.fund.r5)}</td>
+              <td style="color:${p.fund.er<0.3?'var(--teal)':p.fund.er<0.7?'var(--gold)':'var(--red)'}">${p.fund.er}%</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">08 &nbsp;·&nbsp; Constraint Analysis</div>
+        <div class="v-list">
+          ${viols.map(v=>`<div class="v-chip ${v.t}"><span class="vi">${v.t==='ok'?'✓':v.t==='warn'?'△':'✗'}</span><span>${v.m}</span></div>`).join('')}
+        </div>
+      </div>`;
+
+    // Render efficient frontier after DOM is in place
+    const funds = portfolio.map(p=>p.fund);
+    const frontier = buildFrontier(funds, constraints);
+    renderFrontier(frontier, bmKey, 'efContainer');
+
+  }, 550);
+}
+</script>
+</body>
+</html>

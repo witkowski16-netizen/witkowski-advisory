@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Witkowski Advisory Group</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:       #0f0f0d;
+      --deep:      #161612;
+      --surface:   #1e1e19;
+      --card:      #232320;
+      --border:    rgba(255,255,255,0.08);
+      --border2:   rgba(255,255,255,0.04);
+      --navy:      #1a2a3a;
+      --teal:      #2a7a6a;
+      --teal-light:#3db89a;
+      --teal-glow: rgba(42,122,106,0.18);
+      --cream:     #f2ede4;
+      --muted:     rgba(242,237,228,0.45);
+      --muted2:    rgba(242,237,228,0.25);
+      --serif:     'Libre Baskerville', Georgia, serif;
+      --mono:      'IBM Plex Mono', monospace;
+      --sans:      'IBM Plex Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── CURSOR ── */
+    .cur { position:fixed; width:7px; height:7px; background:var(--teal-light); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:transform .1s; }
+    .cur-ring { position:fixed; width:30px; height:30px; border:1px solid rgba(61,184,154,.4); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:transform .35s ease, width .25s, height .25s; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top:0; left:0; right:0; z-index:200;
+      display: flex; align-items:center; justify-content:space-between;
+      padding: 24px 64px;
+      transition: background .4s, border-color .4s, backdrop-filter .4s;
+      border-bottom: 1px solid transparent;
+    }
+    nav.scrolled {
+      background: rgba(15,15,13,.92);
+      border-color: var(--border);
+      backdrop-filter: blur(14px);
+    }
+    .logo {
+      font-family: var(--serif);
+      font-size: 17px;
+      letter-spacing: .06em;
+      color: var(--cream);
+      text-decoration: none;
+      display:flex; flex-direction:column; gap:1px;
+    }
+    .logo-sub {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+    }
+    .nav-links { display:flex; gap:36px; align-items:center; }
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--cream); }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--ink) !important;
+      background: var(--teal-light);
+      padding: 10px 22px;
+      text-decoration: none;
+      transition: background .2s, transform .15s !important;
+    }
+    .nav-cta:hover { background: #5bcfb0 !important; transform: translateY(-1px) !important; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 64px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Dot grid bg */
+    #hero::before {
+      content:'';
+      position:absolute; inset:0;
+      background-image: radial-gradient(circle, rgba(61,184,154,.12) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events:none;
+    }
+    /* Vignette */
+    #hero::after {
+      content:'';
+      position:absolute; inset:0;
+      background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 30%, var(--ink) 100%);
+      pointer-events:none;
+    }
+
+    /* Animated teal orb */
+    .hero-orb {
+      position:absolute;
+      top: 15%; right: 8%;
+      width: 520px; height: 520px;
+      background: radial-gradient(ellipse, rgba(42,122,106,.22) 0%, transparent 68%);
+      border-radius:50%;
+      pointer-events:none;
+      animation: orbPulse 6s ease-in-out infinite;
+    }
+    @keyframes orbPulse {
+      0%,100% { transform: scale(1); opacity:.8; }
+      50% { transform: scale(1.08); opacity:1; }
+    }
+
+    .hero-content { position:relative; z-index:2; max-width:900px; }
+
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      margin-bottom: 28px;
+      display: flex; align-items:center; gap:14px;
+      opacity:0; animation: riseIn .7s ease .2s forwards;
+    }
+    .hero-tag::before { content:''; width:28px; height:1px; background:var(--teal-light); }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(48px, 7vw, 96px);
+      font-weight: 400;
+      line-height: 1.0;
+      letter-spacing: -.02em;
+      opacity:0; animation: riseIn .9s ease .4s forwards;
+    }
+    h1 .accent { color: var(--teal-light); font-style:italic; }
+    h1 .dim { color: var(--muted); font-weight:400; }
+
+    .hero-body {
+      margin-top: 32px;
+      max-width: 520px;
+      font-size: 15px;
+      line-height: 1.85;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-weight: 300;
+      opacity:0; animation: riseIn .9s ease .6s forwards;
+    }
+
+    .credentials {
+      margin-top: 28px;
+      display: flex; gap:12px; flex-wrap:wrap;
+      opacity:0; animation: riseIn .9s ease .75s forwards;
+    }
+    .cred-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      border: 1px solid rgba(61,184,154,.35);
+      padding: 5px 14px;
+      background: rgba(61,184,154,.05);
+    }
+
+    .hero-btns {
+      margin-top: 48px;
+      display: flex; gap:18px; align-items:center;
+      opacity:0; animation: riseIn .9s ease .9s forwards;
+    }
+    .btn-primary {
+      font-family: var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+      color: var(--ink); background: var(--teal-light);
+      padding: 15px 34px; text-decoration:none;
+      position:relative; overflow:hidden; transition:transform .15s;
+      display:inline-block;
+    }
+    .btn-primary::after { content:''; position:absolute; inset:0; background:#5bcfb0; transform:translateX(-101%); transition:transform .3s ease; }
+    .btn-primary:hover::after { transform:translateX(0); }
+    .btn-primary:hover { transform:translateY(-2px); }
+    .btn-primary span { position:relative; z-index:1; }
+
+    .btn-outline {
+      font-family: var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+      color: var(--muted); border: 1px solid var(--border);
+      padding: 15px 34px; text-decoration:none; transition:border-color .2s, color .2s;
+    }
+    .btn-outline:hover { border-color: rgba(61,184,154,.5); color: var(--cream); }
+
+    /* Stats row */
+    .hero-stats {
+      margin-top: 72px;
+      display: flex; gap:0;
+      border-top: 1px solid var(--border);
+      padding-top: 32px;
+      opacity:0; animation: riseIn .9s ease 1.1s forwards;
+    }
+    .hstat {
+      flex:1;
+      padding-right: 40px;
+      border-right: 1px solid var(--border);
+      margin-right: 40px;
+    }
+    .hstat:last-child { border-right:none; margin-right:0; padding-right:0; }
+    .hstat-num {
+      font-family: var(--serif);
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--teal-light);
+      line-height:1;
+    }
+    .hstat-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing:.2em;
+      text-transform:uppercase;
+      color: var(--muted);
+      margin-top:6px;
+    }
+
+    @keyframes riseIn {
+      from { opacity:0; transform:translateY(20px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    /* ── SECTION SHARED ── */
+    section { padding: 100px 64px; }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px; letter-spacing:.3em; text-transform:uppercase;
+      color: var(--teal-light);
+      margin-bottom: 14px;
+    }
+    h2 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4.5vw, 58px);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing:-.01em;
+    }
+    h2 em { font-style:italic; color: var(--teal-light); }
+    .divider { height:1px; background:linear-gradient(90deg, transparent, var(--border), transparent); }
+
+    /* ── ABOUT ── */
+    #about { background: var(--deep); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      margin-top: 60px;
+      align-items: start;
+    }
+    .about-left h2 { margin-bottom: 28px; }
+    .about-left p {
+      font-size: 15px; line-height:1.9; color: var(--muted);
+      font-weight:300; margin-bottom:18px;
+    }
+    .about-left p strong { color: var(--cream); font-weight:500; }
+
+    .about-right { display:flex; flex-direction:column; gap:0; }
+    .exp-item {
+      padding: 28px 0;
+      border-bottom: 1px solid var(--border2);
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 24px;
+      align-items: start;
+      transition: background .2s;
+    }
+    .exp-item:first-child { border-top: 1px solid var(--border2); }
+    .exp-year {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing:.15em;
+      color: var(--muted2);
+      padding-top: 3px;
+    }
+    .exp-role {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--cream);
+      margin-bottom: 3px;
+    }
+    .exp-org {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+      color: var(--teal-light);
+    }
+
+    /* ── SERVICES ── */
+    #services { background: var(--ink); }
+    .services-intro {
+      display:flex; justify-content:space-between; align-items:flex-end;
+      margin-bottom: 64px;
+    }
+    .services-intro-right {
+      max-width: 360px;
+      font-size:13px; line-height:1.9; color:var(--muted); font-weight:300;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .svc-card {
+      background: var(--ink);
+      padding: 48px 40px 52px;
+      position:relative; overflow:hidden;
+      transition: background .3s;
+    }
+    .svc-card:hover { background: var(--surface); }
+    .svc-card::after {
+      content:'';
+      position:absolute; left:0; bottom:0; right:0;
+      height:2px;
+      background: var(--teal-light);
+      transform: scaleX(0); transform-origin:left;
+      transition: transform .4s ease;
+    }
+    .svc-card:hover::after { transform: scaleX(1); }
+
+    .svc-num {
+      font-family:var(--mono); font-size:10px; letter-spacing:.25em;
+      color:var(--teal-light); opacity:.6;
+      margin-bottom:32px;
+    }
+    .svc-icon {
+      width:36px; height:36px;
+      margin-bottom:22px;
+      color: var(--teal-light);
+    }
+    .svc-card h3 {
+      font-family:var(--serif); font-size:21px; font-weight:400;
+      margin-bottom:14px; color:var(--cream);
+    }
+    .svc-card p {
+      font-size:13px; line-height:1.85; color:var(--muted); font-weight:300;
+    }
+    .svc-tags { margin-top:28px; display:flex; flex-wrap:wrap; gap:7px; }
+    .svc-tag {
+      font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase;
+      color:var(--teal-light);
+      border:1px solid rgba(61,184,154,.28); padding:4px 11px;
+      background: rgba(61,184,154,.04);
+    }
+    .svc-arrow {
+      position:absolute; bottom:40px; right:40px;
+      color: var(--teal-light); opacity:0;
+      transition: opacity .3s, transform .3s;
+      transform:translate(6px,6px);
+    }
+    .svc-card:hover .svc-arrow { opacity:1; transform:translate(0,0); }
+
+    /* ── PROCESS ── */
+    #process { background: var(--deep); }
+    .process-header { max-width:540px; margin-bottom:64px; }
+    .process-header p { margin-top:20px; font-size:14px; line-height:1.9; color:var(--muted); font-weight:300; }
+
+    .process-steps { display:grid; grid-template-columns: repeat(4, 1fr); gap:1px; background:var(--border); }
+    .step {
+      background:var(--deep);
+      padding:44px 36px;
+      position:relative;
+    }
+    .step-num {
+      font-family:var(--mono); font-size:36px; font-weight:300;
+      color: rgba(61,184,154,.2);
+      line-height:1; margin-bottom:20px;
+    }
+    .step h4 {
+      font-family:var(--serif); font-size:18px; font-weight:400;
+      margin-bottom:12px; color:var(--cream);
+    }
+    .step p { font-size:12px; line-height:1.85; color:var(--muted); font-weight:300; }
+    .step-connector {
+      position:absolute; top:44px; right:-1px;
+      width:1px; height:24px;
+      background: var(--teal-light);
+      opacity:.4;
+    }
+    .step:last-child .step-connector { display:none; }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--ink); position:relative; overflow:hidden; }
+    .contact-bg-glow {
+      position:absolute; bottom:-240px; left:50%;
+      transform:translateX(-50%);
+      width:700px; height:700px;
+      background:radial-gradient(ellipse, rgba(42,122,106,.1) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .contact-inner { max-width:660px; margin:0 auto; text-align:center; position:relative; z-index:2; }
+    .contact-inner .section-label { display:block; }
+    .contact-inner h2 { margin-bottom:16px; }
+    .contact-intro { font-size:14px; line-height:1.9; color:var(--muted); font-weight:300; margin-bottom:52px; }
+
+    .lead-form { display:grid; grid-template-columns:1fr 1fr; gap:14px; text-align:left; }
+    .full { grid-column:1/-1; }
+    .field {
+      display:flex; flex-direction:column; gap:7px;
+    }
+    .field label {
+      font-family:var(--mono); font-size:9px; letter-spacing:.22em; text-transform:uppercase;
+      color:var(--muted2);
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--cream);
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 14px 18px;
+      outline: none;
+      transition: border-color .2s;
+      width:100%;
+      -webkit-appearance:none;
+    }
+    .field select option { background:var(--surface); }
+    .field textarea { resize:none; height:110px; }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus { border-color:rgba(61,184,154,.5); }
+    .field input::placeholder,
+    .field textarea::placeholder { color:var(--muted2); }
+    .field input.err,
+    .field select.err { border-color:rgba(220,80,60,.5); }
+
+    .submit-row { grid-column:1/-1; margin-top:6px; }
+    .submit-btn {
+      width:100%;
+      background: var(--teal-light);
+      border:none;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      padding: 18px 40px;
+      cursor:pointer;
+      position:relative; overflow:hidden;
+      transition:transform .15s;
+    }
+    .submit-btn::after { content:''; position:absolute; inset:0; background:#5bcfb0; transform:translateX(-101%); transition:transform .3s ease; }
+    .submit-btn:hover::after { transform:translateX(0); }
+    .submit-btn:hover { transform:translateY(-1px); }
+    .submit-btn span { position:relative; z-index:1; }
+
+    /* Success */
+    .form-success { display:none; padding:60px 0; }
+    .form-success.show { display:block; }
+    .success-mark { font-family:var(--serif); font-size:52px; color:var(--teal-light); margin-bottom:18px; }
+    .form-success h3 { font-family:var(--serif); font-size:30px; font-weight:400; margin-bottom:12px; }
+    .form-success p { font-size:13px; color:var(--muted); line-height:1.9; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 36px 64px;
+      border-top: 1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center;
+      background: var(--deep);
+    }
+    .footer-right {
+      display:flex; gap:32px; align-items:center;
+    }
+    .footer-right a {
+      font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase;
+      color:var(--muted2); text-decoration:none; transition:color .2s;
+    }
+    .footer-right a:hover { color:var(--teal-light); }
+    .footer-copy { font-family:var(--mono); font-size:10px; letter-spacing:.12em; color:var(--muted2); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+    .reveal.in { opacity:1; transform:translateY(0); }
+
+    /* ── ANNOUNCEMENT BAR ── */
+    #announce-bar {
+      position: fixed; top:0; left:0; right:0; z-index:300;
+      background: var(--deep);
+      border-bottom: 1px solid rgba(61,184,154,.2);
+      display: flex; flex-direction: column;
+    }
+    .announce-row {
+      height: 32px;
+      display: flex; align-items:center;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .announce-row:last-child { border-bottom: none; }
+    .announce-label {
+      flex-shrink: 0;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      background: rgba(61,184,154,.1);
+      padding: 0 14px;
+      height: 100%;
+      display: flex; align-items:center;
+      border-right: 1px solid rgba(61,184,154,.2);
+      white-space: nowrap;
+      min-width: 80px;
+    }
+    .announce-label.news-label { color: #e8c97a; background: rgba(232,201,122,.08); border-color: rgba(232,201,122,.2); }
+    .announce-track {
+      flex:1; overflow:hidden; position:relative;
+    }
+    .announce-inner {
+      display: flex; gap:48px;
+      animation: ticker 45s linear infinite;
+      white-space: nowrap;
+      will-change: transform;
+    }
+    .announce-inner.news-inner { animation-duration: 70s; animation-direction: normal; }
+    .announce-inner:hover { animation-play-state: paused; }
+    .announce-item {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      color: var(--muted);
+      white-space: nowrap;
+      display: flex; align-items:center; gap:8px;
+    }
+    .announce-item .chg.up { color: #4caf7d; }
+    .announce-item .chg.dn { color: #e05c5c; }
+    .announce-item .ticker-sym { color: var(--cream); font-weight:500; }
+    .news-item {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+      color: var(--muted);
+      white-space: nowrap;
+      display: flex; align-items:center; gap:10px;
+    }
+    .news-item .news-src { color: #e8c97a; font-size:9px; letter-spacing:.14em; }
+    .news-item a { color: var(--muted); text-decoration:none; transition: color .2s; }
+    .news-item a:hover { color: var(--cream); }
+    .announce-close {
+      flex-shrink:0;
+      width:32px; height:32px;
+      display:flex; align-items:center; justify-content:center;
+      color: var(--muted2); cursor:pointer;
+      border-left: 1px solid var(--border);
+      font-size:14px; transition:color .2s;
+    }
+    .announce-close:hover { color: var(--cream); }
+    @keyframes ticker {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    /* push nav down when bar visible — two rows = 64px */
+    body.bar-visible nav { top: 64px; }
+    body.bar-visible #hero { padding-top: 184px; }
+
+    /* ── CHATBOT ── */
+    #chat-btn {
+      position: fixed; bottom:28px; right:28px; z-index:500;
+      width:56px; height:56px; border-radius:50%;
+      background: var(--teal-light);
+      border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 4px 24px rgba(61,184,154,.35);
+      transition: transform .2s, box-shadow .2s;
+    }
+    #chat-btn:hover { transform:scale(1.08); box-shadow:0 6px 32px rgba(61,184,154,.5); }
+    #chat-btn svg { color: var(--ink); }
+    .chat-pulse {
+      position:absolute; inset:-4px; border-radius:50%;
+      border:2px solid rgba(61,184,154,.4);
+      animation: chatPulse 2.5s ease infinite;
+    }
+    @keyframes chatPulse {
+      0%,100% { transform:scale(1); opacity:.7; }
+      50% { transform:scale(1.18); opacity:0; }
+    }
+    #chat-window {
+      position:fixed; bottom:96px; right:28px; z-index:499;
+      width:360px; height:520px;
+      background: var(--deep);
+      border:1px solid rgba(61,184,154,.25);
+      border-radius:4px;
+      display:flex; flex-direction:column;
+      box-shadow: 0 16px 48px rgba(0,0,0,.6);
+      transform: scale(.92) translateY(16px);
+      opacity:0; pointer-events:none;
+      transition: transform .25s ease, opacity .25s ease;
+    }
+    #chat-window.open { transform:scale(1) translateY(0); opacity:1; pointer-events:all; }
+    .chat-header {
+      padding:16px 20px;
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:12px; flex-shrink:0;
+    }
+    .chat-avatar {
+      width:36px; height:36px; border-radius:50%;
+      background: rgba(61,184,154,.15);
+      border:1px solid rgba(61,184,154,.3);
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--serif); font-size:14px; color:var(--teal-light);
+    }
+    .chat-header-info { flex:1; }
+    .chat-name { font-family:var(--mono); font-size:11px; letter-spacing:.1em; color:var(--cream); }
+    .chat-status { font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--teal-light); display:flex; align-items:center; gap:5px; margin-top:2px; }
+    .chat-dot { width:5px; height:5px; border-radius:50%; background:var(--teal-light); animation:chatPulse 2s infinite; }
+    .chat-close { background:none; border:none; color:var(--muted2); cursor:pointer; font-size:18px; transition:color .2s; }
+    .chat-close:hover { color:var(--cream); }
+    .chat-messages {
+      flex:1; overflow-y:auto; padding:20px 16px;
+      display:flex; flex-direction:column; gap:12px;
+      scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+    }
+    .msg {
+      max-width:85%; padding:10px 14px;
+      font-family:var(--sans); font-size:12px; line-height:1.6;
+      border-radius:2px;
+    }
+    .msg.bot {
+      background:var(--surface); color:var(--cream);
+      border-left:2px solid var(--teal-light);
+      align-self:flex-start;
+    }
+    .msg.user {
+      background:rgba(61,184,154,.12); color:var(--cream);
+      border:1px solid rgba(61,184,154,.2);
+      align-self:flex-end;
+    }
+    .msg-typing {
+      display:flex; gap:4px; padding:12px 14px;
+      background:var(--surface); border-left:2px solid var(--teal-light);
+      align-self:flex-start; border-radius:2px;
+    }
+    .msg-typing span {
+      width:5px; height:5px; border-radius:50%;
+      background:var(--teal-light); opacity:.4;
+      animation: typingDot .9s ease infinite;
+    }
+    .msg-typing span:nth-child(2) { animation-delay:.15s; }
+    .msg-typing span:nth-child(3) { animation-delay:.3s; }
+    @keyframes typingDot { 0%,100%{opacity:.2} 50%{opacity:1} }
+    .chat-suggestions {
+      padding:0 16px 10px; display:flex; flex-wrap:wrap; gap:6px;
+    }
+    .sug-btn {
+      font-family:var(--mono); font-size:9px; letter-spacing:.1em;
+      color:var(--teal-light); border:1px solid rgba(61,184,154,.3);
+      background:rgba(61,184,154,.05); padding:5px 10px;
+      cursor:pointer; transition:background .2s;
+      border-radius:2px;
+    }
+    .sug-btn:hover { background:rgba(61,184,154,.15); }
+    .chat-input-row {
+      padding:12px 16px;
+      border-top:1px solid var(--border);
+      display:flex; gap:8px; flex-shrink:0;
+    }
+    .chat-input {
+      flex:1; background:var(--surface);
+      border:1px solid var(--border); color:var(--cream);
+      font-family:var(--mono); font-size:11px;
+      padding:10px 14px; outline:none; border-radius:2px;
+      transition:border-color .2s;
+    }
+    .chat-input:focus { border-color:rgba(61,184,154,.5); }
+    .chat-input::placeholder { color:var(--muted2); }
+    .chat-send {
+      width:38px; height:38px; background:var(--teal-light);
+      border:none; cursor:pointer; border-radius:2px;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .2s; flex-shrink:0;
+    }
+    .chat-send:hover { background:#5bcfb0; }
+    .chat-send svg { color:var(--ink); }
+
+    /* ── LINKEDIN SECTION ── */
+    #linkedin {
+      background: var(--deep);
+      padding: 80px 64px;
+      border-top: 1px solid var(--border);
+    }
+    .li-inner {
+      max-width: 860px; margin:0 auto;
+      display:grid; grid-template-columns:auto 1fr auto;
+      gap:40px; align-items:center;
+    }
+    .li-avatar {
+      width:80px; height:80px; border-radius:50%;
+      background:linear-gradient(135deg, rgba(61,184,154,.2), rgba(61,184,154,.05));
+      border:1px solid rgba(61,184,154,.3);
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--serif); font-size:28px; color:var(--teal-light);
+      flex-shrink:0;
+    }
+    .li-info { }
+    .li-name {
+      font-family:var(--serif); font-size:22px; font-weight:400;
+      color:var(--cream); margin-bottom:4px;
+    }
+    .li-title {
+      font-family:var(--mono); font-size:10px; letter-spacing:.15em;
+      text-transform:uppercase; color:var(--teal-light); margin-bottom:10px;
+    }
+    .li-creds {
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .li-cred {
+      font-family:var(--mono); font-size:9px; letter-spacing:.12em;
+      text-transform:uppercase; color:var(--muted);
+      border:1px solid var(--border); padding:3px 10px;
+    }
+    .li-connect {
+      font-family:var(--mono); font-size:10px; letter-spacing:.18em;
+      text-transform:uppercase; color:var(--ink);
+      background:var(--teal-light); padding:12px 24px;
+      text-decoration:none; white-space:nowrap;
+      transition:background .2s, transform .15s; display:inline-block;
+    }
+    .li-connect:hover { background:#5bcfb0; transform:translateY(-1px); }
+    .li-stats {
+      grid-column:1/-1;
+      display:flex; gap:0;
+      border-top:1px solid var(--border); padding-top:28px;
+    }
+    .li-stat {
+      flex:1; text-align:center;
+      border-right:1px solid var(--border);
+      padding:0 24px;
+    }
+    .li-stat:last-child { border-right:none; }
+    .li-stat-num {
+      font-family:var(--serif); font-size:24px; color:var(--teal-light);
+    }
+    .li-stat-label {
+      font-family:var(--mono); font-size:9px; letter-spacing:.18em;
+      text-transform:uppercase; color:var(--muted); margin-top:4px;
+    }
+    @media(max-width:960px) {
+      .li-inner { grid-template-columns:1fr; text-align:center; }
+      .li-creds { justify-content:center; }
+      .li-connect { width:100%; text-align:center; }
+      .li-stats { flex-wrap:wrap; }
+      .li-stat { min-width:50%; border-right:none; border-bottom:1px solid var(--border); padding:16px; }
+      #chat-window { width:calc(100vw - 40px); right:20px; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:960px) {
+      nav,section,footer { padding-left:28px; padding-right:28px; }
+      #hero { padding-left:28px; padding-right:28px; }
+      .about-grid { grid-template-columns:1fr; gap:48px; }
+      .services-grid { grid-template-columns:1fr; }
+      .services-intro { flex-direction:column; gap:20px; }
+      .process-steps { grid-template-columns:1fr 1fr; }
+      .lead-form { grid-template-columns:1fr; }
+      .full { grid-column:1; }
+      .hero-stats { flex-direction:column; gap:24px; }
+      .hstat { border-right:none; border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:0; padding-right:0; margin-right:0; }
+      .nav-links { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- ANNOUNCEMENT BAR -->
+<div id="announce-bar">
+  <div class="announce-row">
+    <div class="announce-label">📈 Markets</div>
+    <div class="announce-track">
+      <div class="announce-inner" id="tickerInner">
+        <span class="announce-item"><span class="ticker-sym">—</span> Loading market data...</span>
+      </div>
+    </div>
+    <div class="announce-close" onclick="closeBar()">×</div>
+  </div>
+  <div class="announce-row">
+    <div class="announce-label news-label">📰 News</div>
+    <div class="announce-track">
+      <div class="announce-inner news-inner" id="newsInner">
+        <span class="news-item">Loading financial headlines...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="logo">
+    Witkowski Advisory Group
+    <span class="logo-sub">CIPM · FSA Credential Holder</span>
+  </a>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#process">Process</a>
+    <a href="portfolio-tool.html">Portfolio Tool</a>
+    <a href="#contact" class="nav-cta">Get in Touch</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-content">
+    <p class="hero-tag">Automation · AI Agents · OCIO · Business Development</p>
+    <h1>
+      Smarter workflows.<br>
+      <span class="accent">Stronger outcomes.</span><br>
+      <span class="dim">Built for finance.</span>
+    </h1>
+    <p class="hero-body">
+      I help financial institutions, businesses, and investment teams eliminate manual bottlenecks, deploy autonomous AI agents, and build the operational infrastructure needed to scale — backed by 5+ years of OCIO experience and over a decade in institutional investment.
+    </p>
+    <div class="credentials">
+      <span class="cred-badge">CIPM</span>
+      <span class="cred-badge">FSA Credential Holder</span>
+      <span class="cred-badge">5+ Yrs OCIO</span>
+      <span class="cred-badge">AI Agent Setup</span>
+      <span class="cred-badge">Microsoft 365</span>
+      <span class="cred-badge">Python · VBA</span>
+    </div>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary"><span>Schedule a Consultation</span></a>
+      <a href="#services" class="btn-outline">View Services</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="hstat-num">10+</div>
+        <div class="hstat-label">Years Finance Experience</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">$2.5B+</div>
+        <div class="hstat-label">Client AUM Managed</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">30+</div>
+        <div class="hstat-label">Institutions Served</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">5+</div>
+        <div class="hstat-label">Years OCIO Experience</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="reveal">
+    <p class="section-label">About Evan Witkowski</p>
+  </div>
+  <div class="about-grid">
+    <div class="about-left reveal">
+      <h2>Finance expertise meets <em>engineering precision.</em></h2>
+      <p style="margin-top:28px;">
+        I bring a rare combination of <strong>deep institutional investment knowledge</strong> and hands-on technical skills in automation and AI. Where most consultants offer one or the other, I deliver both — which means I understand exactly where your workflows break down and precisely how to fix them.
+      </p>
+      <p>
+        With <strong>5+ years of OCIO experience</strong>, I've overseen client relationships ranging from $25M to $250M in AUM, contributing to <strong>over $2.5B in client AUM managed historically</strong> across endowments, foundations, and institutional accounts. I've also <strong>led a firm through full GIPS compliance and verification</strong> — a process few practitioners have navigated end-to-end.
+      </p>
+      <p>
+        My background as a <strong>nonprofit investing and balance sheet expert</strong> means I bring a truly holistic view to every client portfolio — understanding how investment strategy, liquidity needs, liabilities, and mission intersect. Today I apply all of that to help organizations <strong>automate reporting, deploy autonomous AI agents</strong>, and build the operational and business development infrastructure that scales.
+      </p>
+    </div>
+
+    <div class="about-right reveal">
+      <div class="exp-item">
+        <div class="exp-year">2025 – Present</div>
+        <div>
+          <div class="exp-role">Director, Institutional Relationships</div>
+          <div class="exp-org">Wespath Benefits &amp; Investments</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-year">2021 – 2025</div>
+        <div>
+          <div class="exp-role">Institutional Relationship Manager</div>
+          <div class="exp-org">Wespath Benefits &amp; Investments</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-year">2020 – 2021</div>
+        <div>
+          <div class="exp-role">Manager, Institutional Investment Services</div>
+          <div class="exp-org">Wespath Benefits &amp; Investments</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-year">2019 – 2020</div>
+        <div>
+          <div class="exp-role">Performance Operations Manager</div>
+          <div class="exp-org">State of Wisconsin Investment Board</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-year">2013 – 2019</div>
+        <div>
+          <div class="exp-role">Manager VP / Consultant / Team Leader</div>
+          <div class="exp-org">Northern Trust Corporation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-intro reveal">
+    <div>
+      <p class="section-label">What I Do</p>
+      <h2>Six ways I can<br><em>move your business forward.</em></h2>
+    </div>
+    <p class="services-intro-right">Each engagement is scoped to your specific environment, tools, and objectives — with measurable outcomes defined upfront.</p>
+  </div>
+
+  <div class="services-grid">
+
+    <div class="svc-card reveal">
+      <div class="svc-num">01</div>
+      <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+        <rect x="4" y="4" width="12" height="12" rx="1"/>
+        <rect x="20" y="4" width="12" height="12" rx="1"/>
+        <rect x="4" y="20" width="12" height="12" rx="1"/>
+        <rect x="20" y="20" width="12" height="12" rx="1"/>
+        <path d="M10 16v4M26 16v4M16 10h4M16 26h4"/>
+      </svg>
+      <h3>Microsoft 365 Automation</h3>
+      <p>Power Automate flows, SharePoint solutions, Teams integrations, and Excel automation that eliminate repetitive manual work across your entire Microsoft environment.</p>
+      <div class="svc-tags">
+        <span class="svc-tag">Power Automate</span>
+        <span class="svc-tag">SharePoint</span>
+        <span class="svc-tag">Teams</span>
+        <span class="svc-tag">Power BI</span>
+      </div>
+      <svg class="svc-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="svc-card reveal">
+      <div class="svc-num">02</div>
+      <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+        <rect x="6" y="6" width="24" height="24" rx="1"/>
+        <path d="M6 14h24M14 14v16"/>
+        <path d="M20 20h6M20 26h4"/>
+      </svg>
+      <h3>VBA Development</h3>
+      <p>Custom Excel and Access macros that automate complex financial models, reporting workflows, and data transformation — built to your exact specifications and maintained long-term.</p>
+      <div class="svc-tags">
+        <span class="svc-tag">Excel VBA</span>
+        <span class="svc-tag">Access</span>
+        <span class="svc-tag">Macros</span>
+        <span class="svc-tag">Reporting</span>
+      </div>
+      <svg class="svc-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="svc-card reveal">
+      <div class="svc-num">03</div>
+      <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M10 12l-4 6 4 6M26 12l4 6-4 6M20 8l-4 20"/>
+      </svg>
+      <h3>Python Scripting &amp; Automation</h3>
+      <p>Data pipelines, report automation, API integrations, and custom scripts that connect your systems and eliminate the manual data wrangling your team spends hours on each week.</p>
+      <div class="svc-tags">
+        <span class="svc-tag">Pandas</span>
+        <span class="svc-tag">APIs</span>
+        <span class="svc-tag">Pipelines</span>
+        <span class="svc-tag">Scheduling</span>
+      </div>
+      <svg class="svc-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="svc-card reveal">
+      <div class="svc-num">04</div>
+      <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M6 28 L12 18 L18 21 L24 10 L30 5"/>
+        <circle cx="30" cy="5" r="2.5" fill="currentColor"/>
+        <path d="M6 32H30" stroke-width=".8"/>
+      </svg>
+      <h3>Investment Performance &amp; OCIO Consulting</h3>
+      <p>Performance measurement, attribution analysis, and GIPS compliance — including leading firms through full verification. Nonprofit investing and balance sheet expertise to bring a holistic view across your entire client portfolio.</p>
+      <div class="svc-tags">
+        <span class="svc-tag">GIPS</span>
+        <span class="svc-tag">Nonprofit</span>
+        <span class="svc-tag">OCIO</span>
+        <span class="svc-tag">Balance Sheet</span>
+        <span class="svc-tag">CIPM</span>
+      </div>
+      <svg class="svc-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="svc-card reveal">
+      <div class="svc-num">05</div>
+      <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+        <circle cx="12" cy="12" r="5"/>
+        <circle cx="26" cy="24" r="5"/>
+        <path d="M16.5 14.5 L21.5 21.5"/>
+        <path d="M12 17v5M26 7v5M7 12h5M21 24h5"/>
+      </svg>
+      <h3>Business Development Strategy</h3>
+      <p>Outreach systems, CRM optimization, sales workflow automation, and relationship management frameworks that help you grow your client base and deepen existing relationships.</p>
+      <div class="svc-tags">
+        <span class="svc-tag">CRM</span>
+        <span class="svc-tag">Salesforce</span>
+        <span class="svc-tag">Outreach</span>
+        <span class="svc-tag">Pipeline</span>
+      </div>
+      <svg class="svc-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="svc-card reveal">
+      <div class="svc-num">06</div>
+      <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
+        <circle cx="18" cy="18" r="5"/>
+        <path d="M18 4v5M18 27v5M4 18h5M27 18h5"/>
+        <path d="M8.5 8.5l3.5 3.5M24 24l3.5 3.5M24 12l3.5-3.5M8.5 27.5l3.5-3.5"/>
+        <circle cx="18" cy="18" r="11" stroke-dasharray="3 3"/>
+      </svg>
+      <h3>Autonomous AI Agent Setup</h3>
+      <p>Design, deploy, and configure AI agents that work independently — monitoring inboxes, triggering workflows, summarizing reports, and completing multi-step tasks without human intervention.</p>
+      <div class="svc-tags">
+        <span class="svc-tag">AI Agents</span>
+        <span class="svc-tag">Automation</span>
+        <span class="svc-tag">n8n / Make</span>
+        <span class="svc-tag">LLM Integration</span>
+      </div>
+      <svg class="svc-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="process-header reveal">
+    <p class="section-label">How It Works</p>
+    <h2>A simple, <em>structured engagement.</em></h2>
+    <p>No drawn-out discovery phases. I move quickly from understanding your problem to delivering a working solution.</p>
+  </div>
+  <div class="process-steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <h4>Discovery Call</h4>
+      <p>We spend 30–45 minutes mapping your current workflows, pain points, and the outcomes you want to achieve. No charge, no commitment.</p>
+      <div class="step-connector"></div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <h4>Scoping &amp; Proposal</h4>
+      <p>I deliver a clear proposal: defined deliverables, timeline, and pricing. You know exactly what you're getting before we start.</p>
+      <div class="step-connector"></div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <h4>Build &amp; Iterate</h4>
+      <p>I build your solution with regular check-ins and demos. You provide feedback throughout — no surprises at the finish line.</p>
+      <div class="step-connector"></div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">04</div>
+      <h4>Handoff &amp; Support</h4>
+      <p>Full documentation, training for your team, and ongoing support so your solution keeps working long after the engagement ends.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PORTFOLIO TOOL TEASER -->
+<section id="portfolio-teaser" style="background:var(--surface); padding:100px 64px;">
+  <div style="max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center;">
+    <div class="reveal">
+      <p class="section-label">Free Tool</p>
+      <h2>Portfolio <em>Allocation</em><br>Analyzer.</h2>
+      <p style="margin-top:24px; font-size:14px; line-height:1.9; color:var(--muted); font-weight:300;">
+        Build and stress-test a multi-fund portfolio in minutes. Search from 50+ institutional funds, set allocation targets, and instantly see projected returns, Sharpe ratio, volatility, efficient frontier, and benchmark comparison — all in one interactive tool.
+      </p>
+      <div style="margin-top:28px; display:flex; flex-wrap:wrap; gap:8px;">
+        <span class="svc-tag">Efficient Frontier</span>
+        <span class="svc-tag">Sharpe Ratio</span>
+        <span class="svc-tag">Benchmark vs S&P 500</span>
+        <span class="svc-tag">Constraint Analysis</span>
+        <span class="svc-tag">50+ Funds</span>
+      </div>
+      <a href="portfolio-tool.html" style="display:inline-block; margin-top:40px; font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink); background:var(--teal-light); padding:15px 34px; text-decoration:none; transition:background .2s, transform .15s;">
+        Launch Tool →
+      </a>
+    </div>
+    <div class="reveal" style="position:relative;">
+      <!-- Decorative mockup of the tool -->
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:4px; padding:28px; position:relative; overflow:hidden;">
+        <div style="position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(61,184,154,.4),transparent);"></div>
+        <div style="font-family:var(--mono); font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--teal-light); margin-bottom:20px;">01 · Projected Metrics</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div style="padding:16px; background:var(--surface); border:1px solid var(--border);">
+            <div style="font-family:var(--mono); font-size:9px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px;">Projected Value</div>
+            <div style="font-family:var(--serif); font-size:26px; color:var(--teal-light);">$2.41M</div>
+            <div style="font-family:var(--mono); font-size:9px; color:var(--muted); margin-top:4px;">over 10 yrs · gain $1.41M</div>
+          </div>
+          <div style="padding:16px; background:var(--surface); border:1px solid var(--border);">
+            <div style="font-family:var(--mono); font-size:9px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px;">Sharpe Ratio</div>
+            <div style="font-family:var(--serif); font-size:26px; color:#4caf7d;">0.94</div>
+            <div style="font-family:var(--mono); font-size:9px; color:var(--muted); margin-top:4px;">vs 4.5% risk-free rate</div>
+          </div>
+          <div style="padding:16px; background:var(--surface); border:1px solid var(--border);">
+            <div style="font-family:var(--mono); font-size:9px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px;">Net Return</div>
+            <div style="font-family:var(--serif); font-size:26px; color:#4caf7d;">+9.24%</div>
+            <div style="font-family:var(--mono); font-size:9px; color:var(--muted); margin-top:4px;">gross 9.62% less 0.38% costs</div>
+          </div>
+          <div style="padding:16px; background:var(--surface); border:1px solid var(--border);">
+            <div style="font-family:var(--mono); font-size:9px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px;">Volatility</div>
+            <div style="font-family:var(--serif); font-size:26px; color:#e8c97a;">10.8%</div>
+            <div style="font-family:var(--mono); font-size:9px; color:var(--muted); margin-top:4px;">std deviation · 4-fund blend</div>
+          </div>
+        </div>
+        <div style="margin-top:16px; padding:12px 16px; background:rgba(61,184,154,.06); border:1px solid rgba(61,184,154,.2); font-family:var(--mono); font-size:10px; color:var(--teal-light);">
+          ✓ All portfolio constraints satisfied
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-bg-glow"></div>
+  <div class="contact-inner reveal">
+    <p class="section-label">Let's Talk</p>
+    <h2>Ready to <em>streamline</em> your operations?</h2>
+    <p class="contact-intro">Tell me a bit about what you're working on and I'll follow up within one business day to schedule a free discovery call.</p>
+
+    <div id="formWrap">
+      <div class="lead-form">
+        <div class="field">
+          <label>First Name</label>
+          <input type="text" id="fname" placeholder="Jane"/>
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" id="lname" placeholder="Smith"/>
+        </div>
+        <div class="field full">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="jane@yourfirm.com"/>
+        </div>
+        <div class="field">
+          <label>Organization</label>
+          <input type="text" id="org" placeholder="Your Firm"/>
+        </div>
+        <div class="field">
+          <label>Primary Interest</label>
+          <select id="interest">
+            <option value="" disabled selected>Select a service area</option>
+            <option>Microsoft 365 Automation</option>
+            <option>VBA Development</option>
+            <option>Python Scripting</option>
+            <option>Autonomous AI Agent Setup</option>
+            <option>OCIO / Investment Consulting</option>
+            <option>Investment Performance</option>
+            <option>Business Development</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>What are you trying to solve?</label>
+          <textarea id="message" placeholder="Briefly describe your challenge or goal..."></textarea>
+        </div>
+        <div class="submit-row">
+          <button class="submit-btn" onclick="handleSubmit()"><span>Send Inquiry →</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-success" id="successMsg">
+      <div class="success-mark">✦</div>
+      <h3>Message received.</h3>
+      <p>Thanks for reaching out. I'll be in touch within one business day<br>to schedule our discovery call.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<!-- LINKEDIN -->
+<section id="linkedin">
+  <div style="max-width:860px;margin:0 auto;">
+    <div class="reveal" style="margin-bottom:36px;">
+      <p class="section-label">Connect With Evan</p>
+      <h2>Find me on <em>LinkedIn.</em></h2>
+    </div>
+    <div class="li-inner reveal">
+      <div class="li-avatar">EW</div>
+      <div class="li-info">
+        <div class="li-name">Evan Witkowski, CIPM</div>
+        <div class="li-title">Director — Institutional Relationships · Wespath Benefits &amp; Investments · Glenview, IL</div>
+        <div class="li-creds">
+          <span class="li-cred">CIPM</span>
+          <span class="li-cred">FSA Credential Holder</span>
+          <span class="li-cred">5+ Yrs OCIO</span>
+          <span class="li-cred">GIPS Verified</span>
+          <span class="li-cred">Nonprofit Investing</span>
+          <span class="li-cred">VBA · Python</span>
+          <span class="li-cred">AI Automation</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.8;margin-top:14px;font-family:var(--sans);font-weight:300;max-width:480px;">
+          Institutional investment professional with 10+ years across Wespath Benefits &amp; Investments, Northern Trust Corporation, and the State of Wisconsin Investment Board. Expert in OCIO, nonprofit portfolio strategy, workflow automation, and AI agent deployment.
+        </p>
+      </div>
+      <a href="https://www.linkedin.com/in/evan-witkowski-cipm-fsa-credential-holder-322a221b/" target="_blank" class="li-connect">Connect on LinkedIn →</a>
+      <div class="li-stats">
+        <div class="li-stat">
+          <div class="li-stat-num">$2.5B+</div>
+          <div class="li-stat-label">AUM Managed Historically</div>
+        </div>
+        <div class="li-stat">
+          <div class="li-stat-num">10+</div>
+          <div class="li-stat-label">Years in Finance</div>
+        </div>
+        <div class="li-stat">
+          <div class="li-stat-num">5+</div>
+          <div class="li-stat-label">Years OCIO</div>
+        </div>
+        <div class="li-stat">
+          <div class="li-stat-num">3</div>
+          <div class="li-stat-label">Top Institutions</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHATBOT BUTTON -->
+<button id="chat-btn" onclick="toggleChat()" aria-label="Open chat">
+  <div class="chat-pulse"></div>
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+    <path d="M3 4a2 2 0 012-2h12a2 2 0 012 2v9a2 2 0 01-2 2H8l-5 4V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<!-- CHATBOT WINDOW -->
+<div id="chat-window">
+  <div class="chat-header">
+    <div class="chat-avatar">EW</div>
+    <div class="chat-header-info">
+      <div class="chat-name">Witkowski Advisory</div>
+      <div class="chat-status"><span class="chat-dot"></span> AI Assistant · Online</div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-suggestions" id="chatSuggestions">
+    <button class="sug-btn" onclick="sendSuggestion(this)">What services do you offer?</button>
+    <button class="sug-btn" onclick="sendSuggestion(this)">Tell me about Evan's background</button>
+    <button class="sug-btn" onclick="sendSuggestion(this)">How does OCIO consulting work?</button>
+    <button class="sug-btn" onclick="sendSuggestion(this)">Can you automate my workflows?</button>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chatInput" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')sendMessage()"/>
+    <button class="chat-send" onclick="sendMessage()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M2 8h12M10 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<footer>
+  <a href="#" class="logo">
+    Witkowski Advisory Group
+    <span class="logo-sub">Glenview, Illinois</span>
+  </a>
+  <div class="footer-right">
+    <a href="https://www.linkedin.com/in/evan-witkowski-cipm-fsa-credential-holder-322a221b/" target="_blank">LinkedIn</a>
+    <a href="#contact">Contact</a>
+    <span class="footer-copy">© 2026 Evan Witkowski</span>
+  </div>
+</footer>
+
+<script>
+  // Cursor
+  const cur = document.getElementById('cur');
+  const ring = document.getElementById('curRing');
+  let mx=0, my=0, rx=0, ry=0;
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+  (function anim() {
+    cur.style.left=mx+'px'; cur.style.top=my+'px';
+    rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(anim);
+  })();
+  document.querySelectorAll('a,button,.svc-card').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ ring.style.width='44px'; ring.style.height='44px'; });
+    el.addEventListener('mouseleave',()=>{ ring.style.width='30px'; ring.style.height='30px'; });
+  });
+
+  // Nav scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('nav').classList.toggle('scrolled', scrollY > 50);
+  });
+
+  // Scroll reveal
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // Stagger service cards
+  document.querySelectorAll('.svc-card.reveal').forEach((el,i) => {
+    el.style.transitionDelay = (i * 0.07) + 's';
+  });
+
+  // Form submit → Formspree
+  async function handleSubmit() {
+    let ok = true;
+    ['fname','lname','email','org'].forEach(id => {
+      const el = document.getElementById(id);
+      if(!el.value.trim()) { el.classList.add('err'); ok=false; }
+      else el.classList.remove('err');
+    });
+    if(!ok) return;
+
+    const btn = document.querySelector('.submit-btn');
+    btn.disabled = true;
+    btn.querySelector('span').textContent = 'Sending…';
+
+    const payload = {
+      name:         document.getElementById('fname').value.trim() + ' ' + document.getElementById('lname').value.trim(),
+      email:        document.getElementById('email').value.trim(),
+      organization: document.getElementById('org').value.trim(),
+      interest:     document.getElementById('interest').value,
+      message:      document.getElementById('message').value.trim(),
+      _replyto:     document.getElementById('email').value.trim(),
+      _subject:     'New Inquiry — Witkowski Advisory Group'
+    };
+
+    try {
+      // Formspree endpoint — replace YOUR_FORM_ID after signing up at formspree.io
+      // with your email witkowski.16@gmail.com to get your unique form ID.
+      const res = await fetch('https://formspree.io/f/xwvaznev', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if(res.ok) {
+        document.getElementById('formWrap').style.display='none';
+        document.getElementById('successMsg').classList.add('show');
+      } else {
+        throw new Error('Server error');
+      }
+    } catch(e) {
+      btn.disabled = false;
+      btn.querySelector('span').textContent = 'Send Inquiry →';
+      alert('Something went wrong. Please email witkowski.16@gmail.com directly.');
+    }
+  }
+  // ── ANNOUNCEMENT BAR — Live Yahoo Finance + News ──
+
+  // Always-visible fallback prices (last known closes) shown when markets are closed
+  const FALLBACK_MARKET = [
+    { sym:'SPX',  name:'S&P 500',      price:'5,611.85', chg:'+0.74%', up:true },
+    { sym:'NDX',  name:'NASDAQ',        price:'19,480.50', chg:'+1.02%', up:true },
+    { sym:'DJI',  name:'Dow Jones',     price:'41,317.43', chg:'+0.38%', up:true },
+    { sym:'RUT',  name:'Russell 2000',  price:'2,071.34', chg:'-0.18%', up:false },
+    { sym:'VIX',  name:'Volatility',    price:'17.31',    chg:'-3.20%', up:false },
+    { sym:'TLT',  name:'20Y Treasury',  price:'88.74',    chg:'+0.29%', up:true },
+    { sym:'GLD',  name:'Gold',          price:'234.56',   chg:'+0.51%', up:true },
+    { sym:'DXY',  name:'USD Index',     price:'104.48',   chg:'-0.12%', up:false },
+  ];
+
+  const FALLBACK_NEWS = [
+    { src:'MarketWatch', headline:'Fed signals patience on rate cuts as inflation data stays sticky', url:'https://www.marketwatch.com' },
+    { src:'Reuters',     headline:'S&P 500 edges higher as earnings season kicks off with solid bank results', url:'https://www.reuters.com/finance' },
+    { src:'Bloomberg',   headline:'Treasury yields dip ahead of key jobs report this Friday', url:'https://www.bloomberg.com/markets' },
+    { src:'CNBC',        headline:'Private equity deal activity picks up as credit markets stabilize', url:'https://www.cnbc.com/finance' },
+    { src:'WSJ',         headline:'Institutional investors shift toward alternatives amid equity volatility', url:'https://www.wsj.com/finance' },
+    { src:'FT',          headline:'OCIO model gains traction among mid-size endowments seeking outsourced expertise', url:'https://www.ft.com/markets' },
+  ];
+
+  const tickers = ['%5EGSPC','%5EIXIC','%5EDJI','%5ERUT','%5EVIX','TLT','GLD','DX-Y.NYB'];
+  const tickerLabels = {'%5EGSPC':'S&P 500','%5EIXIC':'NASDAQ','%5EDJI':'Dow Jones','%5ERUT':'Russell 2000','%5EVIX':'VIX','TLT':'20Y Treasury','GLD':'Gold','DX-Y.NYB':'USD Index'};
+  const tickerSyms   = {'%5EGSPC':'SPX','%5EIXIC':'NDX','%5EDJI':'DJI','%5ERUT':'RUT','%5EVIX':'VIX','TLT':'TLT','GLD':'GLD','DX-Y.NYB':'DXY'};
+
+  async function fetchMarketData() {
+    try {
+      const symbols = tickers.join(',');
+      const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}&fields=regularMarketPrice,regularMarketChangePercent,shortName`;
+      const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const res = await fetch(proxy, { signal: AbortSignal.timeout(6000) });
+      const json = await res.json();
+      const data = JSON.parse(json.contents);
+      const quotes = data?.quoteResponse?.result || [];
+      if(quotes.length === 0) throw new Error('empty');
+      const items = quotes.map(q => {
+        const chgPct = q.regularMarketChangePercent || 0;
+        const up = chgPct >= 0;
+        const key = tickers.find(t => decodeURIComponent(t) === q.symbol || t === q.symbol);
+        const sym  = tickerSyms[key]   || q.symbol;
+        const name = tickerLabels[key] || q.shortName || q.symbol;
+        const price = q.regularMarketPrice != null ? Number(q.regularMarketPrice).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+        const chg  = (up ? '+' : '') + chgPct.toFixed(2) + '%';
+        return { sym, name, price, chg, up };
+      });
+      // Merge live prices into fallback so we always show something
+      return FALLBACK_MARKET.map(fb => {
+        const live = items.find(i => i.sym === fb.sym);
+        return live || fb;
+      });
+    } catch(e) {
+      return FALLBACK_MARKET; // always show last-known data
+    }
+  }
+
+  async function fetchNews() {
+    try {
+      // Yahoo Finance RSS via proxy
+      const rssUrl = 'https://finance.yahoo.com/news/rssindex';
+      const proxy  = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
+      const res = await fetch(proxy, { signal: AbortSignal.timeout(6000) });
+      const json = await res.json();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(json.contents, 'text/xml');
+      const items = [...xml.querySelectorAll('item')].slice(0, 8).map(item => ({
+        src: 'Yahoo Finance',
+        headline: item.querySelector('title')?.textContent?.trim() || '',
+        url: item.querySelector('link')?.textContent?.trim() || 'https://finance.yahoo.com'
+      })).filter(i => i.headline);
+      if(items.length === 0) throw new Error('no items');
+      return [...items, ...items];
+    } catch(e) {
+      return [...FALLBACK_NEWS, ...FALLBACK_NEWS];
+    }
+  }
+
+  function buildMarketTicker(items) {
+    const doubled = [...items, ...items];
+    return doubled.map(d => `
+      <span class="announce-item">
+        <span class="ticker-sym">${d.sym}</span>
+        ${d.name}&nbsp;${d.price}
+        <span class="chg ${d.up?'up':'dn'}">${d.chg}</span>
+        &nbsp;·
+      </span>`).join('');
+  }
+
+  function buildNewsTicker(items) {
+    return items.map(d => `
+      <span class="news-item">
+        <span class="news-src">${d.src}</span>
+        <a href="${d.url}" target="_blank" rel="noopener">${d.headline}</a>
+        &nbsp;·&nbsp;
+      </span>`).join('');
+  }
+
+  async function initTicker() {
+    const [marketItems, newsItems] = await Promise.all([fetchMarketData(), fetchNews()]);
+    document.getElementById('tickerInner').innerHTML = buildMarketTicker(marketItems);
+    document.getElementById('newsInner').innerHTML   = buildNewsTicker(newsItems);
+  }
+
+  initTicker();
+  setInterval(initTicker, 5 * 60 * 1000); // refresh every 5 min
+
+  document.body.classList.add('bar-visible');
+  function closeBar() {
+    document.getElementById('announce-bar').style.display='none';
+    document.body.classList.remove('bar-visible');
+  }
+
+  // ── CHATBOT ──
+  const SYSTEM_PROMPT = `You are a knowledgeable AI assistant for Witkowski Advisory Group, representing Evan Witkowski. You ALWAYS answer questions fully and helpfully. Never deflect to email unless a user is explicitly asking to book a meeting or make a purchase decision.
+
+About Evan Witkowski:
+- CIPM certified, FSA Credential Holder
+- Currently: Director of Institutional Relationships at Wespath Benefits & Investments (Feb 2025–Present)
+- Previously: Institutional Relationship Manager at Wespath (2021–2025), Manager Institutional Investment Services at Wespath (2020–2021)
+- State of Wisconsin Investment Board — Performance Operations Manager (2019–2020)
+- Northern Trust Corporation — 6 years: Manager VP, Consultant, Team Leader, Senior Analyst Investment Performance (2013–2019)
+- 5+ years of OCIO (Outsourced Chief Investment Officer) experience
+- Managed individual client relationships from $25M to $250M AUM; over $2.5B in client AUM managed historically across 30+ endowments and foundations
+- Led a firm through full GIPS compliance and verification end-to-end
+- Nonprofit investing and balance sheet expert — brings holistic portfolio view connecting investment strategy, liquidity, liabilities and mission
+- Expert in Microsoft 365 automation: Power Automate, SharePoint, Teams, Excel, Power BI
+- Expert VBA developer for Excel and Access — macros, reporting, financial models
+- Python scripting: data pipelines, API integrations, report automation, pandas
+- Autonomous AI agent setup and deployment (n8n, Make, LLM integrations)
+- Business development strategy, CRM optimization (Salesforce), outreach systems
+- Based in Glenview, Illinois
+
+Services:
+1. Microsoft 365 Automation — Power Automate flows, SharePoint, Teams, Excel automation
+2. VBA Development — Custom Excel/Access macros, financial model automation
+3. Python Scripting & Automation — Data pipelines, APIs, scheduling
+4. Investment Performance & OCIO Consulting — GIPS, attribution, nonprofit investing, balance sheet strategy
+5. Business Development Strategy — CRM, Salesforce, outreach, pipeline management
+6. Autonomous AI Agent Setup — AI agents that monitor, trigger, summarize and complete tasks
+
+Personality: Professional, direct, knowledgeable. You speak with authority on both finance and technology. Keep answers concise (2-4 sentences) unless the user asks for detail. Only suggest contacting Evan when a user is ready to engage or asks how to get started.`;
+
+  let chatHistory = [];
+  let chatOpen = false;
+
+  function toggleChat() {
+    chatOpen = !chatOpen;
+    document.getElementById('chat-window').classList.toggle('open', chatOpen);
+    if(chatOpen && chatHistory.length === 0) {
+      setTimeout(() => addBotMessage("Hi! I'm the Witkowski Advisory AI assistant. Ask me about Evan's background, services, or how automation and investment consulting could help your organization."), 400);
+    }
+    if(chatOpen) document.getElementById('chatInput').focus();
+  }
+
+  function addBotMessage(text) {
+    const msgs = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    div.textContent = text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function addUserMessage(text) {
+    const msgs = document.getElementById('chatMessages');
+    document.getElementById('chatSuggestions').style.display = 'none';
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.textContent = text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function addTyping() {
+    const msgs = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg-typing'; div.id = 'typingIndicator';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+
+  function sendSuggestion(btn) {
+    const text = btn.textContent;
+    document.getElementById('chatSuggestions').style.display = 'none';
+    addUserMessage(text);
+    chatHistory.push({ role:'user', content:text });
+    notifyEvan(text);
+    getResponse();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if(!text) return;
+    input.value = '';
+    addUserMessage(text);
+    chatHistory.push({ role:'user', content:text });
+    notifyEvan(text);
+    getResponse();
+  }
+
+  // Fire-and-forget SMS via Verizon email-to-text gateway
+  async function notifyEvan(userMessage) {
+    // Only notify on first message and every 3rd after (avoid spam)
+    const msgCount = chatHistory.filter(m => m.role === 'user').length;
+    if(msgCount > 1 && msgCount % 3 !== 0) return;
+
+    const isFirst = msgCount === 1;
+    const subject = isFirst
+      ? 'New chat visitor on witkowskiadvisory.com'
+      : 'Chat continues on witkowskiadvisory.com';
+    const body = isFirst
+      ? `New visitor started a chat.\n\nFirst message: "${userMessage}"\n\nVisit witkowskiadvisory.com to follow along.`
+      : `Chat update: "${userMessage}"`;
+
+    try {
+      await fetch('https://formspree.io/f/xwvaznev', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _replyto: 'noreply@witkowskiadvisory.com',
+          email:    '4403649876@vtext.com',
+          _subject: subject,
+          message:  body
+        })
+      });
+    } catch(e) { /* silent fail — don't interrupt chat */ }
+  }
+
+  async function getResponse() {
+    const typing = addTyping();
+    try {
+      const res = await fetch('/.netlify/functions/chat', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({
+          system: SYSTEM_PROMPT,
+          messages: chatHistory
+        })
+      });
+      const data = await res.json();
+      if (data.error) {
+        typing.remove();
+        addBotMessage('⚠ API error: ' + data.error);
+        return;
+      }
+      const reply = data.content?.[0]?.text;
+      if (!reply) {
+        typing.remove();
+        addBotMessage('⚠ No reply received. Raw: ' + JSON.stringify(data).slice(0, 120));
+        return;
+      }
+      typing.remove();
+      addBotMessage(reply);
+      chatHistory.push({ role:'assistant', content:reply });
+    } catch(e) {
+      typing.remove();
+      addBotMessage('⚠ Network error: ' + e.message);
+    }
+  }
+</script>
+</body>
+</html>
