@@ -202,6 +202,120 @@
     @keyframes spin{to{transform:rotate(360deg);}}
     .loading-text{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);}
 
+    /* MODAL */
+    .modal-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.75);
+      z-index:800;display:flex;align-items:center;justify-content:center;
+      padding:24px;opacity:0;pointer-events:none;
+      transition:opacity .25s ease;
+    }
+    .modal-overlay.open{opacity:1;pointer-events:all;}
+    .modal-box{
+      background:var(--deep);
+      border:1px solid var(--border);
+      width:100%;max-width:580px;
+      max-height:88vh;overflow-y:auto;
+      position:relative;
+      transform:translateY(16px) scale(.97);
+      transition:transform .25s ease;
+      box-shadow:0 24px 64px rgba(0,0,0,.7);
+    }
+    .modal-overlay.open .modal-box{transform:translateY(0) scale(1);}
+
+    .modal-header{
+      padding:24px 28px 20px;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+      position:sticky;top:0;background:var(--deep);z-index:2;
+    }
+    .modal-header-left{}
+    .modal-ticker-row{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+    .modal-ticker{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--cream);letter-spacing:.06em;}
+    .modal-signal-badge{
+      font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+      padding:4px 12px;display:inline-flex;align-items:center;gap:5px;
+    }
+    .modal-signal-badge.BUY{background:var(--green-dim);color:var(--green);border:1px solid rgba(76,175,125,.3);}
+    .modal-signal-badge.SELL{background:var(--red-dim);color:var(--red);border:1px solid rgba(224,92,92,.25);}
+    .modal-signal-badge.HOLD{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,.25);}
+    .modal-name{font-family:var(--sans);font-size:13px;color:var(--muted);font-weight:300;}
+    .modal-close{
+      width:32px;height:32px;background:rgba(255,255,255,.05);border:1px solid var(--border);
+      color:var(--muted);cursor:pointer;font-size:18px;line-height:1;
+      display:flex;align-items:center;justify-content:center;
+      transition:background .2s,color .2s;flex-shrink:0;
+    }
+    .modal-close:hover{background:rgba(255,255,255,.1);color:var(--cream);}
+
+    .modal-body{padding:24px 28px 32px;}
+
+    .modal-price-row{
+      display:flex;gap:1px;background:var(--border);margin-bottom:24px;
+    }
+    .modal-price-cell{
+      flex:1;background:var(--card);padding:14px 18px;
+    }
+    .modal-price-label{font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);margin-bottom:5px;}
+    .modal-price-val{font-family:var(--mono);font-size:14px;color:var(--cream);}
+    .modal-price-val.up{color:var(--green);}
+    .modal-price-val.dn{color:var(--red);}
+    .modal-price-val.gold{color:var(--gold);}
+
+    .modal-section-title{
+      font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+      color:var(--teal);margin-bottom:14px;display:flex;align-items:center;gap:10px;
+    }
+    .modal-section-title::before{content:'';width:16px;height:1px;background:var(--teal);}
+
+    .modal-rationale{
+      font-size:13px;line-height:1.9;color:rgba(242,237,228,.78);
+      font-weight:300;margin-bottom:24px;
+      border-left:2px solid rgba(61,184,154,.2);
+      padding-left:16px;
+    }
+    .modal-rationale strong{color:var(--cream);font-weight:500;}
+
+    .modal-factors{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+    .modal-factor{
+      display:flex;align-items:flex-start;gap:12px;
+      padding:12px 14px;background:var(--card);
+      border:1px solid var(--border2);
+    }
+    .modal-factor-icon{
+      width:24px;height:24px;border-radius:2px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:10px;font-family:var(--mono);font-weight:500;
+    }
+    .modal-factor-icon.pos{background:rgba(76,175,125,.12);color:var(--green);border:1px solid rgba(76,175,125,.2);}
+    .modal-factor-icon.neg{background:rgba(224,92,92,.1);color:var(--red);border:1px solid rgba(224,92,92,.18);}
+    .modal-factor-icon.neu{background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.18);}
+    .modal-factor-text{}
+    .modal-factor-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);margin-bottom:2px;}
+    .modal-factor-value{font-size:12px;color:var(--cream);line-height:1.5;}
+
+    .modal-cpi-note{
+      padding:12px 16px;
+      background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);
+      font-size:12px;color:rgba(201,168,76,.8);line-height:1.7;
+    }
+    .modal-cpi-note strong{color:var(--gold);}
+
+    .modal-footer{
+      padding:16px 28px;border-top:1px solid var(--border);
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .modal-disclaimer{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--muted2);}
+    .modal-close-btn{
+      font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+      color:var(--ink);background:var(--teal);border:none;padding:9px 20px;cursor:pointer;
+      transition:background .2s;
+    }
+    .modal-close-btn:hover{background:#5bcfb0;}
+
+    /* Row clickable */
+    tbody tr{cursor:pointer;}
+    tbody tr:hover td:first-child .ticker-sym{color:var(--teal);}
+
     /* Empty state */
     .empty-state{text-align:center;padding:64px;background:var(--card);border:1px solid var(--border);}
     .empty-state p{font-family:var(--mono);font-size:11px;color:var(--muted2);letter-spacing:.1em;}
@@ -431,6 +545,34 @@
   </table>
 </div>
 
+<!-- RATIONALE MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-ticker-row">
+          <span class="modal-ticker" id="modalTicker"></span>
+          <span class="modal-signal-badge" id="modalSignalBadge"></span>
+        </div>
+        <div class="modal-name" id="modalName"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-price-row" id="modalPriceRow"></div>
+      <div class="modal-section-title">Signal Rationale</div>
+      <div class="modal-rationale" id="modalRationale"></div>
+      <div class="modal-section-title">Factor Breakdown</div>
+      <div class="modal-factors" id="modalFactors"></div>
+      <div class="modal-cpi-note" id="modalCpiNote"></div>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-disclaimer">Educational only · Not financial advice</div>
+      <button class="modal-close-btn" onclick="closeModalDirect()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <div class="page-footer">
   <div class="footer-brand">Witkowski Advisory Group</div>
@@ -638,25 +780,45 @@ function updateCpiDisplay() {
   }
 }
 
-// ── CPI ADJUSTMENT to score ──
-// Logic: deviation from neutral (3.3% = current Fed target range) * sector sensitivity
-// At 3.3% CPI → zero adjustment. Higher → penalizes sensitive sectors.
-function cpiAdjustment(cpiSens) {
-  const neutral = 3.3;
-  const dev = currentCpi - neutral;       // positive = above neutral
-  // Scale: each 1% above neutral = up to ±8 points depending on sensitivity
-  const adj = -dev * cpiSens * 5.5;
+// ── CPI ADJUSTMENT — exponential spike zone, strong enough to flip signals ──
+function cpiAdjustment(cpiSens, roc20) {
+  const neutral   = 3.3;
+  const spikeZone = 4.5;
+  const dev = currentCpi - neutral;
+
+  // Scale factor: linear below spike zone, exponential above
+  let scaleFactor;
+  if(currentCpi <= spikeZone) {
+    scaleFactor = Math.abs(dev) * 3.5;              // gentle: ~4pts max at 4.5%
+  } else {
+    const linearPart = (spikeZone - neutral) * 3.5; // ~4.2pts at spike threshold
+    const spikeDev   = currentCpi - spikeZone;
+    // Exponential above spike: 5% → ~8pts, 6% → ~16pts, 7% → ~27pts, 8% → ~42pts
+    scaleFactor = linearPart + spikeDev * spikeDev * 4.2;
+  }
+
+  // Apply sign — negative dev (below neutral) boosts sensitive stocks
+  const directedScale = dev >= 0 ? scaleFactor : -scaleFactor;
+
+  // Primary CPI adjustment
+  let adj = -directedScale * cpiSens;
+
+  // Combined penalty: negative ROC + elevated CPI — fires broadly above 4.0%
+  if(dev > 0.7 && roc20 < 0 && cpiSens < -0.15) {
+    const penalty = Math.abs(roc20) * 0.22 * Math.abs(cpiSens) * (1 + dev * 0.5);
+    adj -= penalty;
+  }
+
   return Math.round(adj * 10) / 10;
 }
 
 function recomputeAdjScores() {
   allStocks.forEach(s => {
-    const adj = cpiAdjustment(s.cpiSens);
+    const adj = cpiAdjustment(s.cpiSens, s.roc20);
     s.adjScore = Math.max(2, Math.min(98, Math.round(s.score + adj)));
     s.cpiAdj   = adj;
-    // Signal is now driven by CPI-adjusted score
-    if(s.adjScore >= 62)      s.signal = 'BUY';
-    else if(s.adjScore <= 38) s.signal = 'SELL';
+    if(s.adjScore >= 63)      s.signal = 'BUY';
+    else if(s.adjScore <= 42) s.signal = 'SELL';
     else                       s.signal = 'HOLD';
   });
 }
@@ -670,38 +832,59 @@ function generateStockData(ticker, name, sector, cpiSens, livePrice, liveChg) {
   const r = (n) => seededRand(seed + n);
   const basePrice = livePrice || (r(1) * 450 + 20);
   const dayChg    = liveChg !== null ? liveChg : (r(2) * 10 - 5);
-  const trend = r(3) > 0.52 ? 1 : -1;
-  const ma20  = basePrice * (1 - trend * r(4) * 0.04);
-  const ma50  = basePrice * (1 - trend * r(5) * 0.08);
-  const ma200 = basePrice * (1 - trend * r(6) * 0.14);
+
+  // Trend — balanced 50/50
+  const trend = r(3) > 0.50 ? 1 : -1;
+
+  // MAs — tighter spread so more stocks sit near crossover points
+  const ma20  = basePrice * (1 - trend * r(4) * 0.035);
+  const ma50  = basePrice * (1 - trend * r(5) * 0.07);
+  const ma200 = basePrice * (1 - trend * r(6) * 0.12);
   const aboveMa20  = basePrice > ma20;
   const aboveMa50  = basePrice > ma50;
   const aboveMa200 = basePrice > ma200;
-  const roc20 = trend * (r(7) * 18 + 1);
-  const roc50 = trend * (r(8) * 28 + 1);
+
+  // ROC — centered around zero with spread in both directions
+  const roc20 = (r(7) * 28 - 14) + trend * 2.5;  // range ~-14 to +14, nudged by trend
+  const roc50 = (r(8) * 36 - 18) + trend * 3.5;
+
   const volRatio = 0.4 + r(9) * 2.4;
   const volSurge = volRatio > 1.5;
   const rs = Math.round(r(10) * 99 + 1);
 
-  // Base momentum score
-  let score = 50;
-  if(aboveMa20)  score += 8;  else score -= 8;
-  if(aboveMa50)  score += 10; else score -= 10;
-  if(aboveMa200) score += 12; else score -= 12;
-  score += roc20 * 0.6;
-  score += roc50 * 0.3;
-  score += (rs - 50) * 0.15;
-  if(volSurge && trend > 0) score += 5;
-  if(dayChg > 2) score += 3;
-  if(dayChg < -2) score -= 3;
+  // ── BASE MOMENTUM SCORE ──
+  // Compressed range: designed so scores naturally spread ~25–75
+  // Neutral starts at 47. Max achievable: ~72. Min: ~22.
+  let score = 47;
+
+  // MA alignment — smaller increments so scores don't cluster at extremes
+  if(aboveMa20)  score += 5;  else score -= 6;
+  if(aboveMa50)  score += 6;  else score -= 7;
+  if(aboveMa200) score += 7;  else score -= 8;
+
+  // ROC — asymmetric, negative hits harder
+  score += roc20 >= 0 ? roc20 * 0.45 : roc20 * 0.70;
+  score += roc50 >= 0 ? roc50 * 0.20 : roc50 * 0.35;
+
+  // Relative strength — moderate influence
+  score += (rs - 50) * 0.12;
+
+  // Volume
+  if(volSurge && trend > 0) score += 3;
+  if(volSurge && trend < 0) score -= 3;
+
+  // Day change
+  if(dayChg > 2)  score += 2;
+  if(dayChg < -2) score -= 2.5;
+
   score = Math.max(2, Math.min(98, Math.round(score)));
 
-  // CPI-adjusted score
-  const adj = cpiAdjustment(cpiSens);
+  // CPI-adjusted score and signal
+  const adj = cpiAdjustment(cpiSens, roc20);
   const adjScore = Math.max(2, Math.min(98, Math.round(score + adj)));
   let signal;
-  if(adjScore >= 62)      signal = 'BUY';
-  else if(adjScore <= 38) signal = 'SELL';
+  if(adjScore >= 63)      signal = 'BUY';
+  else if(adjScore <= 42) signal = 'SELL';
   else                     signal = 'HOLD';
 
   return {
@@ -838,7 +1021,7 @@ function renderTable(rows) {
     const roc20Fmt = (s.roc20>=0?'+':'')+s.roc20.toFixed(1)+'%';
     const roc20Cls = s.roc20>=0?'up':'dn';
     const priceFmt = '$'+s.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-    const baseColor  = s.score>=62?'var(--green)':s.score<=38?'var(--red)':'var(--gold)';
+    const baseColor  = s.score>=63?'var(--green)':s.score<=42?'var(--red)':'var(--gold)';
     const adjColor   = s.adjScore>=62?'var(--green)':s.adjScore<=38?'var(--red)':'var(--gold)';
     const adjDiff    = s.adjScore - s.score;
     const adjLabel   = adjDiff===0 ? '' : adjDiff>0 ? `<span style="color:var(--green);font-size:8px;"> ▲${adjDiff}</span>` : `<span style="color:var(--red);font-size:8px;"> ▼${Math.abs(adjDiff)}</span>`;
@@ -850,7 +1033,7 @@ function renderTable(rows) {
     const volBadge = s.volSurge
       ? `<span class="vol-badge surge">↑ ${s.volRatio.toFixed(1)}x</span>`
       : `<span class="vol-badge normal">${s.volRatio.toFixed(1)}x</span>`;
-    return `<tr>
+    return `<tr onclick="openModal('${s.ticker}')">
       <td><div class="td-ticker"><span class="ticker-sym">${s.ticker}</span><div><span class="ticker-name">${s.name}</span><br><span style="font-family:var(--mono);font-size:8px;color:var(--muted2);letter-spacing:.08em;">${s.sector}</span></div></div></td>
       <td class="td-price">${priceFmt}</td>
       <td class="td-chg ${chgCls}">${chgFmt}</td>
@@ -864,6 +1047,164 @@ function renderTable(rows) {
     </tr>`;
   }).join('');
 }
+
+// ── MODAL ──
+function openModal(ticker) {
+  const s = allStocks.find(x => x.ticker === ticker);
+  if(!s) return;
+
+  // Header
+  document.getElementById('modalTicker').textContent = s.ticker;
+  document.getElementById('modalName').textContent   = s.name + ' · ' + s.sector;
+  const badge = document.getElementById('modalSignalBadge');
+  badge.textContent = s.signal;
+  badge.className   = 'modal-signal-badge ' + s.signal;
+
+  // Price row
+  const adjDiff = s.adjScore - s.score;
+  const adjStr  = adjDiff === 0 ? 'No CPI adj.' : (adjDiff > 0 ? `+${adjDiff} CPI boost` : `${adjDiff} CPI drag`);
+  document.getElementById('modalPriceRow').innerHTML = `
+    <div class="modal-price-cell">
+      <div class="modal-price-label">Price</div>
+      <div class="modal-price-val">$${s.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+    </div>
+    <div class="modal-price-cell">
+      <div class="modal-price-label">Day Change</div>
+      <div class="modal-price-val ${s.dayChg>=0?'up':'dn'}">${s.dayChg>=0?'+':''}${s.dayChg.toFixed(2)}%</div>
+    </div>
+    <div class="modal-price-cell">
+      <div class="modal-price-label">Momentum Score</div>
+      <div class="modal-price-val gold">${s.score}/100</div>
+    </div>
+    <div class="modal-price-cell">
+      <div class="modal-price-label">CPI-Adj Score</div>
+      <div class="modal-price-val ${s.adjScore>=62?'up':s.adjScore<=38?'dn':'gold'}">${s.adjScore}/100</div>
+    </div>`;
+
+  // Rationale text
+  document.getElementById('modalRationale').innerHTML = buildRationale(s);
+
+  // Factor cards
+  document.getElementById('modalFactors').innerHTML = buildFactors(s);
+
+  // CPI note
+  const cpiEffect = s.cpiAdj > 0
+    ? `boosted <strong>+${Math.abs(s.cpiAdj).toFixed(1)} pts</strong> — ${s.sector} sectors tend to benefit in elevated inflation environments`
+    : s.cpiAdj < 0
+    ? `penalized <strong>${s.cpiAdj.toFixed(1)} pts</strong> — ${s.sector} sectors face headwinds when CPI is above neutral`
+    : `neutral — this sector has low sensitivity to CPI at current levels`;
+  document.getElementById('modalCpiNote').innerHTML =
+    `<strong>CPI Impact @ ${currentCpi.toFixed(1)}%:</strong> ${s.name} is ${cpiEffect}. Adjust the CPI slider to model different inflation scenarios.`;
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function buildRationale(s) {
+  const maStatus = [s.aboveMa20, s.aboveMa50, s.aboveMa200].filter(Boolean).length;
+  const maDesc = maStatus === 3 ? 'above all three key moving averages (20D, 50D, 200D) — a strong bullish alignment'
+    : maStatus === 2 ? 'above two of three key moving averages — moderately positive trend structure'
+    : maStatus === 1 ? 'above only one key moving average — mixed trend signal'
+    : 'below all three key moving averages — bearish trend structure';
+
+  const rocDesc = s.roc20 > 5 ? `strong positive momentum with a ${s.roc20.toFixed(1)}% 20-day rate of change`
+    : s.roc20 > 0 ? `modest positive momentum with a ${s.roc20.toFixed(1)}% 20-day rate of change`
+    : s.roc20 > -5 ? `slight negative momentum with a ${s.roc20.toFixed(1)}% 20-day rate of change`
+    : `significant negative momentum with a ${s.roc20.toFixed(1)}% 20-day rate of change`;
+
+  const rsDesc = s.rs >= 80 ? `top-tier relative strength ranking of ${s.rs}/100, outperforming most peers`
+    : s.rs >= 60 ? `above-average relative strength of ${s.rs}/100`
+    : s.rs >= 40 ? `average relative strength of ${s.rs}/100`
+    : `below-average relative strength of ${s.rs}/100, lagging most peers`;
+
+  const volDesc = s.volSurge
+    ? `volume is running at <strong>${s.volRatio.toFixed(1)}x</strong> the 30-day average — a notable surge that confirms the price move`
+    : `volume is near normal at <strong>${s.volRatio.toFixed(1)}x</strong> the 30-day average`;
+
+  const cpiNote = Math.abs(s.cpiAdj) >= 3
+    ? ` The current CPI of <strong>${currentCpi.toFixed(1)}%</strong> is a meaningful factor for ${s.sector} stocks, ${s.cpiAdj > 0 ? 'adding to' : 'reducing'} the raw momentum score by ${Math.abs(s.cpiAdj).toFixed(0)} points.`
+    : '';
+
+  if(s.signal === 'BUY') {
+    return `<strong>${s.ticker}</strong> earns a <strong>BUY</strong> signal with a CPI-adjusted score of <strong>${s.adjScore}/100</strong>. The stock is ${maDesc}, showing ${rocDesc}. It holds ${rsDesc}. ${volDesc}.${cpiNote}`;
+  } else if(s.signal === 'SELL') {
+    return `<strong>${s.ticker}</strong> earns a <strong>SELL</strong> signal with a CPI-adjusted score of <strong>${s.adjScore}/100</strong>. The stock is ${maDesc}, showing ${rocDesc}. It holds ${rsDesc}. ${volDesc}.${cpiNote}`;
+  } else {
+    return `<strong>${s.ticker}</strong> earns a <strong>HOLD</strong> signal with a CPI-adjusted score of <strong>${s.adjScore}/100</strong> — sitting in neutral territory. The stock is ${maDesc}, showing ${rocDesc}. It holds ${rsDesc}. ${volDesc}. No strong conviction in either direction at this time.${cpiNote}`;
+  }
+}
+
+function buildFactors(s) {
+  const factors = [
+    {
+      label: '20-Day Moving Average',
+      icon: s.aboveMa20 ? '+' : '−',
+      cls: s.aboveMa20 ? 'pos' : 'neg',
+      value: s.aboveMa20
+        ? `Price is above 20D MA — short-term trend is bullish. Adds to momentum score.`
+        : `Price is below 20D MA — short-term trend is bearish. Reduces momentum score.`
+    },
+    {
+      label: '50-Day Moving Average',
+      icon: s.aboveMa50 ? '+' : '−',
+      cls: s.aboveMa50 ? 'pos' : 'neg',
+      value: s.aboveMa50
+        ? `Price is above 50D MA — intermediate trend is positive. Strong momentum indicator.`
+        : `Price is below 50D MA — intermediate trend is negative. Significant bearish signal.`
+    },
+    {
+      label: '200-Day Moving Average',
+      icon: s.aboveMa200 ? '+' : '−',
+      cls: s.aboveMa200 ? 'pos' : 'neg',
+      value: s.aboveMa200
+        ? `Price is above 200D MA — long-term uptrend intact. Bullish structural backdrop.`
+        : `Price is below 200D MA — long-term downtrend. Significant bearish structural signal.`
+    },
+    {
+      label: '20-Day Rate of Change',
+      icon: s.roc20 >= 0 ? '+' : '−',
+      cls: s.roc20 >= 2 ? 'pos' : s.roc20 <= -2 ? 'neg' : 'neu',
+      value: `${s.roc20>=0?'+':''}${s.roc20.toFixed(1)}% over 20 days. ${s.roc20 > 5 ? 'Strong acceleration — high momentum.' : s.roc20 > 0 ? 'Positive but modest price momentum.' : s.roc20 > -5 ? 'Slight pullback — momentum fading.' : 'Significant decline — strong negative momentum.'}`
+    },
+    {
+      label: 'Relative Strength vs Peers',
+      icon: s.rs >= 70 ? '+' : s.rs <= 30 ? '−' : '~',
+      cls: s.rs >= 70 ? 'pos' : s.rs <= 30 ? 'neg' : 'neu',
+      value: `Ranks ${s.rs}/100 vs all screened equities. ${s.rs >= 80 ? 'Top-tier performer — strong outperformance.' : s.rs >= 60 ? 'Above average — outperforming most peers.' : s.rs >= 40 ? 'Average rank — in-line with the pack.' : 'Below average — underperforming most peers.'}`
+    },
+    {
+      label: 'Volume Analysis',
+      icon: s.volSurge ? '+' : '~',
+      cls: s.volSurge ? 'pos' : 'neu',
+      value: `${s.volRatio.toFixed(1)}x the 30-day average volume. ${s.volSurge ? 'Volume surge detected — institutional participation likely. Confirms the price move.' : 'Volume near normal — no unusual activity. Price move lacks strong conviction signal.'}`
+    },
+    {
+      label: `CPI Sensitivity (${currentCpi.toFixed(1)}% CPI)`,
+      icon: s.cpiAdj > 1 ? '+' : s.cpiAdj < -1 ? '−' : '~',
+      cls: s.cpiAdj > 1 ? 'pos' : s.cpiAdj < -1 ? 'neg' : 'neu',
+      value: `Sector sensitivity: ${s.cpiSens > 0 ? 'inflation beneficiary' : s.cpiSens < -0.3 ? 'inflation headwind' : 'low sensitivity'}. Score adjustment: ${s.cpiAdj >= 0 ? '+' : ''}${s.cpiAdj.toFixed(1)} pts at current ${currentCpi.toFixed(1)}% CPI. ${Math.abs(s.cpiAdj) < 1 ? 'Minimal impact at current CPI levels.' : 'Meaningful adjustment — CPI is a significant factor for this sector.'}`
+    },
+  ];
+
+  return factors.map(f => `
+    <div class="modal-factor">
+      <div class="modal-factor-icon ${f.cls}">${f.icon}</div>
+      <div class="modal-factor-text">
+        <div class="modal-factor-label">${f.label}</div>
+        <div class="modal-factor-value">${f.value}</div>
+      </div>
+    </div>`).join('');
+}
+
+function closeModal(e) {
+  if(e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Close on Escape key
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModalDirect(); });
 
 async function refreshData() { await buildStocks(); }
 buildStocks();
