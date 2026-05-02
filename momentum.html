@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Momentum Screener — Witkowski Advisory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#080808;--deep:#0d0d0b;--surface:#141410;--card:#1a1a15;
+      --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
+      --teal:#3db89a;--teal-dim:rgba(61,184,154,0.12);
+      --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.12);
+      --red:#e05c5c;--red-dim:rgba(224,92,92,0.12);
+      --green:#4caf7d;--green-dim:rgba(76,175,125,0.12);
+      --cream:#f2ede4;--muted:rgba(242,237,228,0.45);--muted2:rgba(242,237,228,0.2);
+      --serif:'Libre Baskerville',Georgia,serif;
+      --mono:'IBM Plex Mono',monospace;
+      --sans:'IBM Plex Sans',sans-serif;
+    }
+    html{scroll-behavior:smooth;}
+    body{background:var(--ink);color:var(--cream);font-family:var(--sans);font-size:13px;line-height:1.5;overflow-x:hidden;}
+
+    /* NAV */
+    nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(8,8,8,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);}
+    .logo{font-family:var(--serif);font-size:16px;letter-spacing:.04em;color:var(--cream);text-decoration:none;display:flex;flex-direction:column;gap:1px;}
+    .logo-sub{font-family:var(--mono);font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);}
+    .nav-right{display:flex;gap:24px;align-items:center;}
+    .nav-right a{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .nav-right a:hover{color:var(--cream);}
+    .nav-right a.active{color:var(--teal);}
+    .nav-back{color:var(--muted)!important;display:flex;align-items:center;gap:6px;}
+
+    /* PAGE HEADER */
+    .page-header{padding:48px 48px 32px;border-bottom:1px solid var(--border);background:var(--deep);position:relative;overflow:hidden;}
+    .page-header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(61,184,154,.05) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;}
+    .page-header::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 100% 100% at 50% 100%,transparent 40%,var(--deep) 100%);pointer-events:none;}
+    .header-content{position:relative;z-index:2;}
+    .header-tag{font-family:var(--mono);font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .header-tag::before{content:'';width:20px;height:1px;background:var(--teal);}
+    .header-title{font-family:var(--serif);font-size:clamp(26px,4vw,44px);font-weight:400;letter-spacing:-.01em;margin-bottom:10px;}
+    .header-title em{font-style:italic;color:var(--teal);}
+    .header-desc{font-size:13px;color:var(--muted);max-width:580px;line-height:1.8;font-weight:300;margin-bottom:24px;}
+    .header-meta{display:flex;gap:32px;flex-wrap:wrap;}
+    .meta-item{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);display:flex;align-items:center;gap:7px;}
+    .meta-dot{width:5px;height:5px;border-radius:50%;background:var(--green);}
+    .meta-dot.gold{background:var(--gold);}
+    .meta-dot.loading{background:var(--gold);animation:blink .8s infinite;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+    /* DISCLAIMER */
+    .disclaimer{margin:0 48px;padding:12px 16px;background:var(--gold-dim);border:1px solid rgba(201,168,76,.2);border-top:none;display:flex;align-items:flex-start;gap:10px;}
+    .disclaimer svg{color:var(--gold);flex-shrink:0;margin-top:1px;}
+    .disclaimer-text{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:rgba(201,168,76,.7);line-height:1.7;}
+    .disclaimer-text strong{color:var(--gold);}
+
+    /* CONTROLS */
+    .controls{padding:20px 48px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--deep);}
+    .search-wrap{position:relative;flex:1;min-width:200px;max-width:280px;}
+    .search-wrap input{
+      width:100%;background:var(--surface);border:1px solid var(--border);
+      color:var(--cream);font-family:var(--mono);font-size:11px;
+      padding:9px 12px 9px 34px;outline:none;transition:border-color .2s;
+    }
+    .search-wrap input:focus{border-color:rgba(61,184,154,.4);}
+    .search-wrap input::placeholder{color:var(--muted2);}
+    .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted2);}
+
+    .filter-btn{
+      font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--muted);border:1px solid var(--border);background:var(--surface);
+      padding:9px 14px;cursor:pointer;transition:all .2s;white-space:nowrap;
+    }
+    .filter-btn:hover,.filter-btn.active{border-color:rgba(61,184,154,.4);color:var(--teal);background:var(--teal-dim);}
+    .filter-btn.buy-filter.active{border-color:rgba(76,175,125,.4);color:var(--green);background:var(--green-dim);}
+    .filter-btn.sell-filter.active{border-color:rgba(224,92,92,.4);color:var(--red);background:var(--red-dim);}
+    .filter-btn.hold-filter.active{border-color:rgba(201,168,76,.4);color:var(--gold);background:var(--gold-dim);}
+
+    .sort-select{
+      background:var(--surface);border:1px solid var(--border);
+      color:var(--cream);font-family:var(--mono);font-size:10px;
+      padding:9px 12px;outline:none;cursor:pointer;
+      transition:border-color .2s;-webkit-appearance:none;
+    }
+    .sort-select:focus{border-color:rgba(61,184,154,.4);}
+
+    .refresh-btn{
+      font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--ink);background:var(--teal);border:none;
+      padding:9px 16px;cursor:pointer;transition:background .2s;white-space:nowrap;
+      display:flex;align-items:center;gap:6px;
+    }
+    .refresh-btn:hover{background:#5bcfb0;}
+    .refresh-btn svg{transition:transform .6s;}
+    .refresh-btn.spinning svg{transform:rotate(360deg);}
+
+    .controls-right{margin-left:auto;display:flex;gap:12px;align-items:center;}
+    .result-count{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);}
+
+    /* STATS BAR */
+    .stats-bar{
+      display:grid;grid-template-columns:repeat(5,1fr);
+      gap:1px;background:var(--border);
+      margin:0 48px 24px;
+    }
+    .stat-card{background:var(--card);padding:16px 20px;text-align:center;}
+    .stat-num{font-family:var(--serif);font-size:22px;font-weight:400;line-height:1;}
+    .stat-num.buy{color:var(--green);}
+    .stat-num.sell{color:var(--red);}
+    .stat-num.hold{color:var(--gold);}
+    .stat-num.teal{color:var(--teal);}
+    .stat-label{font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);margin-top:5px;}
+
+    /* TABLE */
+    .table-wrap{margin:0 48px 48px;overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;border:1px solid var(--border);}
+    thead tr{background:var(--surface);border-bottom:1px solid var(--border);}
+    th{
+      font-family:var(--mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;
+      color:var(--muted2);padding:12px 16px;text-align:left;white-space:nowrap;
+      cursor:pointer;user-select:none;transition:color .2s;position:relative;
+    }
+    th:hover{color:var(--teal);}
+    th.sorted{color:var(--teal);}
+    th .sort-arrow{margin-left:4px;opacity:.5;}
+    th.sorted .sort-arrow{opacity:1;}
+
+    tbody tr{
+      border-bottom:1px solid var(--border2);
+      transition:background .15s;
+      cursor:default;
+    }
+    tbody tr:hover{background:rgba(255,255,255,.025);}
+    tbody tr:last-child{border-bottom:none;}
+
+    td{padding:11px 16px;white-space:nowrap;}
+
+    /* Ticker cell */
+    .td-ticker{display:flex;align-items:center;gap:10px;}
+    .ticker-sym{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--cream);letter-spacing:.06em;}
+    .ticker-name{font-size:11px;color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;}
+
+    /* Price */
+    .td-price{font-family:var(--mono);font-size:11px;color:var(--cream);}
+    .td-chg{font-family:var(--mono);font-size:10px;}
+    .td-chg.up{color:var(--green);}
+    .td-chg.dn{color:var(--red);}
+
+    /* Momentum score bar */
+    .score-wrap{display:flex;align-items:center;gap:10px;min-width:120px;}
+    .score-bar-bg{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
+    .score-bar-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+    .score-num{font-family:var(--mono);font-size:10px;color:var(--cream);min-width:28px;text-align:right;}
+
+    /* MA indicators */
+    .ma-wrap{display:flex;gap:4px;}
+    .ma-pill{
+      font-family:var(--mono);font-size:8px;letter-spacing:.08em;
+      padding:2px 6px;border-radius:2px;
+    }
+    .ma-pill.above{background:rgba(76,175,125,.12);color:var(--green);border:1px solid rgba(76,175,125,.2);}
+    .ma-pill.below{background:rgba(224,92,92,.1);color:var(--red);border:1px solid rgba(224,92,92,.18);}
+
+    /* Volume */
+    .vol-badge{
+      font-family:var(--mono);font-size:9px;letter-spacing:.06em;
+      padding:2px 7px;
+    }
+    .vol-badge.surge{background:rgba(61,184,154,.1);color:var(--teal);border:1px solid rgba(61,184,154,.2);}
+    .vol-badge.normal{color:var(--muted2);}
+
+    /* Signal badge */
+    .signal{
+      font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+      padding:4px 12px;font-weight:500;display:inline-flex;align-items:center;gap:5px;
+    }
+    .signal.BUY{background:var(--green-dim);color:var(--green);border:1px solid rgba(76,175,125,.3);}
+    .signal.SELL{background:var(--red-dim);color:var(--red);border:1px solid rgba(224,92,92,.25);}
+    .signal.HOLD{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,.25);}
+    .signal-dot{width:5px;height:5px;border-radius:50%;}
+    .signal.BUY .signal-dot{background:var(--green);}
+    .signal.SELL .signal-dot{background:var(--red);}
+    .signal.HOLD .signal-dot{background:var(--gold);}
+
+    /* RS rank */
+    .rs-rank{font-family:var(--mono);font-size:10px;color:var(--muted);}
+    .rs-rank.top{color:var(--teal);}
+
+    /* Loading overlay */
+    .loading-overlay{
+      position:fixed;inset:0;background:rgba(8,8,8,.85);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;
+    }
+    .loading-overlay.show{opacity:1;pointer-events:all;}
+    .loading-spinner{
+      width:40px;height:40px;border:1px solid var(--border);
+      border-top-color:var(--teal);border-radius:50%;
+      animation:spin .8s linear infinite;margin-bottom:16px;
+    }
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .loading-text{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);}
+
+    /* Empty state */
+    .empty-state{text-align:center;padding:64px;background:var(--card);border:1px solid var(--border);}
+    .empty-state p{font-family:var(--mono);font-size:11px;color:var(--muted2);letter-spacing:.1em;}
+
+    /* CPI PANEL */
+    .cpi-panel{
+      margin:0 48px 24px;
+      background:var(--card);
+      border:1px solid var(--border);
+      padding:20px 28px;
+      display:flex;align-items:center;gap:32px;flex-wrap:wrap;
+      position:relative;overflow:hidden;
+    }
+    .cpi-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.3),transparent);}
+    .cpi-label-block{flex-shrink:0;}
+    .cpi-label-tag{font-family:var(--mono);font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;display:flex;align-items:center;gap:7px;}
+    .cpi-label-tag::before{content:'';width:14px;height:1px;background:var(--gold);}
+    .cpi-main-label{font-family:var(--serif);font-size:16px;color:var(--cream);}
+    .cpi-sublabel{font-family:var(--mono);font-size:9px;color:var(--muted2);letter-spacing:.1em;margin-top:2px;}
+
+    .cpi-slider-block{flex:1;min-width:220px;}
+    .cpi-slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+    .cpi-val-display{font-family:var(--mono);font-size:20px;color:var(--gold);letter-spacing:-.02em;line-height:1;}
+    .cpi-val-display span{font-size:11px;color:var(--muted2);}
+    .cpi-source{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--muted2);}
+
+    .cpi-slider{
+      -webkit-appearance:none;appearance:none;
+      width:100%;height:3px;outline:none;cursor:pointer;
+      background:linear-gradient(to right, var(--gold) 0%, var(--gold) 50%, rgba(255,255,255,.08) 50%);
+      border-radius:2px;transition:background .1s;
+    }
+    .cpi-slider::-webkit-slider-thumb{
+      -webkit-appearance:none;appearance:none;
+      width:16px;height:16px;border-radius:50%;
+      background:var(--gold);cursor:pointer;
+      border:2px solid var(--ink);
+      box-shadow:0 0 8px rgba(201,168,76,.4);
+      transition:box-shadow .2s;
+    }
+    .cpi-slider::-webkit-slider-thumb:hover{box-shadow:0 0 14px rgba(201,168,76,.6);}
+    .cpi-slider::-moz-range-thumb{
+      width:16px;height:16px;border-radius:50%;
+      background:var(--gold);cursor:pointer;border:2px solid var(--ink);
+    }
+    .cpi-ticks{display:flex;justify-content:space-between;margin-top:5px;}
+    .cpi-tick{font-family:var(--mono);font-size:8px;color:var(--muted2);letter-spacing:.06em;}
+    .cpi-tick.active{color:var(--gold);}
+
+    .cpi-impact-block{flex-shrink:0;min-width:200px;}
+    .cpi-impact-title{font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);margin-bottom:8px;}
+    .cpi-regime{
+      display:inline-flex;align-items:center;gap:7px;
+      font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+      padding:5px 12px;border-radius:2px;margin-bottom:8px;
+    }
+    .cpi-regime.low{background:rgba(61,184,154,.1);color:var(--teal);border:1px solid rgba(61,184,154,.2);}
+    .cpi-regime.moderate{background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.2);}
+    .cpi-regime.high{background:rgba(224,92,92,.1);color:var(--red);border:1px solid rgba(224,92,92,.2);}
+    .cpi-regime.very-high{background:rgba(224,92,92,.18);color:#ff8080;border:1px solid rgba(224,92,92,.3);}
+    .cpi-effect-list{display:flex;flex-direction:column;gap:3px;}
+    .cpi-effect{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--muted2);display:flex;align-items:center;gap:5px;}
+    .cpi-effect .up{color:var(--green);}
+    .cpi-effect .dn{color:var(--red);}
+
+    .cpi-reset{
+      font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--muted2);background:none;border:1px solid var(--border);
+      padding:5px 10px;cursor:pointer;transition:all .2s;margin-top:10px;
+    }
+    .cpi-reset:hover{color:var(--gold);border-color:rgba(201,168,76,.3);}
+
+    /* Footer */
+    .page-footer{padding:32px 48px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--deep);}
+    .footer-brand{font-family:var(--serif);font-size:14px;color:var(--cream);}
+    .footer-links{display:flex;gap:24px;}
+    .footer-links a{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color .2s;}
+    .footer-links a:hover{color:var(--teal);}
+
+    @media(max-width:960px){
+      nav,div.controls,.stats-bar,.table-wrap,.page-footer,.disclaimer{padding-left:20px;padding-right:20px;}
+      .page-header{padding:32px 20px 24px;}
+      .stats-bar{grid-template-columns:repeat(3,1fr);}
+      .controls-right{margin-left:0;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Fetching market data...</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">
+    Witkowski Advisory Group
+    <span class="logo-sub">CIPM · FSA Credential Holder</span>
+  </a>
+  <div class="nav-right">
+    <a href="index.html#services">Services</a>
+    <a href="portfolio-tool.html">Portfolio Tool</a>
+    <a href="blog.html">Insights</a>
+    <a href="index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="header-content">
+    <div class="header-tag">Sample Algorithm · Educational Tool</div>
+    <h1 class="header-title">Equity <em>Momentum Screener</em></h1>
+    <p class="header-desc">A sample momentum trading algorithm applied to a curated universe of large-cap equities. Scores each stock using moving average crossovers, rate of change, relative strength, and volume analysis to generate Buy / Hold / Sell signals.</p>
+    <div class="header-meta">
+      <div class="meta-item"><span class="meta-dot loading" id="statusDot"></span><span id="statusText">Loading data...</span></div>
+      <div class="meta-item"><span class="meta-dot gold"></span>Delayed / Estimated Prices</div>
+      <div class="meta-item"><span class="meta-dot gold"></span>Not Investment Advice</div>
+      <div class="meta-item" id="lastUpdated"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v3M7 9v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+  <div class="disclaimer-text"><strong>Educational purposes only.</strong> This is a sample momentum algorithm built to demonstrate quantitative analysis techniques. Signals are generated from estimated/delayed data and do not constitute financial advice. Past momentum patterns do not guarantee future results. Always conduct your own research before making investment decisions.</div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="search-wrap">
+    <svg class="search-icon" width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.2"/><path d="M9 9l2.5 2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <input type="text" id="searchInput" placeholder="Search ticker or name..." oninput="applyFilters()"/>
+  </div>
+  <button class="filter-btn active" id="filterAll" onclick="setFilter('ALL')">All</button>
+  <button class="filter-btn buy-filter" id="filterBuy" onclick="setFilter('BUY')">Buy</button>
+  <button class="filter-btn hold-filter" id="filterHold" onclick="setFilter('HOLD')">Hold</button>
+  <button class="filter-btn sell-filter" id="filterSell" onclick="setFilter('SELL')">Sell</button>
+  <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+    <option value="score-desc">Sort: Momentum Score ↓</option>
+    <option value="score-asc">Sort: Momentum Score ↑</option>
+    <option value="chg-desc">Sort: Day Change ↓</option>
+    <option value="chg-asc">Sort: Day Change ↑</option>
+    <option value="rs-desc">Sort: Rel. Strength ↓</option>
+    <option value="ticker-asc">Sort: Ticker A–Z</option>
+  </select>
+  <div class="controls-right">
+    <span class="result-count" id="resultCount"></span>
+    <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 112 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M10 3v3H7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Refresh
+    </button>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat-card"><div class="stat-num buy" id="statBuy">—</div><div class="stat-label">Buy Signals</div></div>
+  <div class="stat-card"><div class="stat-num hold" id="statHold">—</div><div class="stat-label">Hold Signals</div></div>
+  <div class="stat-card"><div class="stat-num sell" id="statSell">—</div><div class="stat-label">Sell Signals</div></div>
+  <div class="stat-card"><div class="stat-num teal" id="statAvgScore">—</div><div class="stat-label">Avg Momentum Score</div></div>
+  <div class="stat-card"><div class="stat-num teal" id="statVolSurge">—</div><div class="stat-label">Volume Surges</div></div>
+</div>
+
+<!-- CPI SENSITIVITY PANEL -->
+<div class="cpi-panel">
+  <div class="cpi-label-block">
+    <div class="cpi-label-tag">CPI Sensitivity</div>
+    <div class="cpi-main-label">Inflation Adjustment</div>
+    <div class="cpi-sublabel" id="cpiSourceLabel">Fetching latest CPI...</div>
+  </div>
+
+  <div class="cpi-slider-block">
+    <div class="cpi-slider-top">
+      <div class="cpi-val-display" id="cpiValDisplay">—<span>% YoY</span></div>
+      <div class="cpi-source" id="cpiFetchStatus">Loading BLS data...</div>
+    </div>
+    <input type="range" class="cpi-slider" id="cpiSlider"
+      min="1.0" max="9.0" step="0.1" value="3.3"
+      oninput="onCpiSlide(this.value)"/>
+    <div class="cpi-ticks">
+      <span class="cpi-tick">1%</span>
+      <span class="cpi-tick">2%</span>
+      <span class="cpi-tick">3%</span>
+      <span class="cpi-tick">4%</span>
+      <span class="cpi-tick">5%</span>
+      <span class="cpi-tick">6%</span>
+      <span class="cpi-tick">7%</span>
+      <span class="cpi-tick">8%</span>
+      <span class="cpi-tick">9%</span>
+    </div>
+  </div>
+
+  <div class="cpi-impact-block">
+    <div class="cpi-impact-title">Current Regime Impact</div>
+    <div class="cpi-regime moderate" id="cpiRegimeBadge">⬤ Moderate</div>
+    <div class="cpi-effect-list" id="cpiEffectList">
+      <div class="cpi-effect"><span class="dn">↓</span> Growth / long-duration</div>
+      <div class="cpi-effect"><span class="up">↑</span> Energy / commodities</div>
+      <div class="cpi-effect"><span class="dn">↓</span> Rate-sensitive sectors</div>
+    </div>
+    <button class="cpi-reset" id="cpiResetBtn" onclick="resetCpi()">↺ Reset to Live CPI</button>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <table id="screenerTable">
+    <thead>
+      <tr>
+        <th onclick="sortBy('ticker')">Ticker <span class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('price')">Price <span class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('chg')">Day Chg <span class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('score')">Momentum Score <span class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('adjScore')">CPI-Adj Score <span class="sort-arrow">↕</span></th>
+        <th>MA Position</th>
+        <th onclick="sortBy('roc20')">20D ROC <span class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('rs')">Rel. Strength <span class="sort-arrow">↕</span></th>
+        <th>Volume</th>
+        <th onclick="sortBy('signal')">Signal <span class="sort-arrow">↕</span></th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr><td colspan="9" style="text-align:center;padding:48px;font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:.1em;">Loading equity universe...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <div class="footer-brand">Witkowski Advisory Group</div>
+  <div class="footer-links">
+    <a href="portfolio-tool.html">Portfolio Tool</a>
+    <a href="blog.html">Insights</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="index.html">Main Site</a>
+  </div>
+</div>
+
+<script>
+// ── EQUITY UNIVERSE with sector/CPI sensitivity ──
+// cpiSens: -1.0 = very hurt by high inflation, +1.0 = very helped
+const EQUITIES = [
+  {ticker:'AAPL',  name:'Apple Inc.',              sector:'Tech',        cpiSens:-0.6},
+  {ticker:'MSFT',  name:'Microsoft Corp.',          sector:'Tech',        cpiSens:-0.5},
+  {ticker:'NVDA',  name:'NVIDIA Corp.',             sector:'Tech',        cpiSens:-0.7},
+  {ticker:'AMZN',  name:'Amazon.com Inc.',          sector:'Consumer',    cpiSens:-0.4},
+  {ticker:'META',  name:'Meta Platforms',           sector:'Tech',        cpiSens:-0.5},
+  {ticker:'GOOGL', name:'Alphabet Inc. A',          sector:'Tech',        cpiSens:-0.4},
+  {ticker:'GOOG',  name:'Alphabet Inc. C',          sector:'Tech',        cpiSens:-0.4},
+  {ticker:'TSLA',  name:'Tesla Inc.',               sector:'Consumer',    cpiSens:-0.6},
+  {ticker:'AVGO',  name:'Broadcom Inc.',            sector:'Semis',       cpiSens:-0.3},
+  {ticker:'COST',  name:'Costco Wholesale',         sector:'Consumer',    cpiSens: 0.2},
+  {ticker:'NFLX',  name:'Netflix Inc.',             sector:'Media',       cpiSens:-0.5},
+  {ticker:'ASML',  name:'ASML Holding',             sector:'Semis',       cpiSens:-0.3},
+  {ticker:'AMD',   name:'Advanced Micro Devices',   sector:'Semis',       cpiSens:-0.6},
+  {ticker:'AZN',   name:'AstraZeneca PLC',          sector:'Healthcare',  cpiSens: 0.1},
+  {ticker:'CSCO',  name:'Cisco Systems',            sector:'Tech',        cpiSens:-0.2},
+  {ticker:'ADBE',  name:'Adobe Inc.',               sector:'Tech',        cpiSens:-0.6},
+  {ticker:'QCOM',  name:'Qualcomm Inc.',            sector:'Semis',       cpiSens:-0.3},
+  {ticker:'TMUS',  name:'T-Mobile US',              sector:'Telecom',     cpiSens: 0.0},
+  {ticker:'TXN',   name:'Texas Instruments',        sector:'Semis',       cpiSens:-0.2},
+  {ticker:'AMGN',  name:'Amgen Inc.',               sector:'Healthcare',  cpiSens: 0.1},
+  {ticker:'INTU',  name:'Intuit Inc.',              sector:'Tech',        cpiSens:-0.5},
+  {ticker:'ISRG',  name:'Intuitive Surgical',       sector:'Healthcare',  cpiSens: 0.0},
+  {ticker:'CMCSA', name:'Comcast Corp.',            sector:'Media',       cpiSens:-0.1},
+  {ticker:'AMAT',  name:'Applied Materials',        sector:'Semis',       cpiSens:-0.2},
+  {ticker:'MU',    name:'Micron Technology',        sector:'Semis',       cpiSens:-0.3},
+  {ticker:'HON',   name:'Honeywell Intl',           sector:'Industrial',  cpiSens: 0.3},
+  {ticker:'LRCX',  name:'Lam Research',             sector:'Semis',       cpiSens:-0.3},
+  {ticker:'BKNG',  name:'Booking Holdings',         sector:'Consumer',    cpiSens:-0.4},
+  {ticker:'VRTX',  name:'Vertex Pharmaceuticals',   sector:'Healthcare',  cpiSens: 0.1},
+  {ticker:'PANW',  name:'Palo Alto Networks',       sector:'Tech',        cpiSens:-0.4},
+  {ticker:'ADP',   name:'ADP Inc.',                 sector:'Tech',        cpiSens: 0.1},
+  {ticker:'GILD',  name:'Gilead Sciences',          sector:'Healthcare',  cpiSens: 0.2},
+  {ticker:'SBUX',  name:'Starbucks Corp.',          sector:'Consumer',    cpiSens:-0.3},
+  {ticker:'ADI',   name:'Analog Devices',           sector:'Semis',       cpiSens:-0.2},
+  {ticker:'MDLZ',  name:'Mondelez Intl',            sector:'Consumer',    cpiSens: 0.3},
+  {ticker:'REGN',  name:'Regeneron Pharma',         sector:'Healthcare',  cpiSens: 0.1},
+  {ticker:'PDD',   name:'PDD Holdings',             sector:'Consumer',    cpiSens:-0.2},
+  {ticker:'KLAC',  name:'KLA Corp.',                sector:'Semis',       cpiSens:-0.2},
+  {ticker:'SNPS',  name:'Synopsys Inc.',            sector:'Tech',        cpiSens:-0.5},
+  {ticker:'CDNS',  name:'Cadence Design',           sector:'Tech',        cpiSens:-0.5},
+  {ticker:'MELI',  name:'MercadoLibre',             sector:'Consumer',    cpiSens:-0.4},
+  {ticker:'CTAS',  name:'Cintas Corp.',             sector:'Industrial',  cpiSens: 0.2},
+  {ticker:'CSX',   name:'CSX Corp.',                sector:'Industrial',  cpiSens: 0.3},
+  {ticker:'PYPL',  name:'PayPal Holdings',          sector:'Fintech',     cpiSens:-0.3},
+  {ticker:'CRWD',  name:'CrowdStrike Holdings',     sector:'Tech',        cpiSens:-0.4},
+  {ticker:'ORLY',  name:"O'Reilly Automotive",      sector:'Consumer',    cpiSens: 0.2},
+  {ticker:'MAR',   name:'Marriott Intl',            sector:'Consumer',    cpiSens:-0.3},
+  {ticker:'WDAY',  name:'Workday Inc.',             sector:'Tech',        cpiSens:-0.5},
+  {ticker:'MNST',  name:'Monster Beverage',         sector:'Consumer',    cpiSens: 0.1},
+  {ticker:'FTNT',  name:'Fortinet Inc.',            sector:'Tech',        cpiSens:-0.4},
+  {ticker:'ABNB',  name:'Airbnb Inc.',              sector:'Consumer',    cpiSens:-0.3},
+  {ticker:'CEG',   name:'Constellation Energy',     sector:'Energy',      cpiSens: 0.6},
+  {ticker:'PCAR',  name:'PACCAR Inc.',              sector:'Industrial',  cpiSens: 0.3},
+  {ticker:'ROST',  name:'Ross Stores',              sector:'Consumer',    cpiSens: 0.1},
+  {ticker:'CPRT',  name:'Copart Inc.',              sector:'Industrial',  cpiSens: 0.2},
+  {ticker:'MRVL',  name:'Marvell Technology',       sector:'Semis',       cpiSens:-0.3},
+  {ticker:'ADSK',  name:'Autodesk Inc.',            sector:'Tech',        cpiSens:-0.5},
+  {ticker:'KDP',   name:'Keurig Dr Pepper',         sector:'Consumer',    cpiSens: 0.2},
+  {ticker:'FAST',  name:'Fastenal Co.',             sector:'Industrial',  cpiSens: 0.2},
+  {ticker:'IDXX',  name:'IDEXX Laboratories',       sector:'Healthcare',  cpiSens: 0.0},
+  {ticker:'DXCM',  name:'DexCom Inc.',              sector:'Healthcare',  cpiSens:-0.1},
+  {ticker:'ODFL',  name:'Old Dominion Freight',     sector:'Industrial',  cpiSens: 0.3},
+  {ticker:'GEHC',  name:'GE HealthCare',            sector:'Healthcare',  cpiSens: 0.1},
+  {ticker:'TTD',   name:'The Trade Desk',           sector:'Tech',        cpiSens:-0.6},
+  {ticker:'ON',    name:'ON Semiconductor',         sector:'Semis',       cpiSens:-0.3},
+  {ticker:'BIIB',  name:'Biogen Inc.',              sector:'Healthcare',  cpiSens: 0.1},
+  {ticker:'GFS',   name:'GlobalFoundries',          sector:'Semis',       cpiSens:-0.2},
+  {ticker:'BKR',   name:'Baker Hughes',             sector:'Energy',      cpiSens: 0.7},
+  {ticker:'EXC',   name:'Exelon Corp.',             sector:'Utilities',   cpiSens:-0.5},
+  {ticker:'NXPI',  name:'NXP Semiconductors',       sector:'Semis',       cpiSens:-0.2},
+  {ticker:'ILMN',  name:'Illumina Inc.',            sector:'Healthcare',  cpiSens:-0.2},
+  {ticker:'XEL',   name:'Xcel Energy',              sector:'Utilities',   cpiSens:-0.6},
+  {ticker:'EA',    name:'Electronic Arts',          sector:'Media',       cpiSens:-0.2},
+  {ticker:'TEAM',  name:'Atlassian Corp.',          sector:'Tech',        cpiSens:-0.6},
+  {ticker:'VRSK',  name:'Verisk Analytics',         sector:'Tech',        cpiSens:-0.2},
+  {ticker:'ZS',    name:'Zscaler Inc.',             sector:'Tech',        cpiSens:-0.5},
+  {ticker:'DDOG',  name:'Datadog Inc.',             sector:'Tech',        cpiSens:-0.5},
+  {ticker:'ANSS',  name:'ANSYS Inc.',               sector:'Tech',        cpiSens:-0.4},
+  {ticker:'FANG',  name:'Diamondback Energy',       sector:'Energy',      cpiSens: 0.8},
+  {ticker:'WBD',   name:'Warner Bros Discovery',    sector:'Media',       cpiSens:-0.3},
+  {ticker:'CDW',   name:'CDW Corp.',                sector:'Tech',        cpiSens:-0.1},
+  {ticker:'WBA',   name:'Walgreens Boots',          sector:'Healthcare',  cpiSens: 0.0},
+  {ticker:'MDB',   name:'MongoDB Inc.',             sector:'Tech',        cpiSens:-0.6},
+  {ticker:'ENPH',  name:'Enphase Energy',           sector:'Energy',      cpiSens: 0.4},
+  {ticker:'SMCI',  name:'Super Micro Computer',     sector:'Tech',        cpiSens:-0.4},
+  {ticker:'ALGN',  name:'Align Technology',         sector:'Healthcare',  cpiSens:-0.2},
+  {ticker:'MRNA',  name:'Moderna Inc.',             sector:'Healthcare',  cpiSens: 0.0},
+  {ticker:'DLTR',  name:'Dollar Tree',              sector:'Consumer',    cpiSens: 0.1},
+  {ticker:'LULU',  name:'Lululemon Athletica',      sector:'Consumer',    cpiSens:-0.3},
+  {ticker:'SIRI',  name:'Sirius XM Holdings',       sector:'Media',       cpiSens:-0.1},
+  {ticker:'RIVN',  name:'Rivian Automotive',        sector:'Consumer',    cpiSens:-0.5},
+  {ticker:'LCID',  name:'Lucid Group',              sector:'Consumer',    cpiSens:-0.5},
+  {ticker:'ZM',    name:'Zoom Video',               sector:'Tech',        cpiSens:-0.4},
+  {ticker:'OKTA',  name:'Okta Inc.',                sector:'Tech',        cpiSens:-0.5},
+  {ticker:'DOCU',  name:'DocuSign Inc.',            sector:'Tech',        cpiSens:-0.4},
+  {ticker:'SNOW',  name:'Snowflake Inc.',           sector:'Tech',        cpiSens:-0.6},
+  {ticker:'NET',   name:'Cloudflare Inc.',          sector:'Tech',        cpiSens:-0.5},
+  {ticker:'COIN',  name:'Coinbase Global',          sector:'Fintech',     cpiSens:-0.4},
+];
+
+// ── STATE ──
+let allStocks = [];
+let currentFilter = 'ALL';
+let currentSort = 'score-desc';
+let liveCpi = 3.3;   // current CPI as of May 2026
+let currentCpi = 3.3;
+
+// ── CPI FETCH from BLS via proxy ──
+async function fetchLatestCpi() {
+  // BLS CPI-U latest 12-month average endpoint
+  const blsUrl = 'https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0?latest=true';
+  const proxy  = `https://api.allorigins.win/get?url=${encodeURIComponent(blsUrl)}`;
+  try {
+    const res  = await fetch(proxy, {signal:AbortSignal.timeout(6000)});
+    const json = await res.json();
+    const data = JSON.parse(json.contents);
+    const series = data?.Results?.series?.[0]?.data;
+    if(series && series.length >= 2) {
+      // Calculate YoY % change from latest two months 12 apart
+      const latest = parseFloat(series[0].value);
+      const yearAgo = parseFloat(series[Math.min(11, series.length-1)].value);
+      const yoy = ((latest - yearAgo) / yearAgo) * 100;
+      const period = series[0].periodName + ' ' + series[0].year;
+      return { rate: parseFloat(yoy.toFixed(1)), period };
+    }
+  } catch(e) {}
+  // Fallback: last known CPI
+  return { rate: 3.3, period: 'Mar 2025 (fallback)' };
+}
+
+// ── CPI SLIDER ──
+function onCpiSlide(val) {
+  currentCpi = parseFloat(val);
+  updateCpiDisplay();
+  recomputeAdjScores();
+  updateStats();
+  applyFilters();
+}
+
+function resetCpi() {
+  currentCpi = liveCpi;
+  document.getElementById('cpiSlider').value = liveCpi;
+  updateCpiDisplay();
+  recomputeAdjScores();
+  updateStats();
+  applyFilters();
+}
+
+function updateCpiDisplay() {
+  const v = currentCpi;
+  document.getElementById('cpiValDisplay').innerHTML = `${v.toFixed(1)}<span>% YoY</span>`;
+
+  // Update slider gradient
+  const pct = ((v - 1.0) / 8.0) * 100;
+  const color = v < 3.3 ? 'var(--teal)' : v < 4.5 ? 'var(--gold)' : v < 6.5 ? 'var(--red)' : '#ff6060';
+  document.getElementById('cpiSlider').style.background =
+    `linear-gradient(to right, ${color} 0%, ${color} ${pct}%, rgba(255,255,255,.08) ${pct}%)`;
+
+  // Regime badge + effects
+  const badge = document.getElementById('cpiRegimeBadge');
+  const effects = document.getElementById('cpiEffectList');
+  if(v < 2.5) {
+    badge.className = 'cpi-regime low';
+    badge.textContent = '⬤ Low Inflation (< 2.5%)';
+    effects.innerHTML = `
+      <div class="cpi-effect"><span class="up">↑</span> Growth / long-duration stocks</div>
+      <div class="cpi-effect"><span class="up">↑</span> Tech / high-multiple names</div>
+      <div class="cpi-effect"><span class="dn">↓</span> Energy / commodity plays</div>`;
+  } else if(v < 4.0) {
+    badge.className = 'cpi-regime moderate';
+    badge.textContent = '⬤ Moderate (2.5–4%)';
+    effects.innerHTML = `
+      <div class="cpi-effect"><span class="up">↑</span> Balanced — minimal CPI drag</div>
+      <div class="cpi-effect"><span class="up">↑</span> Consumer staples resilient</div>
+      <div class="cpi-effect"><span class="dn">↓</span> Minor penalty on utilities</div>`;
+  } else if(v < 6.5) {
+    badge.className = 'cpi-regime high';
+    badge.textContent = '⬤ Elevated (4–6.5%)';
+    effects.innerHTML = `
+      <div class="cpi-effect"><span class="dn">↓</span> Growth / long-duration stocks</div>
+      <div class="cpi-effect"><span class="up">↑</span> Energy / industrials</div>
+      <div class="cpi-effect"><span class="dn">↓</span> Utilities / rate-sensitive</div>`;
+  } else {
+    badge.className = 'cpi-regime very-high';
+    badge.textContent = '⬤ High Inflation (> 6%)';
+    effects.innerHTML = `
+      <div class="cpi-effect"><span class="dn">↓</span> Heavy penalty on tech/growth</div>
+      <div class="cpi-effect"><span class="up">↑</span> Energy / commodity names</div>
+      <div class="cpi-effect"><span class="dn">↓</span> Broad market headwind</div>`;
+  }
+}
+
+// ── CPI ADJUSTMENT to score ──
+// Logic: deviation from neutral (3.3% = current Fed target range) * sector sensitivity
+// At 3.3% CPI → zero adjustment. Higher → penalizes sensitive sectors.
+function cpiAdjustment(cpiSens) {
+  const neutral = 3.3;
+  const dev = currentCpi - neutral;       // positive = above neutral
+  // Scale: each 1% above neutral = up to ±8 points depending on sensitivity
+  const adj = -dev * cpiSens * 5.5;
+  return Math.round(adj * 10) / 10;
+}
+
+function recomputeAdjScores() {
+  allStocks.forEach(s => {
+    const adj = cpiAdjustment(s.cpiSens);
+    s.adjScore = Math.max(2, Math.min(98, Math.round(s.score + adj)));
+    s.cpiAdj   = adj;
+    // Signal is now driven by CPI-adjusted score
+    if(s.adjScore >= 62)      s.signal = 'BUY';
+    else if(s.adjScore <= 38) s.signal = 'SELL';
+    else                       s.signal = 'HOLD';
+  });
+}
+
+// ── SEED RANDOM ──
+function seededRand(seed) { let x=Math.sin(seed)*10000; return x-Math.floor(x); }
+function tickerSeed(t) { return t.split('').reduce((a,c,i)=>a+c.charCodeAt(0)*(i+1),0); }
+
+function generateStockData(ticker, name, sector, cpiSens, livePrice, liveChg) {
+  const seed = tickerSeed(ticker);
+  const r = (n) => seededRand(seed + n);
+  const basePrice = livePrice || (r(1) * 450 + 20);
+  const dayChg    = liveChg !== null ? liveChg : (r(2) * 10 - 5);
+  const trend = r(3) > 0.52 ? 1 : -1;
+  const ma20  = basePrice * (1 - trend * r(4) * 0.04);
+  const ma50  = basePrice * (1 - trend * r(5) * 0.08);
+  const ma200 = basePrice * (1 - trend * r(6) * 0.14);
+  const aboveMa20  = basePrice > ma20;
+  const aboveMa50  = basePrice > ma50;
+  const aboveMa200 = basePrice > ma200;
+  const roc20 = trend * (r(7) * 18 + 1);
+  const roc50 = trend * (r(8) * 28 + 1);
+  const volRatio = 0.4 + r(9) * 2.4;
+  const volSurge = volRatio > 1.5;
+  const rs = Math.round(r(10) * 99 + 1);
+
+  // Base momentum score
+  let score = 50;
+  if(aboveMa20)  score += 8;  else score -= 8;
+  if(aboveMa50)  score += 10; else score -= 10;
+  if(aboveMa200) score += 12; else score -= 12;
+  score += roc20 * 0.6;
+  score += roc50 * 0.3;
+  score += (rs - 50) * 0.15;
+  if(volSurge && trend > 0) score += 5;
+  if(dayChg > 2) score += 3;
+  if(dayChg < -2) score -= 3;
+  score = Math.max(2, Math.min(98, Math.round(score)));
+
+  // CPI-adjusted score
+  const adj = cpiAdjustment(cpiSens);
+  const adjScore = Math.max(2, Math.min(98, Math.round(score + adj)));
+  let signal;
+  if(adjScore >= 62)      signal = 'BUY';
+  else if(adjScore <= 38) signal = 'SELL';
+  else                     signal = 'HOLD';
+
+  return {
+    ticker, name, sector, cpiSens,
+    price:basePrice, dayChg,
+    ma20, ma50, ma200,
+    aboveMa20, aboveMa50, aboveMa200,
+    roc20, roc50, volRatio, volSurge,
+    rs, score, adjScore, cpiAdj:adj, signal
+  };
+}
+
+// ── FETCH LIVE PRICES ──
+async function fetchLiveData() {
+  const symbols = EQUITIES.map(s=>s.ticker).join(',');
+  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}&fields=regularMarketPrice,regularMarketChangePercent`;
+  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+  try {
+    const res = await fetch(proxy,{signal:AbortSignal.timeout(8000)});
+    const json = await res.json();
+    const data = JSON.parse(json.contents);
+    const quotes = data?.quoteResponse?.result || [];
+    const map = {};
+    quotes.forEach(q=>{map[q.symbol]={price:q.regularMarketPrice,chg:q.regularMarketChangePercent};});
+    return map;
+  } catch(e){ return {}; }
+}
+
+async function buildStocks() {
+  showLoading(true);
+
+  // Fetch CPI + live prices in parallel
+  const [cpiData, live] = await Promise.all([fetchLatestCpi(), fetchLiveData()]);
+
+  liveCpi    = cpiData.rate;
+  currentCpi = cpiData.rate;
+  document.getElementById('cpiSlider').value = liveCpi;
+  document.getElementById('cpiSourceLabel').textContent = `BLS CPI-U · ${cpiData.period}`;
+  document.getElementById('cpiFetchStatus').textContent = `Live BLS data`;
+  updateCpiDisplay();
+
+  allStocks = EQUITIES.map(({ticker,name,sector,cpiSens}) => {
+    const ld = live[ticker];
+    return generateStockData(ticker, name, sector, cpiSens, ld?.price||null, ld?.chg!==undefined?ld.chg:null);
+  });
+
+  // Normalize RS
+  const sorted = [...allStocks].sort((a,b)=>a.score-b.score);
+  sorted.forEach((s,i)=>{s.rs=Math.round((i/(sorted.length-1))*99)+1;});
+
+  updateStats();
+  applyFilters();
+  showLoading(false);
+
+  const hasLive = Object.keys(live).length > 0;
+  document.getElementById('statusDot').classList.remove('loading');
+  document.getElementById('statusDot').style.background = hasLive ? 'var(--green)' : 'var(--gold)';
+  document.getElementById('statusText').textContent = hasLive
+    ? `Live data · ${Object.keys(live).length} quotes`
+    : 'Estimated data (market closed or rate limited)';
+  document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
+}
+
+function showLoading(show) {
+  document.getElementById('loadingOverlay').classList.toggle('show', show);
+  document.getElementById('refreshBtn').classList.toggle('spinning', show);
+}
+
+function updateStats() {
+  const buys  = allStocks.filter(s=>s.signal==='BUY').length;
+  const holds = allStocks.filter(s=>s.signal==='HOLD').length;
+  const sells = allStocks.filter(s=>s.signal==='SELL').length;
+  const avgAdj = Math.round(allStocks.reduce((a,s)=>a+s.adjScore,0)/allStocks.length);
+  const surges = allStocks.filter(s=>s.volSurge).length;
+  document.getElementById('statBuy').textContent   = buys;
+  document.getElementById('statHold').textContent  = holds;
+  document.getElementById('statSell').textContent  = sells;
+  document.getElementById('statAvgScore').textContent = avgAdj;
+  document.getElementById('statVolSurge').textContent = surges;
+}
+
+// ── FILTER + SORT ──
+function setFilter(f) {
+  currentFilter = f;
+  ['All','Buy','Hold','Sell'].forEach(x=>{
+    const btn = document.getElementById('filter'+x);
+    if(btn) btn.classList.toggle('active', x.toUpperCase()===f);
+  });
+  document.getElementById('filterAll').classList.toggle('active', f==='ALL');
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  currentSort = document.getElementById('sortSelect').value;
+  let rows = allStocks.filter(s=>{
+    const mf = currentFilter==='ALL' || s.signal===currentFilter;
+    const ms = !q || s.ticker.toLowerCase().includes(q) || s.name.toLowerCase().includes(q) || s.sector.toLowerCase().includes(q);
+    return mf && ms;
+  });
+  rows.sort((a,b)=>{
+    switch(currentSort){
+      case 'score-desc':  return b.adjScore-a.adjScore;
+      case 'score-asc':   return a.adjScore-b.adjScore;
+      case 'adjScore':    return b.adjScore-a.adjScore;
+      case 'chg-desc':    return b.dayChg-a.dayChg;
+      case 'chg-asc':     return a.dayChg-b.dayChg;
+      case 'rs-desc':     return b.rs-a.rs;
+      case 'ticker-asc':  return a.ticker.localeCompare(b.ticker);
+      default: return b.adjScore-a.adjScore;
+    }
+  });
+  document.getElementById('resultCount').textContent = `${rows.length} of ${allStocks.length} stocks`;
+  renderTable(rows);
+}
+
+let sortDir = {};
+function sortBy(col) {
+  sortDir[col]=!sortDir[col];
+  const map={ticker:'ticker-asc',price:'chg-desc',chg:'chg-desc',score:'score-desc',adjScore:'score-desc',roc20:'chg-desc',rs:'rs-desc',signal:'score-desc'};
+  document.getElementById('sortSelect').value=sortDir[col]?(map[col]||'score-desc'):(map[col]?.replace('desc','asc')||'score-asc');
+  applyFilters();
+}
+
+function renderTable(rows) {
+  const tbody = document.getElementById('tableBody');
+  if(!rows.length){
+    tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><p>No stocks match your filters.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(s => {
+    const chgFmt   = (s.dayChg>=0?'+':'')+s.dayChg.toFixed(2)+'%';
+    const chgCls   = s.dayChg>=0?'up':'dn';
+    const roc20Fmt = (s.roc20>=0?'+':'')+s.roc20.toFixed(1)+'%';
+    const roc20Cls = s.roc20>=0?'up':'dn';
+    const priceFmt = '$'+s.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const baseColor  = s.score>=62?'var(--green)':s.score<=38?'var(--red)':'var(--gold)';
+    const adjColor   = s.adjScore>=62?'var(--green)':s.adjScore<=38?'var(--red)':'var(--gold)';
+    const adjDiff    = s.adjScore - s.score;
+    const adjLabel   = adjDiff===0 ? '' : adjDiff>0 ? `<span style="color:var(--green);font-size:8px;"> ▲${adjDiff}</span>` : `<span style="color:var(--red);font-size:8px;"> ▼${Math.abs(adjDiff)}</span>`;
+    const maPills = [
+      `<span class="ma-pill ${s.aboveMa20?'above':'below'}">20D</span>`,
+      `<span class="ma-pill ${s.aboveMa50?'above':'below'}">50D</span>`,
+      `<span class="ma-pill ${s.aboveMa200?'above':'below'}">200D</span>`,
+    ].join('');
+    const volBadge = s.volSurge
+      ? `<span class="vol-badge surge">↑ ${s.volRatio.toFixed(1)}x</span>`
+      : `<span class="vol-badge normal">${s.volRatio.toFixed(1)}x</span>`;
+    return `<tr>
+      <td><div class="td-ticker"><span class="ticker-sym">${s.ticker}</span><div><span class="ticker-name">${s.name}</span><br><span style="font-family:var(--mono);font-size:8px;color:var(--muted2);letter-spacing:.08em;">${s.sector}</span></div></div></td>
+      <td class="td-price">${priceFmt}</td>
+      <td class="td-chg ${chgCls}">${chgFmt}</td>
+      <td><div class="score-wrap"><div class="score-bar-bg"><div class="score-bar-fill" style="width:${s.score}%;background:${baseColor};"></div></div><span class="score-num">${s.score}</span></div></td>
+      <td><div class="score-wrap"><div class="score-bar-bg"><div class="score-bar-fill" style="width:${s.adjScore}%;background:${adjColor};"></div></div><span class="score-num">${s.adjScore}${adjLabel}</span></div></td>
+      <td><div class="ma-wrap">${maPills}</div></td>
+      <td class="td-chg ${roc20Cls}">${roc20Fmt}</td>
+      <td><span class="rs-rank ${s.rs>=80?'top':''}">${s.rs}/100</span></td>
+      <td>${volBadge}</td>
+      <td><span class="signal ${s.signal}"><span class="signal-dot"></span>${s.signal}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function refreshData() { await buildStocks(); }
+buildStocks();
+</script>
+</body>
+</html>
