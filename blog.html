@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Insights — Witkowski Advisory Group</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#0f0f0d;--deep:#161612;--surface:#1e1e19;--card:#232320;
+      --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.04);
+      --teal:#2a7a6a;--teal-light:#3db89a;--teal-glow:rgba(42,122,106,0.18);
+      --cream:#f2ede4;--muted:rgba(242,237,228,0.45);--muted2:rgba(242,237,228,0.25);
+      --serif:'Libre Baskerville',Georgia,serif;
+      --mono:'IBM Plex Mono',monospace;
+      --sans:'IBM Plex Sans',sans-serif;
+    }
+    html{scroll-behavior:smooth;}
+    body{background:var(--ink);color:var(--cream);font-family:var(--sans);font-size:14px;line-height:1.6;overflow-x:hidden;}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:24px 64px;background:rgba(15,15,13,.95);border-bottom:1px solid var(--border);backdrop-filter:blur(14px);}
+    .logo{font-family:var(--serif);font-size:17px;letter-spacing:.06em;color:var(--cream);text-decoration:none;display:flex;flex-direction:column;gap:1px;}
+    .logo-sub{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal-light);}
+    .nav-links{display:flex;gap:36px;align-items:center;}
+    .nav-links a{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--cream);}
+    .nav-cta{color:var(--ink)!important;background:var(--teal-light);padding:10px 22px;transition:background .2s!important;}
+    .nav-cta:hover{background:#5bcfb0!important;}
+
+    /* HERO */
+    .blog-hero{padding:140px 64px 60px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+    .blog-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(61,184,154,.08) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;}
+    .blog-hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,transparent 30%,var(--ink) 100%);pointer-events:none;}
+    .blog-hero-inner{position:relative;z-index:2;max-width:700px;}
+    .section-label{font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--teal-light);margin-bottom:14px;}
+    h1{font-family:var(--serif);font-size:clamp(42px,6vw,72px);font-weight:400;line-height:1.05;letter-spacing:-.01em;}
+    h1 em{font-style:italic;color:var(--teal-light);}
+    .blog-hero p{margin-top:20px;font-size:14px;line-height:1.9;color:var(--muted);font-weight:300;max-width:480px;}
+
+    /* FILTER TAGS */
+    .filter-bar{padding:32px 64px;border-bottom:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .filter-label{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);margin-right:6px;}
+    .filter-btn{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);background:transparent;padding:6px 14px;cursor:pointer;transition:all .2s;border-radius:2px;}
+    .filter-btn:hover,.filter-btn.active{color:var(--teal-light);border-color:rgba(61,184,154,.4);background:rgba(61,184,154,.06);}
+
+    /* POSTS GRID */
+    .posts-section{padding:60px 64px 100px;}
+    .posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);}
+    .post-card{background:var(--ink);padding:44px 36px 52px;position:relative;overflow:hidden;cursor:pointer;transition:background .3s;text-decoration:none;display:block;color:inherit;}
+    .post-card:hover{background:var(--surface);}
+    .post-card::after{content:'';position:absolute;left:0;bottom:0;right:0;height:2px;background:var(--teal-light);transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+    .post-card:hover::after{transform:scaleX(1);}
+    .post-date{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);margin-bottom:18px;}
+    .post-card h2{font-family:var(--serif);font-size:22px;font-weight:400;line-height:1.25;margin-bottom:14px;color:var(--cream);}
+    .post-summary{font-size:12px;line-height:1.85;color:var(--muted);font-weight:300;}
+    .post-tags{margin-top:24px;display:flex;flex-wrap:wrap;gap:6px;}
+    .post-tag{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-light);border:1px solid rgba(61,184,154,.25);padding:3px 10px;background:rgba(61,184,154,.04);}
+    .post-arrow{position:absolute;bottom:36px;right:36px;color:var(--teal-light);opacity:0;transition:opacity .3s,transform .3s;transform:translate(6px,6px);}
+    .post-card:hover .post-arrow{opacity:1;transform:translate(0,0);}
+    .no-posts{grid-column:1/-1;padding:60px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.15em;color:var(--muted2);}
+
+    /* FOOTER */
+    footer{padding:36px 64px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--deep);}
+    .footer-right{display:flex;gap:32px;align-items:center;}
+    .footer-right a{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color .2s;}
+    .footer-right a:hover{color:var(--teal-light);}
+    .footer-copy{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted2);}
+
+    /* REVEAL */
+    .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal.in{opacity:1;transform:translateY(0);}
+
+    @media(max-width:960px){
+      nav,footer{padding-left:28px;padding-right:28px;}
+      .blog-hero,.filter-bar,.posts-section{padding-left:28px;padding-right:28px;}
+      .posts-grid{grid-template-columns:1fr;}
+      .nav-links{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">
+    Witkowski Advisory Group
+    <span class="logo-sub">CIPM · FSA Credential Holder</span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html#about">About</a>
+    <a href="index.html#services">Services</a>
+    <a href="portfolio-tool.html">Portfolio Tool</a>
+    <a href="blog.html" class="active">Insights</a>
+    <a href="index.html#contact" class="nav-cta">Get in Touch</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="blog-hero">
+  <div class="blog-hero-inner">
+    <p class="section-label">Insights</p>
+    <h1>Thoughts on finance,<br><em>automation & AI.</em></h1>
+    <p>Practical perspectives from the intersection of institutional investment experience and modern technology — written for professionals who want to apply both.</p>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" id="filterBar">
+  <span class="filter-label">Filter:</span>
+  <button class="filter-btn active" onclick="filterPosts('all', this)">All</button>
+</div>
+
+<!-- POSTS -->
+<div class="posts-section">
+  <div class="posts-grid" id="postsGrid">
+    <div class="no-posts">Loading posts...</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html" class="logo">
+    Witkowski Advisory Group
+    <span class="logo-sub">Glenview, Illinois</span>
+  </a>
+  <div class="footer-right">
+    <a href="https://www.linkedin.com/in/evan-witkowski-cipm-fsa-credential-holder-322a221b/" target="_blank">LinkedIn</a>
+    <a href="https://www.instagram.com/finfluencer_91" target="_blank">Instagram</a>
+    <a href="index.html#contact">Contact</a>
+    <span class="footer-copy">© 2026 Evan Witkowski</span>
+  </div>
+</footer>
+
+<script>
+  let allPosts = [];
+  let activeTag = 'all';
+
+  function formatDate(str) {
+    const d = new Date(str + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  }
+
+  function renderPosts(posts) {
+    const grid = document.getElementById('postsGrid');
+    if(!posts.length) {
+      grid.innerHTML = `<div class="no-posts">No posts found for this topic.</div>`;
+      return;
+    }
+    grid.innerHTML = posts.map((p, i) => `
+      <a class="post-card reveal" href="post.html?slug=${p.slug}" style="transition-delay:${i*0.08}s">
+        <div class="post-date">${formatDate(p.date)}</div>
+        <h2>${p.title}</h2>
+        <p class="post-summary">${p.summary}</p>
+        <div class="post-tags">${p.tags.map(t=>`<span class="post-tag">${t}</span>`).join('')}</div>
+        <svg class="post-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </a>`).join('');
+    // trigger reveal
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.post-card.reveal').forEach(el => {
+        setTimeout(() => el.classList.add('in'), 50);
+      });
+    });
+  }
+
+  function buildFilterBar(posts) {
+    const tags = [...new Set(posts.flatMap(p => p.tags))].sort();
+    const bar = document.getElementById('filterBar');
+    tags.forEach(tag => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.textContent = tag;
+      btn.onclick = () => filterPosts(tag, btn);
+      bar.appendChild(btn);
+    });
+  }
+
+  function filterPosts(tag, btn) {
+    activeTag = tag;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = tag === 'all' ? allPosts : allPosts.filter(p => p.tags.includes(tag));
+    renderPosts(filtered);
+  }
+
+  async function loadPosts() {
+    try {
+      const res = await fetch('posts.json?v=' + Date.now());
+      allPosts = await res.json();
+      // Sort newest first
+      allPosts.sort((a,b) => new Date(b.date) - new Date(a.date));
+      buildFilterBar(allPosts);
+      renderPosts(allPosts);
+    } catch(e) {
+      document.getElementById('postsGrid').innerHTML =
+        `<div class="no-posts">Could not load posts. Please try again.</div>`;
+    }
+  }
+
+  loadPosts();
+</script>
+</body>
+</html>

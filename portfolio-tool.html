@@ -598,18 +598,29 @@ const COLORS = ['#3dbf8f','#5b9bd4','#c9a84c','#e06060','#9b7ec8','#4cbfce','#e0
 
 let portfolio = [];
 
-// Search
-document.getElementById('fundSearch').addEventListener('input', function(){
-  const q = this.value.trim().toLowerCase();
+// Search — shows ALL funds grouped by family when empty, filters when typing
+function renderDropdown(hits, groupByFamily) {
   const dd = document.getElementById('fundDropdown');
-  if(!q){ dd.classList.remove('open'); return; }
-  const hits = FUNDS.filter(f =>
-    f.ticker.toLowerCase().includes(q) ||
-    f.name.toLowerCase().includes(q) ||
-    (f.family && f.family.toLowerCase().includes(q))
-  ).slice(0,10);
   if(!hits.length){
     dd.innerHTML = `<div class="di"><span class="di-n" style="color:var(--white-muted)">No funds found</span></div>`;
+    dd.classList.add('open');
+    return;
+  }
+  if(groupByFamily) {
+    const families = [...new Set(hits.map(f=>f.family||'Other'))];
+    dd.innerHTML = families.map(fam => {
+      const famFunds = hits.filter(f=>(f.family||'Other')===fam);
+      return `<div style="padding:6px 10px 2px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);border-bottom:1px solid var(--border-mid);font-family:'DM Mono',monospace;">${fam}</div>` +
+        famFunds.map(f=>`
+          <div class="di" onclick="addFund('${f.ticker}')">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="di-t">${f.ticker}</div>
+              <div style="font-size:0.68rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.07);color:var(--white-muted)">${f.cat||''}</div>
+            </div>
+            <div class="di-n">${f.name}</div>
+            <div class="di-m">${f.type} · ER ${f.er}% · 5Y ${f.r5>=0?'+':''}${f.r5}%</div>
+          </div>`).join('');
+    }).join('');
   } else {
     dd.innerHTML = hits.map(f=>`
       <div class="di" onclick="addFund('${f.ticker}')">
@@ -618,10 +629,28 @@ document.getElementById('fundSearch').addEventListener('input', function(){
           <div style="font-size:0.68rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.07);color:var(--white-muted)">${f.family||''}</div>
         </div>
         <div class="di-n">${f.name}</div>
-        <div class="di-m">${f.cat} &nbsp;·&nbsp; ER ${f.er}% &nbsp;·&nbsp; 5Y ${f.r5>=0?'+':''}${f.r5}%</div>
+        <div class="di-m">${f.type} · ER ${f.er}% · 5Y ${f.r5>=0?'+':''}${f.r5}%</div>
       </div>`).join('');
   }
   dd.classList.add('open');
+}
+
+document.getElementById('fundSearch').addEventListener('focus', function(){
+  const q = this.value.trim().toLowerCase();
+  if(!q) renderDropdown(FUNDS, true);
+});
+
+document.getElementById('fundSearch').addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  const dd = document.getElementById('fundDropdown');
+  if(!q){ renderDropdown(FUNDS, true); return; }
+  const hits = FUNDS.filter(f =>
+    f.ticker.toLowerCase().includes(q) ||
+    f.name.toLowerCase().includes(q) ||
+    (f.family && f.family.toLowerCase().includes(q)) ||
+    (f.cat && f.cat.toLowerCase().includes(q))
+  );
+  renderDropdown(hits, false);
 });
 document.addEventListener('click', e=>{
   if(!e.target.closest('.search-wrap') && !e.target.closest('#fundDropdown'))
@@ -1013,7 +1042,7 @@ function runAnalysis(){
     const db = portfolio.length>1 ? Math.min(0.14,(portfolio.length-1)*0.035) : 0;
     const aS = wS*(1-db);
     const net= wR-wE;
-    const sh = (net-4.5)/aS;
+    const sh = (net-3.0)/aS;
     const pV = inv*Math.pow(1+net/100,hor);
     const gain= pV-inv;
 
@@ -1110,7 +1139,7 @@ function runAnalysis(){
           <div class="s-cell">
             <div class="sl">Sharpe Ratio</div>
             <div class="sv ${sh>1?'pos':sh>0.5?'gold':'neg'}">${sh.toFixed(2)}</div>
-            <div class="sn">vs 4.5% risk-free rate</div>
+            <div class="sn">vs 3.0% risk-free rate</div>
           </div>
           <div class="s-cell">
             <div class="sl">Equity / Fixed Income</div>
