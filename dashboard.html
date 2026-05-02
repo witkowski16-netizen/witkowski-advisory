@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Client Dashboard — Witkowski Advisory Group</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#080808;--deep:#0e0e0e;--surface:#141414;--card:#1a1a18;
+      --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.04);
+      --teal:#2a7a6a;--teal-light:#3db89a;
+      --cream:#f2ede4;--muted:rgba(242,237,228,0.45);--muted2:rgba(242,237,228,0.2);
+      --serif:'Libre Baskerville',Georgia,serif;
+      --mono:'IBM Plex Mono',monospace;
+      --sans:'IBM Plex Sans',sans-serif;
+      --gold:#c9a84c;
+    }
+    html{scroll-behavior:smooth;}
+    body{background:var(--ink);color:var(--cream);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh;}
+
+    /* SIDEBAR */
+    .sidebar{
+      position:fixed;top:0;left:0;bottom:0;
+      width:240px;background:var(--deep);
+      border-right:1px solid var(--border);
+      display:flex;flex-direction:column;
+      padding:32px 0;z-index:100;
+    }
+    .sidebar-logo{
+      padding:0 28px 32px;
+      border-bottom:1px solid var(--border);
+      margin-bottom:24px;
+    }
+    .sidebar-brand{font-family:var(--serif);font-size:15px;color:var(--cream);margin-bottom:3px;}
+    .sidebar-sub{font-family:var(--mono);font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal-light);}
+
+    .sidebar-nav{flex:1;padding:0 16px;display:flex;flex-direction:column;gap:4px;}
+    .nav-item{
+      display:flex;align-items:center;gap:12px;
+      padding:10px 14px;
+      font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--muted);text-decoration:none;
+      border-radius:2px;transition:background .2s,color .2s;cursor:pointer;
+    }
+    .nav-item:hover{background:rgba(255,255,255,.04);color:var(--cream);}
+    .nav-item.active{background:rgba(61,184,154,.08);color:var(--teal-light);border-left:2px solid var(--teal-light);margin-left:-2px;}
+    .nav-item svg{width:15px;height:15px;flex-shrink:0;}
+    .nav-section-label{
+      font-family:var(--mono);font-size:8px;letter-spacing:.22em;text-transform:uppercase;
+      color:var(--muted2);padding:16px 14px 6px;
+    }
+
+    .sidebar-footer{
+      padding:20px 28px 0;
+      border-top:1px solid var(--border);
+    }
+    .sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .user-avatar{
+      width:32px;height:32px;border-radius:50%;
+      background:rgba(61,184,154,.12);border:1px solid rgba(61,184,154,.3);
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--serif);font-size:12px;color:var(--teal-light);
+      flex-shrink:0;
+    }
+    .user-name{font-family:var(--mono);font-size:10px;color:var(--cream);letter-spacing:.06em;}
+    .user-role{font-family:var(--mono);font-size:8px;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;}
+    .signout-btn{
+      font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--muted2);background:none;border:none;cursor:pointer;
+      transition:color .2s;padding:0;
+    }
+    .signout-btn:hover{color:var(--teal-light);}
+
+    /* MAIN */
+    .main{margin-left:240px;min-height:100vh;padding:40px 48px;}
+
+    /* Top bar */
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;}
+    .topbar-left{}
+    .topbar-greeting{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--cream);}
+    .topbar-greeting em{font-style:italic;color:var(--teal-light);}
+    .topbar-date{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted2);margin-top:4px;}
+    .topbar-badge{
+      font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--teal-light);border:1px solid rgba(61,184,154,.3);
+      background:rgba(61,184,154,.06);padding:7px 16px;
+      display:flex;align-items:center;gap:7px;
+    }
+    .status-dot{width:6px;height:6px;border-radius:50%;background:var(--teal-light);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+    /* Section label */
+    .section-label{
+      font-family:var(--mono);font-size:9px;letter-spacing:.25em;text-transform:uppercase;
+      color:var(--teal-light);margin-bottom:16px;
+    }
+
+    /* KPI row */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin-bottom:32px;}
+    .kpi-card{
+      background:var(--card);padding:24px 28px;
+      position:relative;overflow:hidden;
+    }
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,184,154,.2),transparent);}
+    .kpi-label{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2);margin-bottom:10px;}
+    .kpi-value{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--cream);line-height:1;}
+    .kpi-value.up{color:#4caf7d;}
+    .kpi-value.gold{color:var(--gold);}
+    .kpi-change{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted2);margin-top:6px;}
+    .kpi-change .up{color:#4caf7d;}
+    .kpi-change .dn{color:#e05c5c;}
+
+    /* Two col layout */
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:32px;}
+    .panel{background:var(--card);padding:32px;}
+    .panel-title{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--cream);margin-bottom:20px;}
+
+    /* Recent activity */
+    .activity-list{display:flex;flex-direction:column;gap:0;}
+    .activity-item{
+      padding:14px 0;border-bottom:1px solid var(--border2);
+      display:flex;align-items:flex-start;gap:14px;
+    }
+    .activity-item:last-child{border-bottom:none;}
+    .activity-dot{
+      width:8px;height:8px;border-radius:50%;
+      background:rgba(61,184,154,.3);border:1px solid var(--teal-light);
+      margin-top:4px;flex-shrink:0;
+    }
+    .activity-dot.new{background:var(--teal-light);}
+    .activity-text{font-size:12px;color:var(--muted);line-height:1.6;}
+    .activity-text strong{color:var(--cream);font-weight:500;}
+    .activity-time{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted2);margin-top:2px;}
+
+    /* Documents */
+    .doc-list{display:flex;flex-direction:column;gap:8px;}
+    .doc-item{
+      display:flex;align-items:center;gap:14px;
+      padding:12px 16px;background:var(--surface);
+      border:1px solid var(--border2);
+      transition:border-color .2s;cursor:pointer;
+    }
+    .doc-item:hover{border-color:rgba(61,184,154,.3);}
+    .doc-icon{color:var(--teal-light);flex-shrink:0;}
+    .doc-name{font-size:12px;color:var(--cream);flex:1;}
+    .doc-meta{font-family:var(--mono);font-size:9px;color:var(--muted2);letter-spacing:.08em;}
+    .doc-badge{
+      font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+      padding:3px 8px;border-radius:2px;
+    }
+    .doc-badge.new-badge{background:rgba(61,184,154,.1);color:var(--teal-light);border:1px solid rgba(61,184,154,.25);}
+    .doc-badge.old-badge{background:rgba(255,255,255,.04);color:var(--muted2);border:1px solid var(--border);}
+
+    /* Message box */
+    .message-box{background:var(--card);border:1px solid var(--border);padding:32px;margin-bottom:32px;}
+    .message-box-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+    .evan-avatar{
+      width:44px;height:44px;border-radius:50%;flex-shrink:0;
+      background:rgba(61,184,154,.12);border:1px solid rgba(61,184,154,.3);
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--serif);font-size:16px;color:var(--teal-light);
+    }
+    .evan-info{}
+    .evan-name{font-family:var(--serif);font-size:15px;color:var(--cream);}
+    .evan-title{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-light);}
+    .message-text{font-size:13px;line-height:1.85;color:var(--muted);margin-bottom:20px;}
+    .message-text strong{color:var(--cream);}
+    .reply-row{display:flex;gap:10px;}
+    .reply-input{
+      flex:1;background:var(--surface);border:1px solid var(--border);
+      color:var(--cream);font-family:var(--mono);font-size:11px;
+      padding:12px 16px;outline:none;transition:border-color .2s;
+    }
+    .reply-input:focus{border-color:rgba(61,184,154,.4);}
+    .reply-input::placeholder{color:var(--muted2);}
+    .reply-btn{
+      background:var(--teal-light);border:none;color:var(--ink);
+      font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+      padding:12px 20px;cursor:pointer;transition:background .2s;white-space:nowrap;
+    }
+    .reply-btn:hover{background:#5bcfb0;}
+
+    /* Coming soon banner */
+    .coming-soon{
+      background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);
+      padding:16px 20px;margin-bottom:32px;
+      display:flex;align-items:center;gap:12px;
+    }
+    .coming-soon svg{color:var(--gold);flex-shrink:0;}
+    .coming-soon-text{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:rgba(201,168,76,.8);}
+    .coming-soon-text strong{color:var(--gold);}
+
+    @media(max-width:960px){
+      .sidebar{display:none;}
+      .main{margin-left:0;padding:24px;}
+      .kpi-row{grid-template-columns:1fr 1fr;}
+      .two-col{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-brand">Witkowski Advisory</div>
+    <div class="sidebar-sub">Client Portal</div>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item active">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2">
+        <rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/>
+        <rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/>
+      </svg>
+      Dashboard
+    </a>
+    <a class="nav-item" onclick="showComingSoon(this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M2 12 L4 8 L7 9 L10 4 L13 2"/><path d="M2 14h12" stroke-width=".8"/>
+      </svg>
+      Reports
+    </a>
+    <a class="nav-item" onclick="showComingSoon(this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2">
+        <rect x="2" y="4" width="12" height="9" rx="1"/><path d="M5 4V3a3 3 0 016 0v1"/>
+      </svg>
+      Documents
+    </a>
+    <a class="nav-item" onclick="showComingSoon(this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2">
+        <circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5"/>
+      </svg>
+      My Profile
+    </a>
+
+    <div class="nav-section-label" style="margin-top:8px;">Tools</div>
+    <a class="nav-item" href="portfolio-tool.html">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M2 11 L5 7 L8 8.5 L11 4 L14 2"/>
+        <circle cx="14" cy="2" r="1.5" fill="currentColor"/>
+      </svg>
+      Portfolio Tool
+    </a>
+    <a class="nav-item" href="blog.html">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M2 4h12M2 8h8M2 12h5"/>
+      </svg>
+      Insights
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar">C</div>
+      <div>
+        <div class="user-name">Client</div>
+        <div class="user-role">Advisory Client</div>
+      </div>
+    </div>
+    <button class="signout-btn" onclick="window.location.href='login.html'">← Sign Out</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-greeting">Welcome back, <em>Client.</em></div>
+      <div class="topbar-date" id="topbarDate"></div>
+    </div>
+    <div class="topbar-badge">
+      <span class="status-dot"></span>
+      Portal Active
+    </div>
+  </div>
+
+  <!-- Coming soon notice -->
+  <div class="coming-soon">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/>
+      <path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>
+    <div class="coming-soon-text">
+      <strong>Portal in setup.</strong> Full reporting and document access coming shortly. Reach out to Evan directly in the meantime.
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="section-label">Engagement Overview</div>
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Engagement Status</div>
+      <div class="kpi-value up" style="font-size:18px;padding-top:4px;">Active</div>
+      <div class="kpi-change">Since onboarding</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Open Items</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-change"><span class="up">↑</span> Awaiting your review</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Last Report</div>
+      <div class="kpi-value gold" style="font-size:18px;padding-top:4px;">Q1 2026</div>
+      <div class="kpi-change">Delivered Apr 15</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Next Check-In</div>
+      <div class="kpi-value" style="font-size:18px;padding-top:4px;">May 15</div>
+      <div class="kpi-change">Scheduled · 30 min</div>
+    </div>
+  </div>
+
+  <!-- Two col -->
+  <div class="two-col">
+    <!-- Recent Activity -->
+    <div class="panel">
+      <div class="panel-title">Recent Activity</div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-dot new"></div>
+          <div>
+            <div class="activity-text"><strong>Q1 2026 Report</strong> has been uploaded and is ready for your review.</div>
+            <div class="activity-time">2 days ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot new"></div>
+          <div>
+            <div class="activity-text"><strong>Automation workflow #3</strong> deployed successfully — reporting pipeline live.</div>
+            <div class="activity-time">1 week ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot"></div>
+          <div>
+            <div class="activity-text"><strong>Onboarding complete.</strong> Welcome to the Witkowski Advisory client portal.</div>
+            <div class="activity-time">3 weeks ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="panel">
+      <div class="panel-title">Documents</div>
+      <div class="doc-list">
+        <div class="doc-item">
+          <svg class="doc-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 2h7l4 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M11 2v4h4" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          <div class="doc-name">Q1 2026 Performance Report</div>
+          <span class="doc-badge new-badge">New</span>
+        </div>
+        <div class="doc-item">
+          <svg class="doc-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 2h7l4 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M11 2v4h4" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          <div class="doc-name">Engagement Letter 2026</div>
+          <span class="doc-badge old-badge">PDF</span>
+        </div>
+        <div class="doc-item">
+          <svg class="doc-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 2h7l4 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M11 2v4h4" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          <div class="doc-name">Automation Scope — Phase 1</div>
+          <span class="doc-badge old-badge">PDF</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message from Evan -->
+  <div class="section-label">Message from Evan</div>
+  <div class="message-box">
+    <div class="message-box-header">
+      <div class="evan-avatar">EW</div>
+      <div class="evan-info">
+        <div class="evan-name">Evan Witkowski, CIPM</div>
+        <div class="evan-title">Director · Witkowski Advisory Group</div>
+      </div>
+    </div>
+    <div class="message-text">
+      Welcome to your client portal. This is your dedicated space for reports, documents, and direct communication. <strong>Your Q1 2026 report is ready</strong> — I'd love to walk through the highlights on our next call. Feel free to send any questions below and I'll respond within one business day.
+    </div>
+    <div class="reply-row">
+      <input class="reply-input" placeholder="Send Evan a message..." id="replyInput" onkeydown="if(event.key==='Enter')sendReply()"/>
+      <button class="reply-btn" onclick="sendReply()">Send →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Date
+  document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+  // Coming soon nav items
+  function showComingSoon(el) {
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    const banner = document.querySelector('.coming-soon');
+    banner.style.background = 'rgba(61,184,154,.08)';
+    banner.style.borderColor = 'rgba(61,184,154,.3)';
+    setTimeout(()=>{
+      banner.style.background='';banner.style.borderColor='';
+    },1500);
+  }
+
+  // Reply
+  function sendReply() {
+    const input = document.getElementById('replyInput');
+    const msg = input.value.trim();
+    if(!msg) return;
+
+    // Send via Formspree
+    fetch('https://formspree.io/f/xwvaznev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({
+        _subject:'Client Portal Message',
+        email:'portal@witkowskiadvisory.com',
+        message: msg
+      })
+    });
+
+    input.value='';
+    const btn = document.querySelector('.reply-btn');
+    btn.textContent='Sent ✓';
+    btn.style.background='#4caf7d';
+    setTimeout(()=>{btn.textContent='Send →';btn.style.background='';},3000);
+  }
+</script>
+</body>
+</html>

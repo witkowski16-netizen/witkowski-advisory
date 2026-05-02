@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Client Portal — Witkowski Advisory Group</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#080808;--deep:#0e0e0e;--surface:#141414;--card:#1a1a18;
+      --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.04);
+      --teal:#2a7a6a;--teal-light:#3db89a;--teal-glow:rgba(61,184,154,0.15);
+      --cream:#f2ede4;--muted:rgba(242,237,228,0.45);--muted2:rgba(242,237,228,0.2);
+      --serif:'Libre Baskerville',Georgia,serif;
+      --mono:'IBM Plex Mono',monospace;
+      --sans:'IBM Plex Sans',sans-serif;
+    }
+    html,body{height:100%;overflow:hidden;}
+    body{
+      background:var(--ink);color:var(--cream);
+      font-family:var(--sans);
+      display:flex;align-items:stretch;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel{
+      width:42%;flex-shrink:0;
+      background:var(--deep);
+      border-right:1px solid var(--border);
+      display:flex;flex-direction:column;
+      padding:48px;
+      position:relative;overflow:hidden;
+    }
+    .left-panel::before{
+      content:'';position:absolute;inset:0;
+      background-image:radial-gradient(circle,rgba(61,184,154,.07) 1px,transparent 1px);
+      background-size:32px 32px;pointer-events:none;
+    }
+    .left-panel::after{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 90% 90% at 50% 60%,transparent 20%,var(--deep) 100%);
+      pointer-events:none;
+    }
+    .left-content{position:relative;z-index:2;display:flex;flex-direction:column;height:100%;}
+
+    .back-link{
+      display:inline-flex;align-items:center;gap:8px;
+      font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+      color:var(--muted2);text-decoration:none;transition:color .2s;
+      margin-bottom:auto;
+    }
+    .back-link:hover{color:var(--teal-light);}
+
+    .left-brand{margin-bottom:48px;}
+    .brand-name{
+      font-family:var(--serif);font-size:22px;font-weight:400;
+      letter-spacing:.04em;color:var(--cream);margin-bottom:6px;
+    }
+    .brand-sub{
+      font-family:var(--mono);font-size:9px;letter-spacing:.22em;
+      text-transform:uppercase;color:var(--teal-light);
+    }
+
+    .left-headline{
+      font-family:var(--serif);
+      font-size:clamp(28px,3.5vw,48px);
+      font-weight:400;line-height:1.1;
+      letter-spacing:-.01em;
+      margin-bottom:20px;
+    }
+    .left-headline em{font-style:italic;color:var(--teal-light);}
+
+    .left-desc{
+      font-size:13px;line-height:1.9;
+      color:var(--muted);font-weight:300;
+      max-width:340px;margin-bottom:48px;
+    }
+
+    /* Feature list */
+    .feature-list{display:flex;flex-direction:column;gap:16px;margin-bottom:auto;}
+    .feature-item{
+      display:flex;align-items:flex-start;gap:14px;
+    }
+    .feature-icon{
+      width:32px;height:32px;flex-shrink:0;
+      border:1px solid rgba(61,184,154,.25);
+      background:rgba(61,184,154,.06);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--teal-light);
+    }
+    .feature-text{}
+    .feature-title{
+      font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+      text-transform:uppercase;color:var(--cream);margin-bottom:2px;
+    }
+    .feature-desc{font-size:11px;color:var(--muted);line-height:1.6;}
+
+    .left-footer{
+      font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+      color:var(--muted2);margin-top:48px;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel{
+      flex:1;
+      display:flex;align-items:center;justify-content:center;
+      padding:48px;
+      background:var(--ink);
+      position:relative;overflow:hidden;
+    }
+    .right-glow{
+      position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      width:500px;height:500px;
+      background:radial-gradient(ellipse,rgba(61,184,154,.06) 0%,transparent 70%);
+      pointer-events:none;
+    }
+
+    .login-box{
+      width:100%;max-width:420px;
+      position:relative;z-index:2;
+    }
+
+    .login-tag{
+      font-family:var(--mono);font-size:9px;letter-spacing:.28em;
+      text-transform:uppercase;color:var(--teal-light);
+      display:flex;align-items:center;gap:10px;
+      margin-bottom:28px;
+    }
+    .login-tag::before{content:'';width:20px;height:1px;background:var(--teal-light);}
+
+    .login-title{
+      font-family:var(--serif);font-size:32px;font-weight:400;
+      letter-spacing:-.01em;color:var(--cream);
+      margin-bottom:8px;
+    }
+    .login-subtitle{
+      font-size:13px;color:var(--muted);line-height:1.7;
+      font-weight:300;margin-bottom:40px;
+    }
+
+    /* Form */
+    .login-form{display:flex;flex-direction:column;gap:16px;}
+
+    .field{display:flex;flex-direction:column;gap:7px;}
+    .field label{
+      font-family:var(--mono);font-size:9px;letter-spacing:.22em;
+      text-transform:uppercase;color:var(--muted2);
+    }
+    .field input{
+      background:var(--card);
+      border:1px solid var(--border);
+      color:var(--cream);
+      font-family:var(--mono);font-size:12px;
+      padding:14px 18px;outline:none;
+      transition:border-color .2s,background .2s;
+      width:100%;
+    }
+    .field input:focus{
+      border-color:rgba(61,184,154,.5);
+      background:var(--surface);
+    }
+    .field input::placeholder{color:var(--muted2);}
+    .field input.shake{animation:shake .4s ease;}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+    .forgot{
+      font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+      color:var(--muted2);text-decoration:none;
+      text-align:right;margin-top:-8px;
+      transition:color .2s;display:block;
+    }
+    .forgot:hover{color:var(--teal-light);}
+
+    .login-btn{
+      background:var(--teal-light);
+      border:none;color:var(--ink);
+      font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+      padding:17px 40px;cursor:pointer;
+      position:relative;overflow:hidden;
+      transition:transform .15s;margin-top:8px;
+      width:100%;
+    }
+    .login-btn::after{
+      content:'';position:absolute;inset:0;
+      background:#5bcfb0;transform:translateX(-101%);
+      transition:transform .3s ease;
+    }
+    .login-btn:hover::after{transform:translateX(0);}
+    .login-btn:hover{transform:translateY(-1px);}
+    .login-btn span{position:relative;z-index:1;}
+
+    .login-divider{
+      display:flex;align-items:center;gap:14px;
+      margin:8px 0;
+    }
+    .login-divider::before,.login-divider::after{
+      content:'';flex:1;height:1px;background:var(--border);
+    }
+    .login-divider span{
+      font-family:var(--mono);font-size:9px;letter-spacing:.15em;
+      text-transform:uppercase;color:var(--muted2);
+    }
+
+    .request-access{
+      display:block;text-align:center;
+      font-family:var(--mono);font-size:10px;letter-spacing:.15em;
+      text-transform:uppercase;color:var(--muted);
+      border:1px solid var(--border);padding:14px;
+      text-decoration:none;transition:border-color .2s,color .2s;
+    }
+    .request-access:hover{border-color:rgba(61,184,154,.3);color:var(--teal-light);}
+
+    .login-footer{
+      margin-top:32px;
+      font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+      color:var(--muted2);text-align:center;line-height:1.8;
+    }
+    .login-footer a{color:var(--muted2);text-decoration:none;transition:color .2s;}
+    .login-footer a:hover{color:var(--teal-light);}
+
+    /* Loading state */
+    .login-btn.loading span::after{
+      content:' ···';animation:dots 1s steps(4,end) infinite;
+    }
+    @keyframes dots{0%,100%{content:' ·'}33%{content:' ··'}66%{content:' ···'}}
+
+    /* Error message */
+    .error-msg{
+      font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+      color:#e05c5c;padding:12px 16px;
+      background:rgba(224,92,92,.08);border:1px solid rgba(224,92,92,.2);
+      display:none;
+    }
+    .error-msg.show{display:block;}
+
+    /* Mobile */
+    @media(max-width:768px){
+      body{flex-direction:column;overflow:auto;}
+      .left-panel{width:100%;padding:32px;min-height:auto;}
+      .feature-list{display:none;}
+      .right-panel{padding:32px;}
+      html,body{height:auto;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="left-content">
+
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M10 7H4M6 4L3 7l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      Back to site
+    </a>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+      <div class="left-brand">
+        <div class="brand-name">Witkowski Advisory Group</div>
+        <div class="brand-sub">CIPM · FSA Credential Holder</div>
+      </div>
+
+      <h1 class="left-headline">Your <em>client portal.</em><br>Always on.</h1>
+      <p class="left-desc">Secure access to your portfolio reports, performance summaries, and direct communication with Evan — all in one place.</p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8 L6 11 L13 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <div class="feature-title">Portfolio Reports</div>
+            <div class="feature-desc">Quarterly performance summaries and attribution analysis</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M2 10 L5 6 L8 8 L11 3 L14 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <div class="feature-title">Automation Dashboards</div>
+            <div class="feature-desc">Live status of your workflow automations and AI agents</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="4" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M5 4V3a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <div class="feature-title">Secure Documents</div>
+            <div class="feature-desc">Proposals, deliverables, and engagement materials</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <div class="feature-title">Direct Access</div>
+            <div class="feature-desc">Message Evan directly with questions or requests</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="left-footer">
+      © 2026 Witkowski Advisory Group · witkowskiadvisory.com
+    </div>
+
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="right-glow"></div>
+
+  <div class="login-box">
+    <div class="login-tag">Client Access</div>
+    <h2 class="login-title">Sign in to your portal</h2>
+    <p class="login-subtitle">Enter your credentials below to access your client dashboard.</p>
+
+    <div class="login-form">
+      <div class="error-msg" id="errorMsg">
+        Incorrect email or password. Please try again or contact Evan directly.
+      </div>
+
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="you@organization.com" autocomplete="email"/>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••••" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter')handleLogin()"/>
+      </div>
+
+      <a href="mailto:witkowski.16@gmail.com?subject=Portal Access Request" class="forgot">Forgot password?</a>
+
+      <button class="login-btn" id="loginBtn" onclick="handleLogin()">
+        <span>Sign In →</span>
+      </button>
+
+      <div class="login-divider"><span>or</span></div>
+
+      <a href="mailto:witkowski.16@gmail.com?subject=Client Portal Access Request&body=Hi Evan, I'd like to request access to the client portal. My name is: " class="request-access">
+        Request Portal Access
+      </a>
+    </div>
+
+    <div class="login-footer">
+      Protected by 256-bit encryption &nbsp;·&nbsp;
+      <a href="index.html">Return to main site</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:witkowski.16@gmail.com">Get help</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('errorMsg');
+
+    // Basic validation
+    if(!email || !password) {
+      document.getElementById('loginEmail').classList.add('shake');
+      document.getElementById('loginPassword').classList.add('shake');
+      setTimeout(() => {
+        document.getElementById('loginEmail').classList.remove('shake');
+        document.getElementById('loginPassword').classList.remove('shake');
+      }, 500);
+      return;
+    }
+
+    // Loading state
+    btn.classList.add('loading');
+    btn.disabled = true;
+    err.classList.remove('show');
+
+    // Simulate auth check
+    setTimeout(() => {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+
+      // Redirect to dashboard
+      window.location.href = 'dashboard.html';
+    }, 1200);
+  }
+
+  // Focus email on load
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('loginEmail').focus();
+  });
+</script>
+</body>
+</html>
