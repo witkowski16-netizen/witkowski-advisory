@@ -1883,6 +1883,219 @@ Personality: Professional, direct, knowledgeable. You speak with authority on bo
     }
   }
   loadHomePosts();
+
+  // ── NEWSLETTER POPUP ──
+  // Show after 4 seconds, once per session
+  function initNewsletterPopup() {
+    if(sessionStorage.getItem('newsletterSeen')) return;
+    setTimeout(() => {
+      document.getElementById('newsletterOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }, 4000);
+  }
+
+  function closeNewsletter() {
+    document.getElementById('newsletterOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    sessionStorage.setItem('newsletterSeen', '1');
+  }
+
+  async function submitNewsletter() {
+    const email = document.getElementById('nlEmail').value.trim();
+    if(!email || !email.includes('@')) {
+      document.getElementById('nlEmail').style.borderColor = 'rgba(224,92,92,.5)';
+      return;
+    }
+    const btn = document.getElementById('nlBtn');
+    btn.textContent = 'Subscribing...';
+    btn.disabled = true;
+
+    try {
+      await fetch('https://formspree.io/f/xwvaznev', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _subject: 'New Newsletter Subscriber — Witkowski Advisory',
+          email: email,
+          source: 'Newsletter Popup',
+          _replyto: email
+        })
+      });
+    } catch(e) {}
+
+    // Show success regardless
+    document.getElementById('nlForm').style.display = 'none';
+    document.getElementById('nlSuccess').style.display = 'block';
+    sessionStorage.setItem('newsletterSeen', '1');
+    setTimeout(closeNewsletter, 3000);
+  }
+
+  // Close on overlay click
+  document.getElementById('newsletterOverlay').addEventListener('click', function(e) {
+    if(e.target === this) closeNewsletter();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') closeNewsletter();
+  });
+
+  initNewsletterPopup();
 </script>
+
+<!-- NEWSLETTER POPUP -->
+<style>
+  .nl-overlay {
+    position: fixed; inset: 0; z-index: 600;
+    background: rgba(0,0,0,.7);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .35s ease;
+  }
+  .nl-overlay.open { opacity: 1; pointer-events: all; }
+
+  .nl-box {
+    background: var(--deep);
+    border: 1px solid var(--border);
+    width: 100%; max-width: 480px;
+    position: relative;
+    transform: translateY(20px) scale(.97);
+    transition: transform .35s ease;
+    box-shadow: 0 24px 64px rgba(0,0,0,.7);
+    overflow: hidden;
+  }
+  .nl-overlay.open .nl-box { transform: translateY(0) scale(1); }
+
+  /* Top accent line */
+  .nl-box::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--teal-light), transparent);
+  }
+
+  .nl-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,.06); border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, color .2s;
+  }
+  .nl-close:hover { background: rgba(255,255,255,.1); color: var(--cream); }
+
+  .nl-inner { padding: 44px 40px 40px; }
+
+  .nl-tag {
+    font-family: var(--mono); font-size: 9px; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--teal-light);
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 18px;
+  }
+  .nl-tag::before { content: ''; width: 20px; height: 1px; background: var(--teal-light); }
+
+  .nl-title {
+    font-family: var(--serif); font-size: 28px; font-weight: 400;
+    line-height: 1.15; letter-spacing: -.01em;
+    color: var(--cream); margin-bottom: 12px;
+  }
+  .nl-title em { font-style: italic; color: var(--teal-light); }
+
+  .nl-desc {
+    font-size: 13px; line-height: 1.85;
+    color: var(--muted); font-weight: 300;
+    margin-bottom: 28px;
+  }
+
+  .nl-perks {
+    display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 28px;
+  }
+  .nl-perk {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: .1em; color: var(--muted);
+  }
+  .nl-perk::before {
+    content: '✦'; color: var(--teal-light); font-size: 8px; flex-shrink: 0;
+  }
+
+  .nl-input-row { display: flex; gap: 10px; }
+  #nlEmail {
+    flex: 1; background: var(--surface);
+    border: 1px solid var(--border); color: var(--cream);
+    font-family: var(--mono); font-size: 11px;
+    padding: 13px 16px; outline: none;
+    transition: border-color .2s;
+  }
+  #nlEmail:focus { border-color: rgba(61,184,154,.5); }
+  #nlEmail::placeholder { color: var(--muted2); }
+
+  #nlBtn {
+    background: var(--teal-light); border: none;
+    color: var(--ink); font-family: var(--mono);
+    font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+    padding: 13px 20px; cursor: pointer;
+    transition: background .2s; white-space: nowrap;
+  }
+  #nlBtn:hover { background: #5bcfb0; }
+  #nlBtn:disabled { opacity: .7; cursor: default; }
+
+  .nl-fine {
+    font-family: var(--mono); font-size: 9px; letter-spacing: .1em;
+    color: var(--muted2); margin-top: 12px; text-align: center;
+  }
+
+  /* Success state */
+  #nlSuccess {
+    display: none; text-align: center; padding: 16px 0 8px;
+  }
+  .nl-success-icon {
+    font-family: var(--serif); font-size: 40px;
+    color: var(--teal-light); margin-bottom: 12px;
+  }
+  #nlSuccess h3 {
+    font-family: var(--serif); font-size: 22px; font-weight: 400;
+    color: var(--cream); margin-bottom: 8px;
+  }
+  #nlSuccess p { font-size: 12px; color: var(--muted); line-height: 1.8; }
+
+  @media(max-width: 520px) {
+    .nl-inner { padding: 36px 24px 28px; }
+    .nl-input-row { flex-direction: column; }
+    .nl-title { font-size: 24px; }
+  }
+</style>
+
+<div class="nl-overlay" id="newsletterOverlay">
+  <div class="nl-box">
+    <button class="nl-close" onclick="closeNewsletter()">×</button>
+    <div class="nl-inner">
+      <div class="nl-tag">Free Newsletter</div>
+      <h2 class="nl-title">Market insights.<br><em>Every week.</em></h2>
+      <p class="nl-desc">Stay ahead with weekly market momentum updates, inflation analysis, and automation insights — straight from a CIPM-certified institutional finance professional.</p>
+      <div class="nl-perks">
+        <div class="nl-perk">Weekly equity momentum signals & CPI analysis</div>
+        <div class="nl-perk">Automation tips for finance teams</div>
+        <div class="nl-perk">Institutional investing insights brought to you</div>
+        <div class="nl-perk">No spam. Unsubscribe anytime.</div>
+      </div>
+      <div id="nlForm">
+        <div class="nl-input-row">
+          <input type="email" id="nlEmail" placeholder="Your email address"/>
+          <button id="nlBtn" onclick="submitNewsletter()">Subscribe →</button>
+        </div>
+        <div class="nl-fine">Join subscribers getting smarter about markets & automation.</div>
+      </div>
+      <div id="nlSuccess">
+        <div class="nl-success-icon">✦</div>
+        <h3>You're in!</h3>
+        <p>Welcome to the list. Your first issue will arrive soon.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
