@@ -3,7 +3,24 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Witkowski Advisory Group</title>
+  <title>Witkowski Advisory Group | Automation & AI Consulting for Finance</title>
+  <meta name="description" content="Evan Witkowski, CIPM — automation consultant specializing in Microsoft 365, Python, VBA, and AI agents for financial institutions. 10+ years institutional finance experience. Glenview, IL."/>
+  <meta name="keywords" content="financial automation consultant, Microsoft 365 automation finance, VBA development, Python scripting finance, AI agents financial services, business development strategy, CIPM, institutional investing"/>
+  <meta name="author" content="Evan Witkowski"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://witkowskiadvisory.com/"/>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://witkowskiadvisory.com/"/>
+  <meta property="og:title" content="Witkowski Advisory Group | Automation & AI Consulting for Finance"/>
+  <meta property="og:description" content="Evan Witkowski, CIPM — automation consultant specializing in Microsoft 365, Python, VBA, and AI agents for financial institutions. 10+ years institutional finance experience."/>
+  <meta property="og:site_name" content="Witkowski Advisory Group"/>
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Witkowski Advisory Group | Automation & AI Consulting for Finance"/>
+  <meta name="twitter:description" content="Evan Witkowski, CIPM — automation consultant for financial institutions. Microsoft 365, Python, VBA, AI agents."/>
+  <!-- Schema.org structured data -->
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Witkowski Advisory Group","description":"Automation and AI consulting for financial institutions","url":"https://witkowskiadvisory.com","founder":{"@type":"Person","name":"Evan Witkowski","jobTitle":"Director, Institutional Relationships & Automation Consultant","hasCredential":[{"@type":"EducationalOccupationalCredential","name":"CIPM"},{"@type":"EducationalOccupationalCredential","name":"FSA Credential Holder"}]},"address":{"@type":"PostalAddress","addressLocality":"Glenview","addressRegion":"IL","addressCountry":"US"},"sameAs":["https://www.linkedin.com/in/evan-witkowski-cipm-fsa-credential-holder-322a221b/","https://www.instagram.com/finfluencer_91"]}</script>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -171,13 +188,6 @@
       border: 1px solid rgba(61,184,154,.3) !important;
       padding: 12px 0;
       font-size: 12px;
-    }
-
-    @media(max-width: 900px) {
-      .hamburger { display: flex; }
-      .mobile-menu { display: flex; }
-      .nav-links { display: none !important; }
-      nav { padding: 20px 28px; }
     }
 
     /* ── HERO ── */
@@ -864,7 +874,8 @@
 
     /* ── RESPONSIVE ── */
     @media(max-width:960px) {
-      nav,section,footer { padding-left:28px; padding-right:28px; }
+      nav { padding-left:20px; padding-right:20px; }
+      section,footer { padding-left:28px; padding-right:28px; }
       #hero { padding-left:28px; padding-right:28px; }
       .about-grid { grid-template-columns:1fr; gap:48px; }
       .services-grid { grid-template-columns:1fr; }
@@ -874,7 +885,12 @@
       .full { grid-column:1; }
       .hero-stats { flex-direction:column; gap:24px; }
       .hstat { border-right:none; border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:0; padding-right:0; margin-right:0; }
-      .nav-links { display:none; }
+      .nav-links { display:none !important; }
+      .hamburger { display:flex !important; }
+      /* Hide news row on mobile — keep just market ticker */
+      .announce-row:last-child { display:none; }
+      body.bar-visible nav { top: 32px; }
+      body.bar-visible #hero { padding-top: 152px; }
     }
   </style>
 </head>
