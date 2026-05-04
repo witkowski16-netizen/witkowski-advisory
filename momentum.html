@@ -409,6 +409,105 @@
     }
     .cpi-reset:hover{color:var(--gold);border-color:rgba(201,168,76,.3);}
 
+    /* MARKET PULSE AI PANEL */
+    .pulse-panel{
+      margin:0 48px 24px;
+      background:var(--deep);
+      border:1px solid rgba(61,184,154,.2);
+      position:relative;overflow:hidden;
+    }
+    .pulse-panel::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(61,184,154,.5),transparent);
+    }
+    .pulse-header{
+      padding:16px 24px;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .pulse-header-left{display:flex;align-items:center;gap:12px;}
+    .pulse-agent-icon{
+      width:32px;height:32px;border-radius:2px;
+      background:rgba(61,184,154,.1);border:1px solid rgba(61,184,154,.25);
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;
+    }
+    .pulse-title{
+      font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+      text-transform:uppercase;color:var(--teal);
+    }
+    .pulse-subtitle{
+      font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+      color:var(--muted2);margin-top:1px;
+    }
+    .pulse-status{
+      font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+      text-transform:uppercase;
+      display:flex;align-items:center;gap:6px;
+      color:var(--muted2);
+    }
+    .pulse-status-dot{
+      width:6px;height:6px;border-radius:50%;
+      background:var(--gold);
+    }
+    .pulse-status-dot.ready{background:var(--green);}
+    .pulse-status-dot.thinking{
+      background:var(--teal);
+      animation:pulseDot .8s ease infinite;
+    }
+    @keyframes pulseDot{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+    .pulse-body{padding:20px 24px 22px;}
+    .pulse-text{
+      font-size:13px;line-height:1.9;
+      color:rgba(242,237,228,.82);
+      font-weight:300;font-family:var(--sans);
+    }
+    .pulse-text strong{color:var(--cream);font-weight:500;}
+
+    /* Typing animation */
+    .pulse-cursor{
+      display:inline-block;width:2px;height:14px;
+      background:var(--teal);margin-left:2px;
+      vertical-align:middle;
+      animation:blink .7s step-end infinite;
+    }
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+    .pulse-skeleton{
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .pulse-skel-line{
+      height:12px;border-radius:2px;
+      background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.05) 75%);
+      background-size:200% 100%;
+      animation:shimmer 1.5s infinite;
+    }
+    @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+    .pulse-footer{
+      padding:10px 24px 14px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .pulse-timestamp{
+      font-family:var(--mono);font-size:8px;letter-spacing:.12em;
+      text-transform:uppercase;color:var(--muted2);
+    }
+    .pulse-refresh{
+      font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--muted2);background:none;border:1px solid var(--border);
+      padding:4px 10px;cursor:pointer;transition:all .2s;
+    }
+    .pulse-refresh:hover{color:var(--teal);border-color:rgba(61,184,154,.3);}
+    .pulse-disclaimer{
+      font-family:var(--mono);font-size:8px;letter-spacing:.1em;
+      color:var(--muted2);padding:0 24px 12px;
+    }
+
+    @media(max-width:960px){
+      .pulse-panel{margin-left:20px;margin-right:20px;}
+    }
+
     /* Footer */
     .page-footer{padding:32px 48px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--deep);}
     .footer-brand{font-family:var(--serif);font-size:14px;color:var(--cream);}
@@ -503,6 +602,44 @@
 </div>
 
 <!-- CPI SENSITIVITY PANEL -->
+<!-- MARKET PULSE AI PANEL -->
+<div class="pulse-panel" id="pulsePanel">
+  <div class="pulse-header">
+    <div class="pulse-header-left">
+      <div class="pulse-agent-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="6" stroke="#3db89a" stroke-width="1.2"/>
+          <path d="M5 8h6M8 5v6" stroke="#3db89a" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="8" cy="8" r="2" fill="rgba(61,184,154,.3)"/>
+        </svg>
+      </div>
+      <div>
+        <div class="pulse-title">AI Market Pulse</div>
+        <div class="pulse-subtitle">Powered by Claude · Reads full screener universe</div>
+      </div>
+    </div>
+    <div class="pulse-status" id="pulseStatus">
+      <span class="pulse-status-dot thinking" id="pulseStatusDot"></span>
+      <span id="pulseStatusText">Analyzing...</span>
+    </div>
+  </div>
+  <div class="pulse-body">
+    <div id="pulseContent">
+      <div class="pulse-skeleton">
+        <div class="pulse-skel-line" style="width:95%"></div>
+        <div class="pulse-skel-line" style="width:88%"></div>
+        <div class="pulse-skel-line" style="width:92%"></div>
+        <div class="pulse-skel-line" style="width:78%"></div>
+      </div>
+    </div>
+  </div>
+  <div class="pulse-footer">
+    <div class="pulse-timestamp" id="pulseTimestamp"></div>
+    <button class="pulse-refresh" onclick="runMarketPulse()">↺ Refresh Analysis</button>
+  </div>
+  <div class="pulse-disclaimer">⚠ AI-generated commentary for educational purposes only. Not financial advice.</div>
+</div>
+
 <div class="cpi-panel">
   <div class="cpi-label-block">
     <div class="cpi-label-tag">CPI Sensitivity</div>
@@ -960,6 +1097,9 @@ async function buildStocks() {
   applyFilters();
   showLoading(false);
 
+  // Fire AI Market Pulse after data is ready
+  runMarketPulse();
+
   const hasLive = Object.keys(live).length > 0;
   document.getElementById('statusDot').classList.remove('loading');
   document.getElementById('statusDot').style.background = hasLive ? 'var(--green)' : 'var(--gold)';
@@ -1226,6 +1366,106 @@ function closeModalDirect() {
 }
 // Close on Escape key
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeModalDirect(); });
+
+// ── MARKET PULSE AI AGENT ──
+async function runMarketPulse() {
+  // Wait until stocks are loaded
+  if(!allStocks.length) { setTimeout(runMarketPulse, 800); return; }
+
+  // Update UI to thinking state
+  document.getElementById('pulseStatusDot').className = 'pulse-status-dot thinking';
+  document.getElementById('pulseStatusText').textContent = 'Analyzing...';
+  document.getElementById('pulseContent').innerHTML = `
+    <div class="pulse-skeleton">
+      <div class="pulse-skel-line" style="width:95%"></div>
+      <div class="pulse-skel-line" style="width:88%"></div>
+      <div class="pulse-skel-line" style="width:92%"></div>
+      <div class="pulse-skel-line" style="width:78%"></div>
+    </div>`;
+
+  // Build data snapshot for the agent
+  const buys  = allStocks.filter(s=>s.signal==='BUY').sort((a,b)=>b.adjScore-a.adjScore);
+  const holds = allStocks.filter(s=>s.signal==='HOLD').sort((a,b)=>b.adjScore-a.adjScore);
+  const sells = allStocks.filter(s=>s.signal==='SELL').sort((a,b)=>a.adjScore-b.adjScore);
+  const avgScore = Math.round(allStocks.reduce((a,s)=>a+s.adjScore,0)/allStocks.length);
+  const volSurges = allStocks.filter(s=>s.volSurge);
+  const top5Buys  = buys.slice(0,5).map(s=>`${s.ticker}(${s.adjScore},${s.sector})`).join(', ');
+  const top5Sells = sells.slice(0,5).map(s=>`${s.ticker}(${s.adjScore},${s.sector})`).join(', ');
+  const surgeList = volSurges.slice(0,5).map(s=>`${s.ticker}(${s.volRatio.toFixed(1)}x,${s.signal})`).join(', ');
+
+  // Sector breakdown
+  const sectorMap = {};
+  allStocks.forEach(s => {
+    if(!sectorMap[s.sector]) sectorMap[s.sector] = {buy:0,hold:0,sell:0};
+    sectorMap[s.sector][s.signal.toLowerCase()]++;
+  });
+  const sectorSummary = Object.entries(sectorMap)
+    .map(([sec,v])=>`${sec}: ${v.buy}B/${v.hold}H/${v.sell}S`).join(' | ');
+
+  const prompt = `You are a quantitative market analyst providing a Market Pulse commentary for the Witkowski Advisory Group equity momentum screener. Write a detailed, professional paragraph (4-6 sentences) with macro context.
+
+Current screener data:
+- Total universe: ${allStocks.length} large-cap equities
+- Signals: ${buys.length} BUY / ${holds.length} HOLD / ${sells.length} SELL
+- Average CPI-adjusted momentum score: ${avgScore}/100
+- Current CPI: ${currentCpi.toFixed(1)}% YoY
+- Top BUY signals: ${top5Buys}
+- Top SELL signals: ${top5Sells}
+- Volume surges detected: ${surgeList || 'none'}
+- Sector breakdown: ${sectorSummary}
+
+Write a detailed market pulse commentary that:
+1. Opens with the overall market momentum regime (bullish/neutral/bearish) based on signal distribution
+2. Calls out the strongest sector rotations visible in the data
+3. Discusses what the current CPI of ${currentCpi.toFixed(1)}% means for momentum strategy right now
+4. Highlights 2-3 specific tickers worth watching and why
+5. Closes with a forward-looking macro observation
+
+Be specific, use the actual data, and write like a senior quant analyst. No disclaimers needed — those appear separately. Do not use bullet points — write in flowing prose only.`;
+
+  try {
+    const res = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: 'You are a senior quantitative market analyst. Write detailed, insightful market commentary using the data provided. Be specific and authoritative. Prose only — no bullet points or headers.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text;
+
+    if(text) {
+      // Typewriter effect
+      document.getElementById('pulseContent').innerHTML = '<div class="pulse-text" id="pulseText"></div>';
+      const el = document.getElementById('pulseText');
+      let i = 0;
+      const speed = 12; // ms per char
+      function typeChar() {
+        if(i < text.length) {
+          el.innerHTML = text.slice(0,i+1).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>') + '<span class="pulse-cursor"></span>';
+          i++;
+          setTimeout(typeChar, speed);
+        } else {
+          el.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+        }
+      }
+      typeChar();
+
+      document.getElementById('pulseStatusDot').className = 'pulse-status-dot ready';
+      document.getElementById('pulseStatusText').textContent = 'Analysis complete';
+      document.getElementById('pulseTimestamp').textContent =
+        `Generated ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
+    } else {
+      throw new Error('No response');
+    }
+  } catch(e) {
+    document.getElementById('pulseContent').innerHTML =
+      '<div class="pulse-text" style="color:var(--muted2)">Unable to generate analysis. Please refresh or try again in a moment.</div>';
+    document.getElementById('pulseStatusDot').className = 'pulse-status-dot';
+    document.getElementById('pulseStatusText').textContent = 'Unavailable';
+  }
+}
 
 async function refreshData() { await buildStocks(); }
 buildStocks();
