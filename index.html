@@ -468,10 +468,66 @@
     }
     .svc-card h3 {
       font-family:var(--serif); font-size:21px; font-weight:400;
-      margin-bottom:14px; color:var(--cream);
+      margin-bottom:8px; color:var(--cream);
     }
     .svc-card p {
       font-size:13px; line-height:1.85; color:var(--muted); font-weight:300;
+    }
+    /* Engagement type badge */
+    .svc-engage {
+      display:inline-flex; align-items:center; gap:5px;
+      font-family:var(--mono); font-size:8px; letter-spacing:.16em; text-transform:uppercase;
+      padding:3px 9px; margin-bottom:14px; border-radius:2px;
+    }
+    .svc-engage.project  { background:rgba(61,184,154,.08); color:var(--teal-light); border:1px solid rgba(61,184,154,.2); }
+    .svc-engage.retainer { background:rgba(201,168,76,.08); color:#c9a84c; border:1px solid rgba(201,168,76,.2); }
+    .svc-engage.advisory { background:rgba(242,237,228,.05); color:var(--muted); border:1px solid var(--border); }
+
+    /* ── FEATURED SERVICES ── */
+    .featured-services {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:1px; background:var(--border);
+      margin-top:48px;
+    }
+    .featured-card {
+      background:var(--surface); padding:40px 36px 44px;
+      position:relative; overflow:hidden;
+      transition:background .3s;
+    }
+    .featured-card:hover { background:var(--card); }
+    .featured-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,transparent,var(--teal-light),transparent);
+      transform:scaleX(0); transform-origin:left; transition:transform .4s;
+    }
+    .featured-card:hover::before { transform:scaleX(1); }
+    .featured-badge {
+      font-family:var(--mono); font-size:8px; letter-spacing:.18em; text-transform:uppercase;
+      padding:4px 11px; margin-bottom:20px; display:inline-flex; align-items:center; gap:5px;
+    }
+    .featured-badge.flagship { background:rgba(201,168,76,.1); color:#c9a84c; border:1px solid rgba(201,168,76,.25); }
+    .featured-badge.popular  { background:rgba(61,184,154,.1); color:var(--teal-light); border:1px solid rgba(61,184,154,.25); }
+    .featured-badge.fixed    { background:rgba(242,237,228,.06); color:var(--muted); border:1px solid var(--border); }
+    .featured-icon { width:40px; height:40px; color:var(--teal-light); margin-bottom:20px; }
+    .featured-card h3 { font-family:var(--serif); font-size:22px; font-weight:400; color:var(--cream); margin-bottom:12px; line-height:1.2; }
+    .featured-card p { font-size:13px; line-height:1.85; color:var(--muted); font-weight:300; margin-bottom:24px; }
+    .featured-deliverables { display:flex; flex-direction:column; gap:7px; margin-bottom:28px; }
+    .featured-del {
+      display:flex; align-items:flex-start; gap:8px;
+      font-size:12px; color:var(--muted); line-height:1.5;
+    }
+    .featured-del::before { content:'✦'; color:var(--teal-light); font-size:8px; margin-top:3px; flex-shrink:0; }
+    .featured-cta {
+      display:inline-flex; align-items:center; gap:8px;
+      font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+      color:var(--ink); background:var(--teal-light);
+      padding:11px 22px; text-decoration:none;
+      transition:background .2s; margin-top:auto;
+    }
+    .featured-cta:hover { background:#5bcfb0; }
+
+    @media(max-width:960px) {
+      .featured-services { grid-template-columns:1fr; }
     }
     .svc-tags { margin-top:28px; display:flex; flex-wrap:wrap; gap:7px; }
     .svc-tag {
@@ -942,7 +998,7 @@
   <a href="momentum.html"    onclick="closeMenu()">Momentum Screener</a>
   <a href="blog.html"        onclick="closeMenu()">Insights</a>
   <a href="login.html"       onclick="closeMenu()" class="mobile-login">Client Login</a>
-  <a href="#contact"         onclick="closeMenu()" class="mobile-cta">Get in Touch</a>
+  <a href="discovery.html" onclick="closeMenu()" class="mobile-cta">Book a Discovery Call</a>
 </div>
 
 <!-- NAV -->
@@ -959,7 +1015,7 @@
     <a href="momentum.html">Momentum</a>
     <a href="blog.html">Insights</a>
     <a href="login.html" style="color:var(--muted2);border:1px solid var(--border);padding:8px 16px;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='rgba(61,184,154,.4)';this.style.color='var(--cream)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">Client Login</a>
-    <a href="#contact" class="nav-cta">Get in Touch</a>
+    <a href="discovery.html" class="nav-cta">Book a Discovery Call</a>
   </div>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -988,7 +1044,7 @@
       <span class="cred-badge">Python · VBA</span>
     </div>
     <div class="hero-btns">
-      <a href="#contact" class="btn-primary"><span>Schedule a Consultation</span></a>
+      <a href="discovery.html" class="btn-primary"><span>Schedule a Consultation</span></a>
       <a href="#services" class="btn-outline">View Services</a>
     </div>
 
@@ -1081,7 +1137,7 @@
   <div class="services-intro reveal">
     <div>
       <p class="section-label">What I Do</p>
-      <h2>Five ways I can<br><em>move your business forward.</em></h2>
+      <h2>Core services &amp;<br><em>featured engagements.</em></h2>
     </div>
     <p class="services-intro-right">Each engagement is scoped to your specific environment, tools, and objectives — with measurable outcomes defined upfront.</p>
   </div>
@@ -1090,6 +1146,7 @@
 
     <div class="svc-card reveal">
       <div class="svc-num">01</div>
+      <span class="svc-engage project">Project-Based</span>
       <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
         <rect x="4" y="4" width="12" height="12" rx="1"/>
         <rect x="20" y="4" width="12" height="12" rx="1"/>
@@ -1112,6 +1169,7 @@
 
     <div class="svc-card reveal">
       <div class="svc-num">02</div>
+      <span class="svc-engage project">Project-Based</span>
       <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
         <rect x="6" y="6" width="24" height="24" rx="1"/>
         <path d="M6 14h24M14 14v16"/>
@@ -1132,6 +1190,7 @@
 
     <div class="svc-card reveal">
       <div class="svc-num">03</div>
+      <span class="svc-engage project">Project-Based</span>
       <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
         <path d="M10 12l-4 6 4 6M26 12l4 6-4 6M20 8l-4 20"/>
       </svg>
@@ -1150,6 +1209,7 @@
 
     <div class="svc-card reveal">
       <div class="svc-num">04</div>
+      <span class="svc-engage advisory">Advisory</span>
       <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
         <circle cx="12" cy="12" r="5"/>
         <circle cx="26" cy="24" r="5"/>
@@ -1171,6 +1231,7 @@
 
     <div class="svc-card reveal">
       <div class="svc-num">05</div>
+      <span class="svc-engage project">Project-Based</span>
       <svg class="svc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.2">
         <circle cx="18" cy="18" r="5"/>
         <path d="M18 4v5M18 27v5M4 18h5M27 18h5"/>
@@ -1188,6 +1249,80 @@
       <svg class="svc-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
         <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
       </svg>
+    </div>
+
+  </div>
+
+  <!-- FEATURED ENGAGEMENTS -->
+  <div style="margin-top:64px;" class="reveal">
+    <p class="section-label">Featured Engagements</p>
+    <h2 style="margin-bottom:8px;">High-impact <em>specializations.</em></h2>
+    <p style="font-size:13px;color:var(--muted);font-weight:300;max-width:500px;">Three areas where my background creates an outsized advantage — and where few independent consultants can match the depth.</p>
+  </div>
+
+  <div class="featured-services">
+
+    <!-- GIPS -->
+    <div class="featured-card reveal">
+      <span class="featured-badge flagship">⬤ Flagship · Retainer</span>
+      <svg class="featured-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M8 32 L14 20 L20 24 L26 12 L32 6"/>
+        <circle cx="32" cy="6" r="3" fill="currentColor"/>
+        <path d="M8 36H32" stroke-width=".8"/>
+        <rect x="10" y="24" width="6" height="8" stroke-width="1"/>
+        <rect x="20" y="18" width="6" height="14" stroke-width="1"/>
+      </svg>
+      <h3>GIPS Compliance &amp; Verification</h3>
+      <p>One of very few independent consultants who has personally led a firm through full GIPS compliance and verification. Rare expertise, high institutional demand.</p>
+      <div class="featured-deliverables">
+        <div class="featured-del">GIPS compliance gap analysis & roadmap</div>
+        <div class="featured-del">Composite construction & maintenance</div>
+        <div class="featured-del">Verification preparation & documentation</div>
+        <div class="featured-del">Performance reporting framework build-out</div>
+        <div class="featured-del">Staff training & ongoing advisory</div>
+      </div>
+      <a href="discovery.html" class="featured-cta">Start a Conversation →</a>
+    </div>
+
+    <!-- AI/Automation for Investment Teams -->
+    <div class="featured-card reveal">
+      <span class="featured-badge popular">⬤ Most Requested · Project</span>
+      <svg class="featured-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.2">
+        <circle cx="20" cy="20" r="5"/>
+        <path d="M20 6v5M20 29v5M6 20h5M29 20h5"/>
+        <path d="M10 10l3.5 3.5M26.5 26.5l3.5 3.5M26.5 13.5l3.5-3.5M10 30l3.5-3.5"/>
+        <circle cx="20" cy="20" r="13" stroke-dasharray="3 3"/>
+      </svg>
+      <h3>AI &amp; Automation for Investment Teams</h3>
+      <p>Your VBA, Python, and AI automation skills applied specifically to asset managers and family offices. Workflow audits, custom builds, and AI agent deployment for investment operations.</p>
+      <div class="featured-deliverables">
+        <div class="featured-del">Investment operations workflow audit</div>
+        <div class="featured-del">Custom reporting automation (Python/VBA)</div>
+        <div class="featured-del">AI agent deployment for ops workflows</div>
+        <div class="featured-del">Microsoft 365 integration for investment teams</div>
+        <div class="featured-del">Data pipeline build-out & maintenance</div>
+      </div>
+      <a href="discovery.html" class="featured-cta">Start a Conversation →</a>
+    </div>
+
+    <!-- Workflow Audit -->
+    <div class="featured-card reveal">
+      <span class="featured-badge fixed">⬤ Fixed Scope · Fast Start</span>
+      <svg class="featured-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.2">
+        <rect x="6" y="8" width="28" height="26" rx="1"/>
+        <path d="M6 16h28M14 8V6M26 8V6"/>
+        <path d="M12 24l4 4 8-8"/>
+      </svg>
+      <h3>Workflow Audit &amp; Roadmap</h3>
+      <p>A structured, fixed-scope engagement to identify every automation opportunity in your current operations — delivered as a prioritized roadmap with ROI estimates.</p>
+      <div class="featured-deliverables">
+        <div class="featured-del">Full operational workflow mapping</div>
+        <div class="featured-del">Automation opportunity identification</div>
+        <div class="featured-del">Prioritized roadmap with effort/ROI scores</div>
+        <div class="featured-del">Tool recommendations & build vs buy analysis</div>
+        <div class="featured-del">Executive summary presentation</div>
+      </div>
+      <a href="discovery.html" class="featured-cta">Start a Conversation →</a>
     </div>
 
   </div>
