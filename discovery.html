@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book a Discovery Call — Witkowski Advisory Group</title>
+  <meta name="robots" content="index, follow"/>
+  <meta name="description" content="Book a discovery call with Evan Witkowski, CIPM. Tell us about your challenge and we'll find the right solution together."/>
+  <!-- Google tag -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18137607928"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "AW-18137607928");
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#0f0f0d;--deep:#161612;--surface:#1e1e19;--card:#232320;
+      --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.04);
+      --teal:#2a7a6a;--teal-light:#3db89a;
+      --cream:#f2ede4;--muted:rgba(242,237,228,0.45);--muted2:rgba(242,237,228,0.25);
+      --serif:'Libre Baskerville',Georgia,serif;
+      --mono:'IBM Plex Mono',monospace;
+      --sans:'IBM Plex Sans',sans-serif;
+    }
+    html{scroll-behavior:smooth;}
+    body{background:var(--ink);color:var(--cream);font-family:var(--sans);font-size:14px;line-height:1.6;overflow-x:hidden;}
+
+    /* NAV */
+    nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:20px 64px;background:rgba(15,15,13,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(14px);}
+    .logo{font-family:var(--serif);font-size:16px;letter-spacing:.06em;color:var(--cream);text-decoration:none;display:flex;flex-direction:column;gap:1px;}
+    .logo-sub{font-family:var(--mono);font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal-light);}
+    .nav-back{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .2s;}
+    .nav-back:hover{color:var(--teal-light);}
+
+    /* PAGE */
+    .page-wrap{max-width:1100px;margin:0 auto;padding:64px 48px 100px;}
+
+    /* HEADER */
+    .page-header{margin-bottom:64px;}
+    .header-tag{font-family:var(--mono);font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--teal-light);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+    .header-tag::before{content:'';width:20px;height:1px;background:var(--teal-light);}
+    .page-title{font-family:var(--serif);font-size:clamp(32px,5vw,56px);font-weight:400;line-height:1.1;letter-spacing:-.01em;margin-bottom:16px;}
+    .page-title em{font-style:italic;color:var(--teal-light);}
+    .page-desc{font-size:15px;line-height:1.85;color:var(--muted);font-weight:300;max-width:560px;}
+
+    /* STEPS */
+    .steps-row{display:flex;gap:0;background:var(--border);margin-bottom:56px;}
+    .step-item{flex:1;background:var(--card);padding:20px 24px;display:flex;align-items:flex-start;gap:14px;position:relative;}
+    .step-item::after{content:'→';position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--teal-light);font-size:14px;z-index:2;background:var(--card);padding:0 2px;}
+    .step-item:last-child::after{display:none;}
+    .step-num{font-family:var(--serif);font-size:28px;color:rgba(61,184,154,.25);line-height:1;flex-shrink:0;}
+    .step-text{}
+    .step-title{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal-light);margin-bottom:3px;}
+    .step-desc{font-size:11px;color:var(--muted);line-height:1.6;}
+
+    /* TWO COL */
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+
+    /* INTAKE FORM */
+    .intake-card{background:var(--deep);border:1px solid var(--border);position:relative;overflow:hidden;}
+    .intake-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--teal-light),transparent);}
+    .intake-header{padding:28px 32px 24px;border-bottom:1px solid var(--border);}
+    .intake-title{font-family:var(--serif);font-size:22px;font-weight:400;color:var(--cream);margin-bottom:6px;}
+    .intake-subtitle{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted2);}
+    .intake-body{padding:28px 32px 32px;display:flex;flex-direction:column;gap:20px;}
+
+    .field{display:flex;flex-direction:column;gap:7px;}
+    .field label{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);}
+    .field input,.field select,.field textarea{
+      background:var(--surface);border:1px solid var(--border);
+      color:var(--cream);font-family:var(--mono);font-size:11px;
+      padding:12px 16px;outline:none;transition:border-color .2s;width:100%;
+      -webkit-appearance:none;
+    }
+    .field select option{background:var(--surface);}
+    .field textarea{resize:none;height:100px;}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(61,184,154,.5);}
+    .field input::placeholder,.field textarea::placeholder{color:var(--muted2);}
+    .field input.err,.field select.err{border-color:rgba(224,92,92,.5);}
+
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+    .submit-btn{
+      background:var(--teal-light);border:none;color:var(--ink);
+      font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+      padding:16px 32px;cursor:pointer;width:100%;
+      position:relative;overflow:hidden;transition:transform .15s;margin-top:8px;
+    }
+    .submit-btn::after{content:'';position:absolute;inset:0;background:#5bcfb0;transform:translateX(-101%);transition:transform .3s ease;}
+    .submit-btn:hover::after{transform:translateX(0);}
+    .submit-btn:hover{transform:translateY(-1px);}
+    .submit-btn span{position:relative;z-index:1;}
+    .submit-btn:disabled{opacity:.7;cursor:default;}
+
+    .form-note{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted2);text-align:center;margin-top:10px;}
+
+    /* SUCCESS / CALENDLY */
+    #successSection{display:none;}
+    .success-header{margin-bottom:32px;}
+    .success-icon{font-family:var(--serif);font-size:48px;color:var(--teal-light);margin-bottom:16px;}
+    .success-title{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--cream);margin-bottom:10px;}
+    .success-desc{font-size:14px;color:var(--muted);line-height:1.85;font-weight:300;}
+
+    .calendly-wrap{
+      background:var(--deep);border:1px solid var(--border);
+      overflow:hidden;min-height:650px;
+      position:relative;
+    }
+    .calendly-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--teal-light),transparent);}
+
+    /* RIGHT PANEL */
+    .right-panel{display:flex;flex-direction:column;gap:28px;}
+
+    .evan-card{background:var(--deep);border:1px solid var(--border);padding:28px;}
+    .evan-card-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+    .evan-avatar{width:52px;height:52px;border-radius:50%;background:rgba(61,184,154,.12);border:1px solid rgba(61,184,154,.3);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:18px;color:var(--teal-light);flex-shrink:0;}
+    .evan-name{font-family:var(--serif);font-size:17px;color:var(--cream);margin-bottom:3px;}
+    .evan-creds{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-light);}
+    .evan-bio{font-size:13px;color:var(--muted);line-height:1.85;font-weight:300;}
+    .evan-stats{display:flex;gap:0;background:var(--border);margin-top:20px;}
+    .evan-stat{flex:1;background:var(--deep);padding:12px;text-align:center;}
+    .evan-stat-num{font-family:var(--serif);font-size:20px;color:var(--teal-light);}
+    .evan-stat-label{font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);margin-top:3px;}
+
+    .what-to-expect{background:var(--card);border:1px solid var(--border);padding:24px 28px;}
+    .expect-title{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal-light);margin-bottom:16px;}
+    .expect-list{display:flex;flex-direction:column;gap:12px;}
+    .expect-item{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--muted);line-height:1.6;}
+    .expect-item::before{content:'✦';color:var(--teal-light);font-size:9px;margin-top:3px;flex-shrink:0;}
+
+    .services-teaser{background:var(--card);border:1px solid var(--border);padding:24px 28px;}
+    .services-teaser-title{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal-light);margin-bottom:16px;}
+    .service-line{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border2);font-size:12px;}
+    .service-line:last-child{border-bottom:none;}
+    .service-line-name{color:var(--cream);}
+    .service-line-range{font-family:var(--mono);font-size:10px;color:var(--muted2);}
+
+    /* FOOTER */
+    footer{padding:32px 64px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--deep);}
+    .footer-right{display:flex;gap:28px;align-items:center;}
+    .footer-right a{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color .2s;}
+    .footer-right a:hover{color:var(--teal-light);}
+    .footer-copy{font-family:var(--mono);font-size:9px;color:var(--muted2);}
+
+    @media(max-width:900px){
+      nav,.page-wrap,footer{padding-left:24px;padding-right:24px;}
+      .two-col{grid-template-columns:1fr;}
+      .steps-row{flex-direction:column;gap:1px;}
+      .step-item::after{display:none;}
+      .field-row{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">
+    Witkowski Advisory Group
+    <span class="logo-sub">CIPM · FSA Credential Holder</span>
+  </a>
+  <a href="index.html" class="nav-back">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M10 7H4M6 4L3 7l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+    Back to site
+  </a>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="header-tag">Start Here</div>
+    <h1 class="page-title">Book a <em>Discovery Call.</em></h1>
+    <p class="page-desc">Tell us about your challenge. We'll review your submission and — if it's a fit — you'll be able to schedule a 30-minute call to explore how we can help.</p>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps-row">
+    <div class="step-item">
+      <div class="step-num">01</div>
+      <div class="step-text">
+        <div class="step-title">Complete Intake</div>
+        <div class="step-desc">Tell us about your organization and challenge</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">02</div>
+      <div class="step-text">
+        <div class="step-title">Schedule Call</div>
+        <div class="step-desc">Pick a time that works for your calendar</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">03</div>
+      <div class="step-text">
+        <div class="step-title">Discovery Call</div>
+        <div class="step-desc">30-min conversation to scope your needs</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">04</div>
+      <div class="step-text">
+        <div class="step-title">Proposal</div>
+        <div class="step-desc">Receive a scoped proposal within 48 hours</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="two-col">
+
+    <!-- LEFT — INTAKE FORM -->
+    <div>
+      <!-- INTAKE FORM -->
+      <div id="intakeSection">
+        <div class="intake-card">
+          <div class="intake-header">
+            <div class="intake-title">Tell us about your needs</div>
+            <div class="intake-subtitle">All fields help us prepare for your call</div>
+          </div>
+          <div class="intake-body">
+
+            <div class="field-row">
+              <div class="field">
+                <label>First Name *</label>
+                <input type="text" id="firstName" placeholder="Jane"/>
+              </div>
+              <div class="field">
+                <label>Last Name *</label>
+                <input type="text" id="lastName" placeholder="Smith"/>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Email Address *</label>
+              <input type="email" id="email" placeholder="jane@yourfirm.com"/>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Organization *</label>
+                <input type="text" id="org" placeholder="Your Firm"/>
+              </div>
+              <div class="field">
+                <label>AUM / Fund Size</label>
+                <select id="aum">
+                  <option value="" disabled selected>Select range</option>
+                  <option>Under $25M</option>
+                  <option>$25M – $100M</option>
+                  <option>$100M – $500M</option>
+                  <option>$500M – $1B</option>
+                  <option>Over $1B</option>
+                  <option>N/A — Corporate</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Team Size</label>
+                <select id="teamSize">
+                  <option value="" disabled selected>Select size</option>
+                  <option>1–5 people</option>
+                  <option>6–15 people</option>
+                  <option>16–50 people</option>
+                  <option>50+ people</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Timeline</label>
+                <select id="timeline">
+                  <option value="" disabled selected>When do you need this?</option>
+                  <option>ASAP — within 2 weeks</option>
+                  <option>1–2 months</option>
+                  <option>3–6 months</option>
+                  <option>Planning ahead (6+ months)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Primary Challenge *</label>
+              <select id="challenge">
+                <option value="" disabled selected>What brings you here?</option>
+                <option>GIPS Compliance & Verification</option>
+                <option>Microsoft 365 / Power Automate Automation</option>
+                <option>AI Agent Setup & Deployment</option>
+                <option>Python / VBA Development</option>
+                <option>Investment Reporting & Performance</option>
+                <option>Business Development Systems</option>
+                <option>General Workflow Audit</option>
+                <option>Multiple challenges — not sure where to start</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Current Tools & Systems</label>
+              <input type="text" id="tools" placeholder="e.g. Excel, Salesforce, FactSet, SharePoint..."/>
+            </div>
+
+            <div class="field">
+              <label>Describe Your Challenge *</label>
+              <textarea id="description" placeholder="What's the core problem you're trying to solve? The more specific, the better we can prepare..."></textarea>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Worked with a consultant before?</label>
+                <select id="priorConsult">
+                  <option value="" disabled selected>Select</option>
+                  <option>Yes — positive experience</option>
+                  <option>Yes — mixed experience</option>
+                  <option>No — first time</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>How did you hear about us?</label>
+                <select id="source">
+                  <option value="" disabled selected>Select</option>
+                  <option>LinkedIn</option>
+                  <option>Instagram / Finfluencer_91</option>
+                  <option>Google Search</option>
+                  <option>Referral</option>
+                  <option>witkowskiadvisory.com</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <button class="submit-btn" id="submitBtn" onclick="submitIntake()">
+              <span>Submit & Schedule Call →</span>
+            </button>
+            <div class="form-note">Your information is kept strictly confidential.</div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- SUCCESS + CALENDLY -->
+      <div id="successSection">
+        <div class="success-header">
+          <div class="success-icon">✦</div>
+          <h2 class="success-title">Thank you — intake received.</h2>
+          <p class="success-desc">Evan will review your submission. Go ahead and pick a time below — we'll confirm the call details via email within one business day.</p>
+        </div>
+        <div class="calendly-wrap">
+          <iframe src="https://calendly.com/evan-witkowskiadvisory/30min?hide_gdpr_banner=1&background_color=161612&text_color=f2ede4&primary_color=3db89a" width="100%" height="650" frameborder="0"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+      <!-- Evan card -->
+      <div class="evan-card">
+        <div class="evan-card-header">
+          <div class="evan-avatar">EW</div>
+          <div>
+            <div class="evan-name">Evan Witkowski, CIPM</div>
+            <div class="evan-creds">FSA Credential · Director, Institutional Relationships</div>
+          </div>
+        </div>
+        <div class="evan-bio">10+ years in institutional investment at Wespath, Northern Trust, and the State of Wisconsin Investment Board — combined with deep expertise in Microsoft 365 automation, Python, VBA, and AI agent deployment. A genuinely rare combination in finance.</div>
+        <div class="evan-stats">
+          <div class="evan-stat">
+            <div class="evan-stat-num">$2.5B+</div>
+            <div class="evan-stat-label">AUM Background</div>
+          </div>
+          <div class="evan-stat">
+            <div class="evan-stat-num">10+</div>
+            <div class="evan-stat-label">Yrs Experience</div>
+          </div>
+          <div class="evan-stat">
+            <div class="evan-stat-num">30+</div>
+            <div class="evan-stat-label">Institutions</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- What to expect -->
+      <div class="what-to-expect">
+        <div class="expect-title">What to expect on the call</div>
+        <div class="expect-list">
+          <div class="expect-item">We'll review your intake before the call so we come prepared — no re-explaining from scratch</div>
+          <div class="expect-item">30 minutes focused on understanding your specific challenge and current environment</div>
+          <div class="expect-item">Honest assessment of whether and how we can help — no hard sell</div>
+          <div class="expect-item">If it's a fit, you'll receive a scoped proposal within 48 hours</div>
+          <div class="expect-item">If it's not a fit, we'll point you in the right direction</div>
+        </div>
+      </div>
+
+      <!-- Services teaser -->
+      <div class="services-teaser">
+        <div class="services-teaser-title">Engagement Types</div>
+        <div class="service-line">
+          <span class="service-line-name">GIPS Compliance Consulting</span>
+          <span class="service-line-range">Retainer</span>
+        </div>
+        <div class="service-line">
+          <span class="service-line-name">AI / Automation Build-Out</span>
+          <span class="service-line-range">Project-based</span>
+        </div>
+        <div class="service-line">
+          <span class="service-line-name">Workflow Audit</span>
+          <span class="service-line-range">Fixed scope</span>
+        </div>
+        <div class="service-line">
+          <span class="service-line-name">Investment Reporting Systems</span>
+          <span class="service-line-range">Project-based</span>
+        </div>
+        <div class="service-line">
+          <span class="service-line-name">Business Development Strategy</span>
+          <span class="service-line-range">Advisory</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="index.html" class="logo">Witkowski Advisory Group<span class="logo-sub">Glenview, Illinois</span></a>
+  <div class="footer-right">
+    <a href="https://www.linkedin.com/in/evan-witkowski-cipm-fsa-credential-holder-322a221b/" target="_blank">LinkedIn</a>
+    <a href="https://www.instagram.com/finfluencer_91" target="_blank">Instagram</a>
+    <span class="footer-copy">© 2026 Evan Witkowski</span>
+  </div>
+</footer>
+
+<script>
+async function submitIntake() {
+  const required = ['firstName','lastName','email','org','challenge','description'];
+  let valid = true;
+  required.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el.value.trim()) { el.classList.add('err'); valid=false; }
+    else el.classList.remove('err');
+  });
+  if(!valid) {
+    document.querySelector('.err').scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Submitting...';
+
+  const payload = {
+    _subject: `New Discovery Call Intake — ${document.getElementById('org').value}`,
+    _replyto: document.getElementById('email').value,
+    name: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+    email: document.getElementById('email').value,
+    organization: document.getElementById('org').value,
+    aum: document.getElementById('aum').value || 'Not specified',
+    team_size: document.getElementById('teamSize').value || 'Not specified',
+    timeline: document.getElementById('timeline').value || 'Not specified',
+    primary_challenge: document.getElementById('challenge').value,
+    current_tools: document.getElementById('tools').value || 'Not specified',
+    description: document.getElementById('description').value,
+    prior_consultant: document.getElementById('priorConsult').value || 'Not specified',
+    source: document.getElementById('source').value || 'Not specified',
+  };
+
+  try {
+    await fetch('https://formspree.io/f/xwvaznev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch(e) { /* silent — show success regardless */ }
+
+  // Show Calendly
+  document.getElementById('intakeSection').style.display = 'none';
+  document.getElementById('successSection').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
