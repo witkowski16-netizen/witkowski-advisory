@@ -846,6 +846,30 @@ const EQUITIES = [
   {ticker:'COIN',  name:'Coinbase Global',          sector:'Fintech',     cpiSens:-0.4},
 ];
 
+// ── FALLBACK PRICES (approx May 2026 — used when live fetch fails) ──
+const FALLBACK_PRICES = {
+  'AAPL':198.53,'MSFT':415.32,'NVDA':881.61,'AMZN':185.74,'META':594.28,
+  'GOOGL':175.40,'GOOG':176.11,'TSLA':177.48,'AVGO':1342.50,'COST':874.22,
+  'NFLX':641.78,'ASML':820.45,'AMD':162.34,'AZN':72.18,'CSCO':48.92,
+  'ADBE':371.44,'QCOM':151.72,'TMUS':201.38,'TXN':182.56,'AMGN':298.41,
+  'INTU':648.90,'ISRG':384.22,'CMCSA':36.44,'AMAT':172.83,'MU':98.47,
+  'HON':201.73,'LRCX':768.32,'BKNG':4218.60,'VRTX':462.18,'PANW':318.54,
+  'ADP':268.91,'GILD':91.38,'SBUX':82.74,'ADI':218.36,'MDLZ':61.42,
+  'REGN':791.24,'PDD':98.44,'KLAC':748.92,'SNPS':448.36,'CDNS':264.71,
+  'MELI':2048.30,'CTAS':198.42,'CSX':32.18,'PYPL':62.38,'CRWD':378.44,
+  'ORLY':1168.20,'MAR':241.38,'WDAY':238.44,'MNST':52.18,'FTNT':88.36,
+  'ABNB':122.48,'CEG':248.72,'PCAR':102.34,'ROST':148.22,'CPRT':58.74,
+  'MRVL':68.44,'ADSK':268.18,'KDP':31.42,'FAST':78.36,'IDXX':448.22,
+  'DXCM':72.48,'ODFL':164.38,'GEHC':88.92,'TTD':68.44,'ON':42.18,
+  'BIIB':142.36,'GFS':38.72,'BKR':38.44,'EXC':38.18,'NXPI':198.36,
+  'ILMN':88.44,'XEL':62.18,'EA':128.36,'TEAM':214.72,'VRSK':284.38,
+  'ZS':198.44,'DDOG':118.36,'ANSS':298.18,'FANG':178.44,'WBD':9.38,
+  'CDW':168.22,'WBA':11.44,'MDB':228.36,'ENPH':68.18,'SMCI':42.36,
+  'ALGN':198.44,'MRNA':38.72,'DLTR':72.18,'LULU':298.36,'SIRI':3.44,
+  'RIVN':12.18,'LCID':2.72,'ZM':62.36,'OKTA':88.44,'DOCU':68.18,
+  'SNOW':128.36,'NET':98.44,'COIN':218.72,
+};
+
 // ── STATE ──
 let allStocks = [];
 let currentFilter = 'ALL';
@@ -1043,8 +1067,8 @@ function tickerSeed(t) { return t.split('').reduce((a,c,i)=>a+c.charCodeAt(0)*(i
 function generateStockData(ticker, name, sector, cpiSens, livePrice, liveChg) {
   const seed = tickerSeed(ticker);
   const r = (n) => seededRand(seed + n);
-  const basePrice = livePrice || (r(1) * 450 + 20);
-  const dayChg    = liveChg !== null ? liveChg : (r(2) * 10 - 5);
+  const basePrice = livePrice || FALLBACK_PRICES[ticker] || 100;
+  const dayChg    = liveChg !== null ? liveChg : (r(2) * 4 - 2); // small ±2% range for fallback
 
   // Trend — balanced 50/50
   const trend = r(3) > 0.50 ? 1 : -1;
