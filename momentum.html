@@ -855,25 +855,80 @@ let currentCpi = 3.3;
 
 // ── CPI FETCH from BLS via proxy ──
 async function fetchLatestCpi() {
-  // BLS CPI-U latest 12-month average endpoint
-  const blsUrl = 'https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0?latest=true';
-  const proxy  = `https://api.allorigins.win/get?url=${encodeURIComponent(blsUrl)}`;
+  // ── SOURCE 1: FRED via allorigins (Federal Reserve — most reliable) ──
+  // CPIAUCSL = CPI All Urban Consumers, All Items — monthly index values
   try {
-    const res  = await fetch(proxy, {signal:AbortSignal.timeout(6000)});
-    const json = await res.json();
-    const data = JSON.parse(json.contents);
-    const series = data?.Results?.series?.[0]?.data;
-    if(series && series.length >= 2) {
-      // Calculate YoY % change from latest two months 12 apart
-      const latest = parseFloat(series[0].value);
-      const yearAgo = parseFloat(series[Math.min(11, series.length-1)].value);
-      const yoy = ((latest - yearAgo) / yearAgo) * 100;
-      const period = series[0].periodName + ' ' + series[0].year;
-      return { rate: parseFloat(yoy.toFixed(1)), period };
+    const fredUrl = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL';
+    const proxy   = `https://api.allorigins.win/get?url=${encodeURIComponent(fredUrl)}`;
+    const res     = await fetch(proxy, {signal:AbortSignal.timeout(7000)});
+    const json    = await res.json();
+    const csv     = json.contents || '';
+    if(csv.includes(',')) {
+      const rows = csv.trim().split('\n').filter(r => r && !r.startsWith('DATE'));
+      if(rows.length >= 13) {
+        // Latest row and 12 months ago
+        const parse    = r => parseFloat(r.split(',')[1]);
+        const latest   = parse(rows[rows.length - 1]);
+        const yearAgo  = parse(rows[rows.length - 13]);
+        const yoy      = ((latest - yearAgo) / yearAgo) * 100;
+        const dateParts = rows[rows.length - 1].split(',')[0].split('-');
+        const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const period = monthNames[parseInt(dateParts[1]) - 1] + ' ' + dateParts[0];
+        if(yoy > 0 && yoy < 20) {
+          return { rate: parseFloat(yoy.toFixed(1)), period, source:'FRED' };
+        }
+      }
     }
   } catch(e) {}
-  // Fallback: last known CPI
-  return { rate: 3.3, period: 'Mar 2025 (fallback)' };
+
+  // ── SOURCE 2: BLS public API via corsproxy ──
+  try {
+    const blsUrl = 'https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0?latest=true';
+    const proxies = [
+      `https://api.allorigins.win/get?url=${encodeURIComponent(blsUrl)}`,
+      `https://corsproxy.io/?${encodeURIComponent(blsUrl)}`,
+    ];
+    for(const proxy of proxies) {
+      try {
+        const res  = await fetch(proxy, {signal:AbortSignal.timeout(5000)});
+        const json = await res.json();
+        const raw  = json.contents || json;
+        const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        const series = data?.Results?.series?.[0]?.data;
+        if(series && series.length >= 12) {
+          const latest  = parseFloat(series[0].value);
+          const yearAgo = parseFloat(series[11].value);
+          const yoy     = ((latest - yearAgo) / yearAgo) * 100;
+          const period  = series[0].periodName + ' ' + series[0].year;
+          if(yoy > 0 && yoy < 20) {
+            return { rate: parseFloat(yoy.toFixed(1)), period, source:'BLS' };
+          }
+        }
+      } catch(e) {}
+    }
+  } catch(e) {}
+
+  // ── SOURCE 3: World Bank CPI API ──
+  try {
+    const wbUrl  = 'https://api.worldbank.org/v2/country/US/indicator/FP.CPI.TOTL.ZG?format=json&mrv=2&per_page=2';
+    const proxy  = `https://api.allorigins.win/get?url=${encodeURIComponent(wbUrl)}`;
+    const res    = await fetch(proxy, {signal:AbortSignal.timeout(5000)});
+    const json   = await res.json();
+    const raw    = json.contents || '[]';
+    const data   = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    const records = Array.isArray(data) ? data[1] : null;
+    if(records && records.length > 0 && records[0].value) {
+      const rate = parseFloat(records[0].value.toFixed(1));
+      const period = records[0].date;
+      if(rate > 0 && rate < 20) {
+        return { rate, period, source:'World Bank' };
+      }
+    }
+  } catch(e) {}
+
+  // ── FINAL FALLBACK: last known CPI — auto-updates via GitHub Actions ──
+  // This value is kept current by the weekly blog automation workflow
+  return { rate: 3.8, period: 'Apr 2026 (cached)', source:'cached' };
 }
 
 // ── CPI SLIDER ──
@@ -1057,18 +1112,49 @@ function generateStockData(ticker, name, sector, cpiSens, livePrice, liveChg) {
 
 // ── FETCH LIVE PRICES ──
 async function fetchLiveData() {
-  const symbols = EQUITIES.map(s=>s.ticker).join(',');
-  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}&fields=regularMarketPrice,regularMarketChangePercent`;
-  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-  try {
-    const res = await fetch(proxy,{signal:AbortSignal.timeout(8000)});
-    const json = await res.json();
-    const data = JSON.parse(json.contents);
-    const quotes = data?.quoteResponse?.result || [];
-    const map = {};
-    quotes.forEach(q=>{map[q.symbol]={price:q.regularMarketPrice,chg:q.regularMarketChangePercent};});
-    return map;
-  } catch(e){ return {}; }
+  const allTickers = EQUITIES.map(s=>s.ticker);
+  const batchSize  = 20; // smaller batches = more reliable
+  const batches    = [];
+  for(let i=0; i<allTickers.length; i+=batchSize) {
+    batches.push(allTickers.slice(i, i+batchSize));
+  }
+
+  const map = {};
+  const proxyFns = [
+    (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  ];
+
+  for(const batch of batches) {
+    const symbols = batch.join(',');
+    const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}&fields=regularMarketPrice,regularMarketChangePercent,symbol`;
+    
+    let success = false;
+    for(const proxyFn of proxyFns) {
+      if(success) break;
+      try {
+        const res  = await fetch(proxyFn(yahooUrl), {signal:AbortSignal.timeout(7000)});
+        const json = await res.json();
+        const raw  = json.contents || json;
+        const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        const quotes = data?.quoteResponse?.result || [];
+        if(quotes.length > 0) {
+          quotes.forEach(q => {
+            if(q.regularMarketPrice) {
+              map[q.symbol] = {
+                price: q.regularMarketPrice,
+                chg:   q.regularMarketChangePercent || 0
+              };
+            }
+          });
+          success = true;
+        }
+      } catch(e) {}
+    }
+    // Small delay between batches to avoid rate limiting
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return map;
 }
 
 async function buildStocks() {
@@ -1080,8 +1166,9 @@ async function buildStocks() {
   liveCpi    = cpiData.rate;
   currentCpi = cpiData.rate;
   document.getElementById('cpiSlider').value = liveCpi;
-  document.getElementById('cpiSourceLabel').textContent = `BLS CPI-U · ${cpiData.period}`;
-  document.getElementById('cpiFetchStatus').textContent = `Live BLS data`;
+  const sourceLabels = { 'FRED':'Federal Reserve (FRED)', 'BLS':'Bureau of Labor Statistics', 'World Bank':'World Bank', 'cached':'Cached — refresh for latest' };
+  document.getElementById('cpiSourceLabel').textContent = `CPI-U · ${cpiData.period} · ${sourceLabels[cpiData.source] || cpiData.source}`;
+  document.getElementById('cpiFetchStatus').textContent = cpiData.source === 'cached' ? `⚠ Cached data` : `✓ Live ${cpiData.source} data`;
   updateCpiDisplay();
 
   allStocks = EQUITIES.map(({ticker,name,sector,cpiSens}) => {
@@ -1100,12 +1187,15 @@ async function buildStocks() {
   // Fire AI Market Pulse after data is ready
   runMarketPulse();
 
-  const hasLive = Object.keys(live).length > 0;
+  const liveCount = Object.keys(live).length;
+  const totalCount = EQUITIES.length;
   document.getElementById('statusDot').classList.remove('loading');
-  document.getElementById('statusDot').style.background = hasLive ? 'var(--green)' : 'var(--gold)';
-  document.getElementById('statusText').textContent = hasLive
-    ? `Live data · ${Object.keys(live).length} quotes`
-    : 'Estimated data (market closed or rate limited)';
+  document.getElementById('statusDot').style.background = liveCount > 50 ? 'var(--green)' : liveCount > 0 ? 'var(--gold)' : 'var(--gold)';
+  document.getElementById('statusText').textContent = liveCount > 50
+    ? `Live prices · ${liveCount}/${totalCount} quotes`
+    : liveCount > 0
+    ? `Partial live data · ${liveCount}/${totalCount} quotes · rest estimated`
+    : 'Estimated prices (market closed or rate limited)';
   document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
 }
 
