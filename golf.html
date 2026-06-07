@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Golf — Witkowski Advisory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080c08;
+      --surface: #0d130d;
+      --surface2: #121a12;
+      --border: #1e2e1e;
+      --text: #d8ead8;
+      --muted: #5a7a5a;
+      --gold: #c9a84c;
+      --gold-dim: #6a4e1a;
+      --red: #e05555;
+      --red-dim: #3a1212;
+    }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ── */
+    #login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      background: radial-gradient(ellipse at 50% 40%, #0d1f0d 0%, #080c08 70%);
+    }
+    .login-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 40px;
+    }
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .login-card h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      color: #b8d4b8;
+      margin-bottom: 6px;
+    }
+    .login-card p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 28px;
+      letter-spacing: 0.5px;
+    }
+    .login-card input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .login-card input:focus { border-color: #3a6a3a; }
+    .login-btn {
+      width: 100%;
+      background: #1a3a1a;
+      border: 1px solid #3a6a3a;
+      border-radius: 8px;
+      padding: 13px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: #7acc7a;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+    .login-btn:hover { background: #243a24; }
+    .login-error {
+      font-size: 11px;
+      color: var(--red);
+      margin-top: 10px;
+      text-align: center;
+      min-height: 16px;
+    }
+
+    /* ── APP SHELL ── */
+    #app { display: none; }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #0d1f0d 0%, #111811 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: #c8e6c8;
+      letter-spacing: -0.3px;
+    }
+    .header-left p {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .header-right { display: flex; gap: 8px; align-items: center; }
+    .tab-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: #1a3a1a;
+      border-color: #3a6a3a;
+      color: #7acc7a;
+    }
+    .logout-btn {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid #3a1a1a;
+      background: transparent;
+      color: #7a4a4a;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── CLUB TABS ── */
+    .club-tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 6px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      scrollbar-width: none;
+    }
+    .club-tabs::-webkit-scrollbar { display: none; }
+    .club-tab {
+      flex-shrink: 0;
+      padding: 7px 13px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    /* ── CHEAT SHEET ── */
+    #tab-cheatsheet { display: block; }
+    #tab-scores { display: none; }
+
+    .main-pad { padding: 16px 16px 60px; }
+
+    /* Hero card */
+    .hero-card {
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--club-color) 0%, transparent 60%);
+      opacity: 0.6;
+      border-radius: 14px;
+    }
+    .hero-card > * { position: relative; }
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .hero-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .hero-loft { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+    .club-badge {
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* Ball position */
+    .bp-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .bp-track { position: relative; height: 30px; }
+    .bp-bar { position: absolute; top: 13px; left: 9%; right: 9%; height: 2px; background: var(--border); border-radius: 2px; }
+    .bp-foot {
+      position: absolute;
+      top: 3px;
+      width: 22px; height: 22px;
+      background: #1e2e1e;
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: var(--muted);
+    }
+    .bp-foot.lead { left: 4%; }
+    .bp-foot.trail { right: 4%; }
+    .bp-ball {
+      position: absolute;
+      top: 6px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 10px currentColor;
+    }
+    .bp-center { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 1px; height: 16px; background: var(--border); }
+    .bp-text { font-size: 11px; color: #8aaa8a; text-align: center; margin-top: 6px; }
+
+    /* Grid */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .info-cell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .info-icon { font-size: 14px; margin-bottom: 4px; }
+    .info-lbl { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+    .info-val { font-size: 12px; color: var(--text); line-height: 1.4; }
+
+    /* Key thought */
+    .thought-card {
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .thought-lbl { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+    .thought-text { font-size: 14px; color: var(--text); line-height: 1.6; font-style: italic; }
+
+    /* Watch out */
+    .warn-card {
+      background: var(--red-dim);
+      border: 1px solid #5a2020;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .warn-lbl { font-size: 9px; color: var(--red); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+    .warn-text { font-size: 12px; color: #d4aaaa; line-height: 1.5; }
+
+    /* Faldo */
+    .faldo-card {
+      background: linear-gradient(135deg, #1a1608 0%, #0f0e0a 100%);
+      border: 1px solid #4a3a10;
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .faldo-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .faldo-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #b8960c, #8a6f09);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fef3c7; flex-shrink: 0;
+    }
+    .faldo-name { font-size: 10px; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; }
+    .faldo-title { font-size: 9px; color: var(--gold-dim); }
+    .faldo-quote {
+      font-size: 12px; color: #e8d88a; line-height: 1.7; font-style: italic;
+      border-left: 2px solid var(--gold); padding-left: 12px;
+    }
+
+    /* Nav */
+    .club-nav { display: flex; gap: 8px; margin-top: 16px; }
+    .nav-btn {
+      flex: 1; padding: 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-btn:disabled { color: #2a3a2a; cursor: default; }
+    .nav-btn:not(:disabled):hover { border-color: #3a5a3a; color: var(--text); }
+
+    /* ── SCORES TAB ── */
+    .scores-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .scores-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px; color: #c8e6c8;
+    }
+    .add-round-btn {
+      background: #1a3a1a;
+      border: 1px solid #3a6a3a;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #7acc7a;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+    }
+    .add-round-btn:hover { background: #243a24; }
+
+    /* Add round form */
+    .round-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .round-form.open { display: block; }
+    .round-form h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px; color: #b8d4b8; margin-bottom: 14px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .form-group input, .form-group select, .form-group textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 11px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #3a6a3a; }
+    .form-group select option { background: #0d130d; }
+    .form-group textarea { resize: vertical; min-height: 60px; font-size: 12px; }
+    .form-full { grid-column: 1 / -1; }
+    .form-actions { display: flex; gap: 8px; margin-top: 4px; }
+    .save-btn {
+      flex: 1; padding: 10px;
+      background: #1a3a1a; border: 1px solid #3a6a3a;
+      border-radius: 8px; color: #7acc7a;
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      cursor: pointer; letter-spacing: 0.5px;
+    }
+    .cancel-btn {
+      padding: 10px 16px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--muted);
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px; color: #c8e6c8; line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-lbl { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+    /* Rounds list */
+    .round-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .round-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .round-course {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px; color: #c8e6c8;
+    }
+    .round-score-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px; font-weight: 700;
+      font-family: 'Playfair Display', serif;
+    }
+    .round-meta { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .round-note { font-size: 11px; color: #7a9a7a; font-style: italic; line-height: 1.4; }
+    .round-delete {
+      position: absolute; top: 10px; right: 48px;
+      background: transparent; border: none;
+      color: #4a2a2a; font-size: 14px; cursor: pointer; padding: 4px;
+      transition: color 0.2s;
+    }
+    .round-delete:hover { color: var(--red); }
+
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+      color: var(--muted); font-size: 13px; font-style: italic;
+    }
+    .empty-state div { font-size: 32px; margin-bottom: 12px; }
+
+    /* Handicap trend */
+    .trend-section { margin-bottom: 16px; }
+    .trend-title {
+      font-size: 10px; color: var(--muted);
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .trend-bar-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 14px 8px;
+      overflow-x: auto;
+    }
+    .trend-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 60px;
+      min-width: fit-content;
+    }
+    .t-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .t-bar {
+      width: 20px;
+      border-radius: 3px 3px 0 0;
+      transition: height 0.4s ease;
+      min-height: 4px;
+    }
+    .t-bar-lbl { font-size: 8px; color: var(--muted); white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-logo">Witkowski Advisory Group</div>
+  <div class="login-card">
+    <h1>⛳ Golf Vault</h1>
+    <p>Private access only. Enter your password to continue.</p>
+    <input type="password" id="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')tryLogin()" />
+    <button class="login-btn" onclick="tryLogin()">ENTER</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>⛳ Golf Vault</h1>
+      <p>6'2" · Targeting 10 HCP</p>
+    </div>
+    <div class="header-right">
+      <button class="tab-btn active" id="btn-cheatsheet" onclick="switchTab('cheatsheet')">Cheat Sheet</button>
+      <button class="tab-btn" id="btn-scores" onclick="switchTab('scores')">Scores</button>
+      <button class="logout-btn" onclick="logout()">Log out</button>
+    </div>
+  </div>
+
+  <!-- ── CHEAT SHEET TAB ── -->
+  <div id="tab-cheatsheet">
+    <div class="club-tabs" id="club-tabs"></div>
+    <div class="main-pad" id="club-detail"></div>
+  </div>
+
+  <!-- ── SCORES TAB ── -->
+  <div id="tab-scores" style="display:none;">
+    <div class="main-pad">
+      <div class="scores-header">
+        <h2>Score Tracker</h2>
+        <button class="add-round-btn" onclick="toggleForm()">+ Add Round</button>
+      </div>
+
+      <!-- Add round form -->
+      <div class="round-form" id="round-form">
+        <h3>Log a Round</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Course</label>
+            <input type="text" id="f-course" placeholder="Glencoe Golf Club" />
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="f-date" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Score</label>
+            <input type="number" id="f-score" placeholder="92" min="50" max="150" />
+          </div>
+          <div class="form-group">
+            <label>Par</label>
+            <input type="number" id="f-par" placeholder="72" min="60" max="74" value="72" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fairways Hit</label>
+            <input type="text" id="f-fir" placeholder="7/14" />
+          </div>
+          <div class="form-group">
+            <label>Putts</label>
+            <input type="number" id="f-putts" placeholder="34" min="18" max="60" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group form-full">
+            <label>Notes / Key Takeaway</label>
+            <textarea id="f-notes" placeholder="Driver felt good. Kept leaving wedges short..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="save-btn" onclick="saveRound()">Save Round</button>
+          <button class="cancel-btn" onclick="toggleForm()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-strip" id="stats-strip">
+        <div class="stat-box"><div class="stat-val" id="stat-rounds">—</div><div class="stat-lbl">Rounds</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-best">—</div><div class="stat-lbl">Best</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-avg">—</div><div class="stat-lbl">Avg Score</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-putts">—</div><div class="stat-lbl">Avg Putts</div></div>
+      </div>
+
+      <!-- Trend chart -->
+      <div class="trend-section" id="trend-section" style="display:none;">
+        <div class="trend-title">Score Trend</div>
+        <div class="trend-bar-wrap">
+          <div class="trend-bars" id="trend-bars"></div>
+        </div>
+      </div>
+
+      <!-- Rounds list -->
+      <div id="rounds-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── PASSWORD ──
+// Change this to whatever you want your password to be
+const CORRECT_PASSWORD = 'witkowski2024';
+const SESSION_KEY = 'golf_vault_auth';
+const ROUNDS_KEY = 'golf_vault_rounds';
+
+function tryLogin() {
+  const val = document.getElementById('pw-input').value;
+  if (val === CORRECT_PASSWORD) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  } else {
+    document.getElementById('login-error').textContent = 'Incorrect password.';
+    document.getElementById('pw-input').value = '';
+    setTimeout(() => document.getElementById('login-error').textContent = '', 2000);
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pw-input').value = '';
+}
+
+// Check session on load
+window.addEventListener('load', () => {
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  }
+});
+
+// ── CLUB DATA ──
+const clubs = [
+  { name:'Driver', loft:'10.5°', ballPosition:'Inside lead heel', bpPct:15,
+    stance:'Shoulder-width+', weight:'50/50 → shift to lead', path:'Inside-out / slight upswing',
+    handPosition:'Neutral, slight tilt away', keyThought:'Sweep up. Drop trail elbow into slot. 80% effort.',
+    watchOut:'Pop-up right = steep + open face. Tee higher, shallow the path.',
+    faldo:'The driver is not a weapon — it\'s a precision instrument. You must load into the right side on the backswing, then unwind smoothly. Power comes from the sequence, not the effort. If you\'re swinging at 100%, you\'ve already lost control.',
+    color:'#1a3a2a', accent:'#4ade80', badge:'Driver' },
+  { name:'3 Hybrid', loft:'19°', ballPosition:'1–2" inside lead heel', bpPct:20,
+    stance:'Hip-width+', weight:'50/50', path:'Slight inside-out, level to slight upswing',
+    handPosition:'Neutral — don\'t press forward', keyThought:'Sweep and through. Not a dig. Trust the loft.',
+    watchOut:'Going left = face closing. Logo to sky through impact. Check grip strength.',
+    faldo:'The hybrid demands respect. It wants to be swept, not struck. Keep your hands passive through the hitting zone — the moment you try to guide it, the face closes and you\'re left of your target wondering what happened.',
+    color:'#1a2a3a', accent:'#60a5fa', badge:'Long' },
+  { name:'5 Iron', loft:'27°', ballPosition:'Just forward of center', bpPct:30,
+    stance:'Shoulder-width', weight:'55/45 lead', path:'Inside-out, slight downswing',
+    handPosition:'Slightly forward at address', keyThought:'Compress and through. Divot after the ball.',
+    watchOut:'Thin shots = hanging back. Stay over the ball.',
+    faldo:'Long irons expose every weakness in your swing. Address is everything — get your weight forward, hands ahead of the ball, and commit to hitting down. A proper 5-iron divot starts in front of the ball. That\'s your proof of a good strike.',
+    color:'#2a1a3a', accent:'#c084fc', badge:'Mid' },
+  { name:'7 Iron', loft:'34°', ballPosition:'Center to just forward', bpPct:38,
+    stance:'Shoulder-width', weight:'60/40 lead', path:'Inside-out, downward strike',
+    handPosition:'Hands forward, shaft lean toward target', keyThought:'Hit down to go up. Ball first, then turf.',
+    watchOut:'Scooping = fat/thin. Shaft lean fixes it.',
+    faldo:'The 7-iron is where you build your game. Master this club and everything else follows. Shaft lean at address, maintain it through impact. Do not let that right hand flip at the ball — it is the death of a good iron shot.',
+    color:'#3a1a1a', accent:'#f87171', badge:'Mid' },
+  { name:'9 Iron', loft:'41°', ballPosition:'Center', bpPct:50,
+    stance:'Slightly narrower', weight:'60/40 lead', path:'Steeper, more downward',
+    handPosition:'Forward press — shaft lean', keyThought:'Punch down. Loft does the work. Don\'t help it up.',
+    watchOut:'Thin = ball too far forward or flipping wrists.',
+    faldo:'A 9-iron should be struck with authority. Narrow your stance, press your hands forward, and attack the back of the ball. The loft will do everything else. Amateurs try to lift it — professionals trap it. Be a professional.',
+    color:'#3a2a1a', accent:'#fb923c', badge:'Mid' },
+  { name:'Pitching Wedge', loft:'46°', ballPosition:'Center', bpPct:50,
+    stance:'Hip-width', weight:'60/40 lead', path:'Steep, descending',
+    handPosition:'Forward press', keyThought:'Rotate body, quiet wrists. Arms and body together.',
+    watchOut:'Chunking = decelerating. Commit to the shot.',
+    faldo:'The pitching wedge is your scoring club. Quiet the hands, rotate the body, and commit to the finish. I see so many amateurs decelerate into the ball — that is where the chunk lives. Pick a target, trust your distance, and swing through it.',
+    color:'#2a3a1a', accent:'#a3e635', badge:'Short' },
+  { name:'Gap / SW', loft:'52–56°', ballPosition:'Center to slightly back', bpPct:55,
+    stance:'Narrow — hip-width', weight:'65/35 lead', path:'Steep, V-shaped',
+    handPosition:'Pressed forward', keyThought:'Small backswing, accelerate through. Never decelerate.',
+    watchOut:'Skulled shots = trying to lift it. Hit down, trust loft.',
+    faldo:'From 60 to 90 yards, this is where rounds are made or lost. Keep the backswing short and controlled, then accelerate through impact without hesitation. The hands lead, the face stays square, and you must — I repeat, must — hit through the ball, not at it.',
+    color:'#1a3a3a', accent:'#2dd4bf', badge:'Short' },
+  { name:'Lob Wedge', loft:'60°', ballPosition:'Slightly forward of center', bpPct:35,
+    stance:'Narrow, open stance', weight:'70/30 lead', path:'Outside-in with open face',
+    handPosition:'Neutral — don\'t press for flop shots', keyThought:'Open face, open stance. Slide under the ball. Soft hands.',
+    watchOut:'Avoid lob wedge from tight lies. Use 9i bump-run instead.',
+    faldo:'The lob wedge is a club that punishes overconfidence. Open the face before you grip it, align left, and slide the bounce under the ball with soft hands. But I will tell you plainly — until your short game is reliable, the bump-and-run with a 9-iron will save you far more strokes.',
+    color:'#3a3a1a', accent:'#facc15', badge:'Short' },
+  { name:'Putter', loft:'3–4°', ballPosition:'Just forward of center', bpPct:35,
+    stance:'Shoulder-width, eyes over ball', weight:'50/50', path:'Slight arc, square at impact',
+    handPosition:'Neutral — light grip pressure', keyThought:'Shoulders rock, not wrists. Pendulum. Consistent tempo.',
+    watchOut:'3-putts = distance control. Practice 20ft lag putts more than 3-footers.',
+    faldo:'Putting is 40% of your game and most amateurs practice it last. Eyes directly over the ball, shoulders rocking like a pendulum, and tempo that never changes whether it\'s two feet or forty. Lag putting — getting it close from distance — will drop more shots off your handicap than any other single skill.',
+    color:'#2a2a2a', accent:'#e2e8f0', badge:'Putter' },
+];
+
+let currentClub = 0;
+
+function initApp() {
+  buildClubTabs();
+  renderClub(0);
+  renderScores();
+  // Set today as default date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('f-date').value = today;
+}
+
+function buildClubTabs() {
+  const wrap = document.getElementById('club-tabs');
+  wrap.innerHTML = clubs.map((c, i) => `
+    <button class="club-tab" id="ctab-${i}" onclick="renderClub(${i})"
+      style="border-color:${i===0?c.accent:'var(--border)'};color:${i===0?c.accent:'var(--muted)'};background:${i===0?c.color+'33':'transparent'}"
+    >${c.name}</button>
+  `).join('');
+}
+
+function renderClub(idx) {
+  currentClub = idx;
+  const c = clubs[idx];
+
+  // Update tabs
+  clubs.forEach((cl, i) => {
+    const t = document.getElementById(`ctab-${i}`);
+    if (!t) return;
+    if (i === idx) {
+      t.style.borderColor = cl.accent;
+      t.style.color = cl.accent;
+      t.style.background = cl.color + '44';
+    } else {
+      t.style.borderColor = 'var(--border)';
+      t.style.color = 'var(--muted)';
+      t.style.background = 'transparent';
+    }
+  });
+
+  document.getElementById('club-detail').innerHTML = `
+    <!-- Hero -->
+    <div class="hero-card" style="--club-color:${c.color};border:1px solid ${c.accent}33;">
+      <div class="hero-top">
+        <div>
+          <div class="hero-name" style="color:${c.accent}">${c.name}</div>
+          <div class="hero-loft">Loft: ${c.loft}</div>
+        </div>
+        <div class="club-badge" style="background:${c.accent}22;border:1px solid ${c.accent}44;color:${c.accent}">${c.badge}</div>
+      </div>
+      <div class="bp-label">Ball Position in Stance</div>
+      <div class="bp-track">
+        <div class="bp-bar"></div>
+        <div class="bp-foot lead">L</div>
+        <div class="bp-foot trail">T</div>
+        <div class="bp-ball" style="left:${c.bpPct}%;background:${c.accent};color:${c.accent}"></div>
+        <div class="bp-center"></div>
+      </div>
+      <div class="bp-text">${c.ballPosition}</div>
+    </div>
+
+    <!-- Grid -->
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="info-icon">↔</div>
+        <div class="info-lbl">Stance Width</div>
+        <div class="info-val">${c.stance}</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-icon">⚖</div>
+        <div class="info-lbl">Weight</div>
+        <div class="info-val">${c.weight}</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-icon">↗</div>
+        <div class="info-lbl">Swing Path</div>
+        <div class="info-val">${c.path}</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-icon">✋</div>
+        <div class="info-lbl">Hand Position</div>
+        <div class="info-val">${c.handPosition}</div>
+      </div>
+    </div>
+
+    <!-- Key thought -->
+    <div class="thought-card" style="background:${c.accent}11;border:1px solid ${c.accent}33;">
+      <div class="thought-lbl" style="color:${c.accent}">🧠 Key Swing Thought</div>
+      <div class="thought-text">"${c.keyThought}"</div>
+    </div>
+
+    <!-- Watch out -->
+    <div class="warn-card">
+      <div class="warn-lbl">⚠ Watch Out For</div>
+      <div class="warn-text">${c.watchOut}</div>
+    </div>
+
+    <!-- Faldo -->
+    <div class="faldo-card">
+      <div class="faldo-header">
+        <div class="faldo-avatar">NF</div>
+        <div>
+          <div class="faldo-name">Nick Faldo Says</div>
+          <div class="faldo-title">6x Major Champion</div>
+        </div>
+      </div>
+      <div class="faldo-quote">"${c.faldo}"</div>
+    </div>
+
+    <!-- Nav -->
+    <div class="club-nav">
+      <button class="nav-btn" onclick="renderClub(${idx-1})" ${idx===0?'disabled':''}>
+        ← ${idx > 0 ? clubs[idx-1].name : '—'}
+      </button>
+      <button class="nav-btn" onclick="renderClub(${idx+1})" ${idx===clubs.length-1?'disabled':''}>
+        ${idx < clubs.length-1 ? clubs[idx+1].name : '—'} →
+      </button>
+    </div>
+  `;
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  document.getElementById('tab-cheatsheet').style.display = tab === 'cheatsheet' ? 'block' : 'none';
+  document.getElementById('tab-scores').style.display = tab === 'scores' ? 'block' : 'none';
+  document.getElementById('btn-cheatsheet').classList.toggle('active', tab === 'cheatsheet');
+  document.getElementById('btn-scores').classList.toggle('active', tab === 'scores');
+  if (tab === 'scores') renderScores();
+}
+
+// ── SCORE TRACKER ──
+function getRounds() {
+  return JSON.parse(localStorage.getItem(ROUNDS_KEY) || '[]');
+}
+function saveRounds(rounds) {
+  localStorage.setItem(ROUNDS_KEY, JSON.stringify(rounds));
+}
+
+let formOpen = false;
+function toggleForm() {
+  formOpen = !formOpen;
+  document.getElementById('round-form').classList.toggle('open', formOpen);
+  if (formOpen) document.getElementById('f-course').focus();
+}
+
+function saveRound() {
+  const course = document.getElementById('f-course').value.trim();
+  const date = document.getElementById('f-date').value;
+  const score = parseInt(document.getElementById('f-score').value);
+  const par = parseInt(document.getElementById('f-par').value) || 72;
+  const fir = document.getElementById('f-fir').value.trim();
+  const putts = parseInt(document.getElementById('f-putts').value) || null;
+  const notes = document.getElementById('f-notes').value.trim();
+
+  if (!course || !date || isNaN(score)) {
+    alert('Please fill in Course, Date, and Score at minimum.');
+    return;
+  }
+
+  const rounds = getRounds();
+  rounds.unshift({ id: Date.now(), course, date, score, par, fir, putts, notes });
+  saveRounds(rounds);
+
+  // Reset form
+  ['f-course','f-score','f-fir','f-putts','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-par').value = '72';
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('f-date').value = today;
+
+  toggleForm();
+  renderScores();
+}
+
+function deleteRound(id) {
+  if (!confirm('Delete this round?')) return;
+  const rounds = getRounds().filter(r => r.id !== id);
+  saveRounds(rounds);
+  renderScores();
+}
+
+function renderScores() {
+  const rounds = getRounds();
+
+  // Stats
+  if (rounds.length === 0) {
+    document.getElementById('stat-rounds').textContent = '0';
+    document.getElementById('stat-best').textContent = '—';
+    document.getElementById('stat-avg').textContent = '—';
+    document.getElementById('stat-putts').textContent = '—';
+  } else {
+    const scores = rounds.map(r => r.score);
+    const avg = Math.round(scores.reduce((a,b)=>a+b,0) / scores.length);
+    const best = Math.min(...scores);
+    const puttRounds = rounds.filter(r => r.putts);
+    const avgPutts = puttRounds.length ? Math.round(puttRounds.reduce((a,r)=>a+r.putts,0)/puttRounds.length) : null;
+    document.getElementById('stat-rounds').textContent = rounds.length;
+    document.getElementById('stat-best').textContent = best;
+    document.getElementById('stat-avg').textContent = avg;
+    document.getElementById('stat-putts').textContent = avgPutts || '—';
+  }
+
+  // Trend chart
+  const trendSection = document.getElementById('trend-section');
+  const trendBars = document.getElementById('trend-bars');
+  if (rounds.length >= 2) {
+    trendSection.style.display = 'block';
+    const last10 = [...rounds].reverse().slice(-10);
+    const scores = last10.map(r => r.score);
+    const minS = Math.min(...scores) - 3;
+    const maxS = Math.max(...scores) + 3;
+    const range = maxS - minS || 1;
+    trendBars.innerHTML = last10.map(r => {
+      const heightPct = ((r.score - minS) / range) * 100;
+      const h = Math.max(8, Math.round(heightPct * 0.55));
+      const diff = r.score - r.par;
+      const color = diff <= 0 ? '#4ade80' : diff <= 5 ? '#fb923c' : diff <= 10 ? '#f87171' : '#e05555';
+      const d = new Date(r.date + 'T00:00:00');
+      const lbl = `${d.getMonth()+1}/${d.getDate()}`;
+      return `<div class="t-bar-wrap">
+        <div class="t-bar" style="height:${h}px;background:${color}" title="${r.course}: ${r.score}"></div>
+        <div class="t-bar-lbl">${r.score}</div>
+        <div class="t-bar-lbl">${lbl}</div>
+      </div>`;
+    }).join('');
+  } else {
+    trendSection.style.display = 'none';
+  }
+
+  // Rounds list
+  const list = document.getElementById('rounds-list');
+  if (rounds.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div>🏌️</div>No rounds logged yet.<br>Hit "Add Round" to track your first score.</div>`;
+    return;
+  }
+
+  list.innerHTML = rounds.map(r => {
+    const diff = r.score - r.par;
+    const sign = diff > 0 ? '+' : '';
+    const color = diff <= 0 ? '#4ade80' : diff <= 5 ? '#fb923c' : diff <= 10 ? '#f87171' : '#e05555';
+    const bg = diff <= 0 ? '#0d2a0d' : diff <= 5 ? '#2a1a0a' : '#2a0d0d';
+    const d = new Date(r.date + 'T00:00:00');
+    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const meta = [dateStr, r.fir ? `FIR: ${r.fir}` : null, r.putts ? `Putts: ${r.putts}` : null].filter(Boolean).join(' · ');
+    return `<div class="round-card">
+      <button class="round-delete" onclick="deleteRound(${r.id})" title="Delete">✕</button>
+      <div class="round-top">
+        <div class="round-course">${r.course}</div>
+        <div class="round-score-badge" style="background:${bg};color:${color}">${r.score} <span style="font-size:11px;opacity:0.7">(${sign}${diff})</span></div>
+      </div>
+      <div class="round-meta">${meta}</div>
+      ${r.notes ? `<div class="round-note">"${r.notes}"</div>` : ''}
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
