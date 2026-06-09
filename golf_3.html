@@ -1,0 +1,2095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Golf — Witkowski Advisory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080c08;
+      --surface: #0d130d;
+      --surface2: #121a12;
+      --border: #1e2e1e;
+      --text: #d8ead8;
+      --muted: #5a7a5a;
+      --gold: #c9a84c;
+      --gold-dim: #6a4e1a;
+      --red: #e05555;
+      --red-dim: #3a1212;
+    }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── APP SHELL ── */
+    #app { display: block; }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #0d1f0d 0%, #111811 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: #c8e6c8;
+      letter-spacing: -0.3px;
+    }
+    .header-left p {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .header-right { display: flex; gap: 8px; align-items: center; }
+    .tab-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: #1a3a1a;
+      border-color: #3a6a3a;
+      color: #7acc7a;
+    }
+    /* ── CLUB TABS ── */
+    .club-tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 6px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      scrollbar-width: none;
+    }
+    .club-tabs::-webkit-scrollbar { display: none; }
+    .club-tab {
+      flex-shrink: 0;
+      padding: 7px 13px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    /* ── CHEAT SHEET ── */
+    #tab-cheatsheet { display: block; }
+    #tab-scores { display: none; }
+
+    .main-pad { padding: 16px 16px 60px; }
+
+    /* Hero card */
+    .hero-card {
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--club-color) 0%, transparent 60%);
+      opacity: 0.6;
+      border-radius: 14px;
+    }
+    .hero-card > * { position: relative; }
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .hero-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .hero-loft { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+    .club-badge {
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* Ball position */
+    .bp-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .bp-track { position: relative; height: 30px; }
+    .bp-bar { position: absolute; top: 13px; left: 9%; right: 9%; height: 2px; background: var(--border); border-radius: 2px; }
+    .bp-foot {
+      position: absolute;
+      top: 3px;
+      width: 22px; height: 22px;
+      background: #1e2e1e;
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: var(--muted);
+    }
+    .bp-foot.lead { left: 4%; }
+    .bp-foot.trail { right: 4%; }
+    .bp-ball {
+      position: absolute;
+      top: 6px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 10px currentColor;
+    }
+    .bp-center { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 1px; height: 16px; background: var(--border); }
+    .bp-text { font-size: 11px; color: #8aaa8a; text-align: center; margin-top: 6px; }
+
+    /* Grid */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .info-cell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .info-icon { font-size: 14px; margin-bottom: 4px; }
+    .info-lbl { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+    .info-val { font-size: 12px; color: var(--text); line-height: 1.4; }
+
+    /* Key thought */
+    .thought-card {
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .thought-lbl { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+    .thought-text { font-size: 14px; color: var(--text); line-height: 1.6; font-style: italic; }
+
+    /* Watch out */
+    .warn-card {
+      background: var(--red-dim);
+      border: 1px solid #5a2020;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .warn-lbl { font-size: 9px; color: var(--red); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+    .warn-text { font-size: 12px; color: #d4aaaa; line-height: 1.5; }
+
+    /* Grip */
+    .grip-card {
+      background: #0a1520;
+      border: 1px solid #1a3050;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .grip-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .grip-lbl { font-size: 9px; color: #5a9adf; letter-spacing: 1.5px; text-transform: uppercase; }
+    .grip-pressure-badge {
+      font-size: 10px; color: #7ab8f0;
+      background: rgba(90,154,223,0.15);
+      border: 1px solid rgba(90,154,223,0.3);
+      border-radius: 20px; padding: 3px 10px;
+    }
+    .grip-meter { display: flex; gap: 3px; margin-bottom: 10px; }
+    .grip-dot { flex: 1; height: 6px; border-radius: 3px; background: #1a2a3a; }
+    .grip-dot.filled-low { background: #4ade80; }
+    .grip-dot.filled-mid { background: #5a9adf; }
+    .grip-dot.filled-high { background: #f87171; }
+    .grip-style { font-size: 12px; color: #a8c8e8; line-height: 1.6; margin-bottom: 8px; }
+    .grip-tip { font-size: 11px; color: #7ab8f0; font-style: italic; border-left: 2px solid #2a5a8a; padding-left: 10px; }
+
+    /* Faldo */
+    .faldo-card {
+      background: linear-gradient(135deg, #1a1608 0%, #0f0e0a 100%);
+      border: 1px solid #4a3a10;
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .faldo-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .faldo-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #b8960c, #8a6f09);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fef3c7; flex-shrink: 0;
+    }
+    .faldo-name { font-size: 10px; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; }
+    .faldo-title { font-size: 9px; color: var(--gold-dim); }
+    .faldo-quote {
+      font-size: 12px; color: #e8d88a; line-height: 1.7; font-style: italic;
+      border-left: 2px solid var(--gold); padding-left: 12px;
+    }
+
+    /* Chris */
+    .chris-card {
+      background: linear-gradient(135deg, #12100e 0%, #0d0c0a 100%);
+      border: 1px solid #3a2a1a;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .chris-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .chris-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #5a3a1a, #3a2510);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0;
+    }
+    .chris-name { font-size: 10px; color: #c87a3a; letter-spacing: 1.5px; text-transform: uppercase; }
+    .chris-title { font-size: 9px; color: #5a3a1a; }
+    .chris-quote {
+      font-size: 12px; color: #d4aa88; line-height: 1.7; font-style: italic;
+      border-left: 2px solid #5a3a1a; padding-left: 12px;
+    }
+
+    /* Nav */
+    .club-nav { display: flex; gap: 8px; margin-top: 16px; }
+    .nav-btn {
+      flex: 1; padding: 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-btn:disabled { color: #2a3a2a; cursor: default; }
+    .nav-btn:not(:disabled):hover { border-color: #3a5a3a; color: var(--text); }
+
+    /* ── SCORES TAB ── */
+    .scores-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .scores-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px; color: #c8e6c8;
+    }
+    .add-round-btn {
+      background: #1a3a1a;
+      border: 1px solid #3a6a3a;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #7acc7a;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+    }
+    .add-round-btn:hover { background: #243a24; }
+
+    /* Add round form */
+    .round-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .round-form.open { display: block; }
+    .round-form h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px; color: #b8d4b8; margin-bottom: 14px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .form-group input, .form-group select, .form-group textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 11px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #3a6a3a; }
+    .form-group select option { background: #0d130d; }
+    .form-group textarea { resize: vertical; min-height: 60px; font-size: 12px; }
+    .form-full { grid-column: 1 / -1; }
+    .form-actions { display: flex; gap: 8px; margin-top: 4px; }
+    .save-btn {
+      flex: 1; padding: 10px;
+      background: #1a3a1a; border: 1px solid #3a6a3a;
+      border-radius: 8px; color: #7acc7a;
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      cursor: pointer; letter-spacing: 0.5px;
+    }
+    .cancel-btn {
+      padding: 10px 16px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--muted);
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px; color: #c8e6c8; line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-lbl { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+    /* Rounds list */
+    .round-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .round-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .round-course {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px; color: #c8e6c8;
+    }
+    .round-score-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px; font-weight: 700;
+      font-family: 'Playfair Display', serif;
+    }
+    .round-meta { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .round-note { font-size: 11px; color: #7a9a7a; font-style: italic; line-height: 1.4; }
+    .round-delete {
+      position: absolute; top: 10px; right: 48px;
+      background: transparent; border: none;
+      color: #4a2a2a; font-size: 14px; cursor: pointer; padding: 4px;
+      transition: color 0.2s;
+    }
+    .round-delete:hover { color: var(--red); }
+
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+      color: var(--muted); font-size: 13px; font-style: italic;
+    }
+    .empty-state div { font-size: 32px; margin-bottom: 12px; }
+
+    /* Handicap trend */
+    .trend-section { margin-bottom: 16px; }
+    .trend-title {
+      font-size: 10px; color: var(--muted);
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .trend-bar-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 14px 8px;
+      overflow-x: auto;
+    }
+    .trend-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 60px;
+      min-width: fit-content;
+    }
+    .t-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .t-bar {
+      width: 20px;
+      border-radius: 3px 3px 0 0;
+      transition: height 0.4s ease;
+      min-height: 4px;
+    }
+    .t-bar-lbl { font-size: 8px; color: var(--muted); white-space: nowrap; }
+    /* ── FIELD GUIDE ── */
+    .fg-category-tabs {
+      display: flex; overflow-x: auto; gap: 6px;
+      padding: 12px 16px; background: var(--surface);
+      border-bottom: 1px solid var(--border); scrollbar-width: none;
+      position: sticky; top: 60px; z-index: 50;
+    }
+    .fg-category-tabs::-webkit-scrollbar { display: none; }
+    .fg-cat-btn {
+      flex-shrink: 0; padding: 7px 13px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: transparent;
+      color: var(--muted); font-family: 'DM Mono', monospace;
+      font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .fg-cat-btn.active {
+      border-color: #c9a84c; color: #c9a84c; background: rgba(201,168,76,0.1);
+    }
+    .fg-section { margin-bottom: 10px; }
+    .fg-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin: 0 0 10px; padding: 16px 0 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .fg-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; margin-bottom: 8px; overflow: hidden;
+      cursor: pointer;
+    }
+    .fg-card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px;
+    }
+    .fg-card-left { display: flex; align-items: center; gap: 12px; }
+    .fg-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .fg-title { font-size: 13px; color: #c8e6c8; margin-bottom: 2px; }
+    .fg-subtitle { font-size: 10px; color: var(--muted); }
+    .fg-chevron { font-size: 10px; color: var(--muted); transition: transform 0.2s; }
+    .fg-chevron.open { transform: rotate(180deg); }
+    .fg-body {
+      display: none; padding: 0 16px 16px; border-top: 1px solid var(--border);
+    }
+    .fg-body.open { display: block; }
+    .fg-step {
+      display: flex; gap: 12px; padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .fg-step:last-child { border-bottom: none; }
+    .fg-step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: #c9a84c; flex-shrink: 0; margin-top: 1px;
+    }
+    .fg-step-text { font-size: 12px; color: #a8c8a8; line-height: 1.6; }
+    .fg-step-text strong { color: #c8e6c8; font-weight: 500; }
+    .fg-tip {
+      margin-top: 10px; padding: 10px 12px;
+      background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 8px; font-size: 11px; color: #e8d88a; font-style: italic;
+    }
+    .fg-rule-box {
+      margin-top: 10px; padding: 10px 12px;
+      background: rgba(224,85,85,0.08); border: 1px solid rgba(224,85,85,0.2);
+      border-radius: 8px;
+    }
+    .fg-rule-label { font-size: 9px; color: #f87171; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+    .fg-rule-text { font-size: 11px; color: #d4aaaa; line-height: 1.6; }
+    .fg-dist-table { width: 100%; margin-top: 10px; border-collapse: collapse; }
+    .fg-dist-table th {
+      font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+      padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left;
+    }
+    .fg-dist-table td {
+      font-size: 12px; color: #a8c8a8; padding: 8px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .fg-dist-table tr:last-child td { border-bottom: none; }
+    .fg-dist-table td:first-child { color: #c8e6c8; }
+    .fg-badge {
+      display: inline-block; font-size: 9px; letter-spacing: 1px;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 10px; margin-left: 6px;
+    }
+    .fg-badge-pen { background: rgba(224,85,85,0.2); color: #f87171; }
+    .fg-badge-free { background: rgba(74,222,128,0.2); color: #4ade80; }
+    .fg-badge-choice { background: rgba(251,146,60,0.2); color: #fb923c; }
+    /* ── CADDY ── */
+    .caddy-shell {
+      display: flex; flex-direction: column;
+      height: calc(100vh - 58px); overflow: hidden;
+    }
+    .caddy-intro {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px; background: #0a120a;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .caddy-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, #1a3a1a, #0d1f0d);
+      border: 1.5px solid #3a6a3a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .caddy-name { font-family: 'Playfair Display', serif; font-size: 15px; color: #c8e6c8; }
+    .caddy-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; margin-top: 1px; }
+
+    .caddy-context {
+      padding: 12px 16px; background: var(--surface);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .caddy-context-title {
+      font-size: 9px; color: var(--muted); letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .caddy-inputs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 7px;
+    }
+    .caddy-input-group { display: flex; flex-direction: column; gap: 3px; }
+    .caddy-input-group label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .caddy-input-group input, .caddy-input-group select {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 7px 9px;
+      font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text);
+      outline: none; transition: border-color 0.2s; width: 100%;
+    }
+    .caddy-input-group input:focus, .caddy-input-group select:focus { border-color: #3a6a3a; }
+    .caddy-input-group select option { background: #0d130d; }
+
+    .caddy-chat {
+      flex: 1; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .caddy-msg { display: flex; gap: 10px; align-items: flex-start; }
+    .caddy-msg-steve { }
+    .caddy-msg-user { flex-direction: row-reverse; }
+    .caddy-msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #1a3a1a, #0d1f0d);
+      border: 1px solid #3a6a3a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #7acc7a; margin-top: 2px;
+    }
+    .caddy-msg-user .caddy-msg-avatar {
+      background: #1a2a3a; border-color: #2a4a6a; color: #6aaaca;
+    }
+    .caddy-msg-bubble {
+      max-width: 82%; padding: 11px 14px; border-radius: 14px;
+      font-size: 13px; line-height: 1.6; color: #c8e6c8;
+      background: #0d1f0d; border: 1px solid #1e3a1e;
+    }
+    .caddy-msg-user .caddy-msg-bubble {
+      background: #0d1a2a; border-color: #1a3050; color: #a8c8e8;
+      text-align: right;
+    }
+    .caddy-msg-bubble.loading {
+      color: var(--muted); font-style: italic;
+    }
+    .caddy-msg-bubble strong { color: #4ade80; font-weight: 600; }
+    .caddy-msg-bubble em { color: #c9a84c; font-style: normal; }
+
+    .caddy-input-bar {
+      display: flex; gap: 8px; padding: 12px 16px;
+      background: var(--surface); border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .caddy-input-bar input {
+      flex: 1; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 24px; padding: 10px 16px;
+      font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text);
+      outline: none; transition: border-color 0.2s;
+    }
+    .caddy-input-bar input:focus { border-color: #3a6a3a; }
+    .caddy-send {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: #1a3a1a; border: 1px solid #3a6a3a;
+      color: #7acc7a; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.2s;
+    }
+    .caddy-send:hover { background: #243a24; }
+    .caddy-send:disabled { opacity: 0.4; cursor: default; }
+    /* ── GPS ── */
+    .gps-shell { display: flex; flex-direction: column; height: calc(100vh - 58px); }
+    .gps-controls {
+      padding: 12px 16px; background: var(--surface);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .gps-controls-title { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .gps-controls-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
+    .gps-ctrl-group { display: flex; flex-direction: column; gap: 3px; position: relative; }
+    .gps-ctrl-group label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .gps-ctrl-group input, .gps-ctrl-group select {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 8px 10px;
+      font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text);
+      outline: none; transition: border-color 0.2s; width: 100%;
+    }
+    .gps-ctrl-group input:focus, .gps-ctrl-group select:focus { border-color: #3a6a3a; }
+    .gps-locate-btn {
+      background: #1a3a1a; border: 1px solid #3a6a3a;
+      border-radius: 6px; padding: 8px 10px;
+      font-family: 'DM Mono', monospace; font-size: 11px; color: #7acc7a;
+      cursor: pointer; white-space: nowrap; width: 100%;
+    }
+    .gps-locate-btn:hover { background: #243a24; }
+    .gps-suggestions {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
+      background: #0d1f0d; border: 1px solid #3a6a3a;
+      border-radius: 6px; margin-top: 2px; display: none;
+    }
+    .gps-suggestions.open { display: block; }
+    .gps-suggestion-item {
+      padding: 8px 12px; font-size: 12px; color: #a8c8a8;
+      cursor: pointer; border-bottom: 1px solid var(--border);
+    }
+    .gps-suggestion-item:last-child { border-bottom: none; }
+    .gps-suggestion-item:hover { background: #1a3a1a; color: #c8e6c8; }
+    .gps-info-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    }
+    .gps-info-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px; text-align: center;
+    }
+    .gps-info-val { font-family: 'Playfair Display', serif; font-size: 18px; color: #c8e6c8; line-height: 1; margin-bottom: 3px; }
+    .gps-info-lbl { font-size: 8px; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; }
+    .gps-next-btn {
+      background: #1a2a3a; border: 1px solid #2a4a6a;
+      border-radius: 6px; padding: 6px 8px; width: 100%;
+      font-family: 'DM Mono', monospace; font-size: 10px; color: #6aaaca;
+      cursor: pointer; margin-top: 2px;
+    }
+    #gps-map { flex: 1; width: 100%; min-height: 300px; }
+    .gps-status {
+      padding: 8px 16px; font-size: 11px; color: var(--muted);
+      text-align: center; background: var(--surface);
+      border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    /* ── GPS PIN ── */
+    .gps-pin-dots { display:flex; justify-content:center; gap:14px; margin-bottom:20px; }
+    .pin-dot {
+      width:14px; height:14px; border-radius:50%;
+      border:2px solid #3a6a3a; background:transparent;
+      transition:background 0.15s;
+    }
+    .pin-dot.filled { background:#4ade80; border-color:#4ade80; }
+    .gps-pin-pad {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+    }
+    .pin-key {
+      background:var(--bg); border:1px solid var(--border);
+      border-radius:10px; padding:14px 0;
+      font-family:'Playfair Display',serif; font-size:20px; color:#c8e6c8;
+      cursor:pointer; transition:all 0.15s; text-align:center;
+    }
+    .pin-key:hover { background:#1a3a1a; border-color:#3a6a3a; }
+    .pin-key:empty { background:transparent; border:none; cursor:default; }
+  </style>
+</head>
+<body>
+
+
+<!-- ── APP ── -->
+<div id="app">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>⛳ Golf Vault</h1>
+      <p>6'2" · Targeting 10 HCP</p>
+    </div>
+    <div class="header-right">
+      <button class="tab-btn active" id="btn-cheatsheet" onclick="switchTab('cheatsheet')">Clubs</button>
+      <button class="tab-btn" id="btn-field" onclick="switchTab('field')">Field Guide</button>
+      <button class="tab-btn" id="btn-caddy" onclick="switchTab('caddy')">🎙 Caddy</button>
+      <button class="tab-btn" id="btn-gps" onclick="gpsTabClick()">📍 GPS</button>
+      <button class="tab-btn" id="btn-scores" onclick="switchTab('scores')">Scores</button>
+    </div>
+  </div>
+
+  <!-- ── CHEAT SHEET TAB ── -->
+  <div id="tab-cheatsheet">
+    <div class="club-tabs" id="club-tabs"></div>
+    <div class="main-pad" id="club-detail"></div>
+  </div>
+
+  <!-- ── FIELD GUIDE TAB ── -->
+  <div id="tab-field" style="display:none;">
+    <div class="main-pad" id="field-content"></div>
+  </div>
+
+  <!-- ── CADDY TAB ── -->
+  <div id="tab-caddy" style="display:none;">
+    <div class="caddy-shell">
+
+      <!-- Caddy header -->
+      <div class="caddy-intro">
+        <div class="caddy-avatar">🏌️</div>
+        <div>
+          <div class="caddy-name">Steve Williams</div>
+          <div class="caddy-sub">Tiger's caddy · 13 majors · No nonsense</div>
+        </div>
+      </div>
+
+      <!-- Context inputs -->
+      <div class="caddy-context">
+        <div class="caddy-context-title">SET THE SCENE</div>
+        <div class="caddy-inputs">
+          <div class="caddy-input-group">
+            <label>Course</label>
+            <input type="text" id="cad-course" placeholder="Glencoe Golf Club" />
+          </div>
+          <div class="caddy-input-group">
+            <label>Hole</label>
+            <select id="cad-hole">
+              <option value="1">Hole 1</option>
+              <option value="2">Hole 2</option>
+              <option value="3">Hole 3</option>
+              <option value="4">Hole 4</option>
+              <option value="5">Hole 5</option>
+              <option value="6">Hole 6</option>
+              <option value="7">Hole 7</option>
+              <option value="8">Hole 8</option>
+              <option value="9">Hole 9</option>
+              <option value="10">Hole 10</option>
+              <option value="11">Hole 11</option>
+              <option value="12">Hole 12</option>
+              <option value="13">Hole 13</option>
+              <option value="14">Hole 14</option>
+              <option value="15">Hole 15</option>
+              <option value="16">Hole 16</option>
+              <option value="17">Hole 17</option>
+              <option value="18">Hole 18</option>
+            </select>
+          </div>
+          <div class="caddy-input-group">
+            <label>Yardage</label>
+            <input type="number" id="cad-yardage" placeholder="165" min="50" max="650" />
+          </div>
+          <div class="caddy-input-group">
+            <label>Lie</label>
+            <select id="cad-lie">
+              <option>Fairway</option>
+              <option>Rough</option>
+              <option>Tee box</option>
+              <option>Sand bunker</option>
+              <option>Fairway bunker</option>
+              <option>Hardpan</option>
+              <option>Uphill lie</option>
+              <option>Downhill lie</option>
+              <option>Under trees</option>
+              <option>Fringe</option>
+              <option>Green</option>
+            </select>
+          </div>
+          <div class="caddy-input-group">
+            <label>Wind</label>
+            <select id="cad-wind">
+              <option>Calm</option>
+              <option>Light breeze (5 mph)</option>
+              <option>Into wind (10-15 mph)</option>
+              <option>Downwind (10-15 mph)</option>
+              <option>Strong into (20+ mph)</option>
+              <option>Strong down (20+ mph)</option>
+              <option>Crosswind left</option>
+              <option>Crosswind right</option>
+            </select>
+          </div>
+          <div class="caddy-input-group">
+            <label>Score so far</label>
+            <input type="text" id="cad-score" placeholder="e.g. +4 thru 7" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat window -->
+      <div class="caddy-chat" id="caddy-chat">
+        <div class="caddy-msg caddy-msg-steve">
+          <div class="caddy-msg-avatar">SW</div>
+          <div class="caddy-msg-bubble">Right. Set the scene up top — course, hole, yardage, lie, wind. Tell me what you're working with and I'll tell you exactly what to do. No guessing. No second chances on the course.</div>
+        </div>
+      </div>
+
+      <!-- Input bar -->
+      <div class="caddy-input-bar">
+        <input type="text" id="caddy-input" placeholder="Ask Steve anything..." onkeydown="if(event.key==='Enter')sendCaddy()" />
+        <button class="caddy-send" onclick="sendCaddy()">↑</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── GPS TAB ── -->
+  <div id="tab-gps" style="display:none;">
+
+    <!-- PIN Gate -->
+    <div id="gps-pin-gate" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 58px); padding:24px; background:radial-gradient(ellipse at 50% 40%, #0d1f0d 0%, #080c08 70%);">
+      <div style="font-size:32px; margin-bottom:16px;">📍</div>
+      <div style="font-family:'Playfair Display',serif; font-size:20px; color:#c8e6c8; margin-bottom:6px;">GPS Access</div>
+      <div style="font-size:11px; color:var(--muted); margin-bottom:28px; letter-spacing:0.5px;">Private — enter PIN to continue</div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px 24px; width:100%; max-width:300px;">
+        <div class="gps-pin-dots" id="gps-pin-dots">
+          <div class="pin-dot" id="pd0"></div>
+          <div class="pin-dot" id="pd1"></div>
+          <div class="pin-dot" id="pd2"></div>
+          <div class="pin-dot" id="pd3"></div>
+        </div>
+        <div class="gps-pin-pad">
+          <button class="pin-key" onclick="pinKey('1')">1</button>
+          <button class="pin-key" onclick="pinKey('2')">2</button>
+          <button class="pin-key" onclick="pinKey('3')">3</button>
+          <button class="pin-key" onclick="pinKey('4')">4</button>
+          <button class="pin-key" onclick="pinKey('5')">5</button>
+          <button class="pin-key" onclick="pinKey('6')">6</button>
+          <button class="pin-key" onclick="pinKey('7')">7</button>
+          <button class="pin-key" onclick="pinKey('8')">8</button>
+          <button class="pin-key" onclick="pinKey('9')">9</button>
+          <button class="pin-key" style="background:transparent;border:none;cursor:default;"></button>
+          <button class="pin-key" onclick="pinKey('0')">0</button>
+          <button class="pin-key" onclick="pinKey('⌫')">⌫</button>
+        </div>
+        <div id="gps-pin-error" style="font-size:11px; color:#f87171; text-align:center; margin-top:10px; min-height:16px;"></div>
+      </div>
+    </div>
+
+    <!-- GPS Shell (hidden until PIN correct) -->
+    <div id="gps-content" style="display:none;">
+    <div class="gps-shell">
+
+      <!-- Controls -->
+      <div class="gps-controls">
+        <div class="gps-controls-title">COURSE & HOLE</div>
+        <div class="gps-controls-row">
+          <div class="gps-ctrl-group" style="flex:2">
+            <label>Course</label>
+            <input type="text" id="gps-course-input" placeholder="e.g. Glencoe Golf Club" oninput="onGpsCourseInput()" />
+            <div class="gps-suggestions" id="gps-suggestions"></div>
+          </div>
+          <div class="gps-ctrl-group" style="flex:1">
+            <label>Hole</label>
+            <select id="gps-hole" onchange="onHoleChange()">
+              <option value="1">Hole 1</option>
+              <option value="2">Hole 2</option>
+              <option value="3">Hole 3</option>
+              <option value="4">Hole 4</option>
+              <option value="5">Hole 5</option>
+              <option value="6">Hole 6</option>
+              <option value="7">Hole 7</option>
+              <option value="8">Hole 8</option>
+              <option value="9">Hole 9</option>
+              <option value="10">Hole 10</option>
+              <option value="11">Hole 11</option>
+              <option value="12">Hole 12</option>
+              <option value="13">Hole 13</option>
+              <option value="14">Hole 14</option>
+              <option value="15">Hole 15</option>
+              <option value="16">Hole 16</option>
+              <option value="17">Hole 17</option>
+              <option value="18">Hole 18</option>
+            </select>
+          </div>
+          <div class="gps-ctrl-group" style="flex:1">
+            <button class="gps-locate-btn" onclick="locateMe()">📍 Locate</button>
+          </div>
+        </div>
+        <div class="gps-info-strip">
+          <div class="gps-info-box"><div class="gps-info-val" id="gps-dist">—</div><div class="gps-info-lbl">Yards to marker</div></div>
+          <div class="gps-info-box"><div class="gps-info-val" id="gps-accuracy">—</div><div class="gps-info-lbl">GPS accuracy</div></div>
+          <div class="gps-info-box"><div class="gps-info-val" id="gps-hole-display">H1</div><div class="gps-info-lbl">Current hole</div></div>
+          <div class="gps-info-box">
+            <button class="gps-next-btn" onclick="nextHole()">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div id="gps-map"></div>
+
+      <!-- Status -->
+      <div class="gps-status" id="gps-status">Tap Locate to find your position on the course.</div>
+
+    </div>
+    </div> <!-- /gps-content -->
+  </div>
+
+  <!-- ── SCORES TAB ── -->
+  <div id="tab-scores" style="display:none;">
+    <div class="main-pad">
+      <div class="scores-header">
+        <h2>Score Tracker</h2>
+        <button class="add-round-btn" onclick="toggleForm()">+ Add Round</button>
+      </div>
+
+      <!-- Add round form -->
+      <div class="round-form" id="round-form">
+        <h3>Log a Round</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Course</label>
+            <input type="text" id="f-course" placeholder="Glencoe Golf Club" />
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="f-date" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Score</label>
+            <input type="number" id="f-score" placeholder="92" min="50" max="150" />
+          </div>
+          <div class="form-group">
+            <label>Par</label>
+            <input type="number" id="f-par" placeholder="72" min="60" max="74" value="72" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fairways Hit</label>
+            <input type="text" id="f-fir" placeholder="7/14" />
+          </div>
+          <div class="form-group">
+            <label>Putts</label>
+            <input type="number" id="f-putts" placeholder="34" min="18" max="60" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group form-full">
+            <label>Notes / Key Takeaway</label>
+            <textarea id="f-notes" placeholder="Driver felt good. Kept leaving wedges short..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="save-btn" onclick="saveRound()">Save Round</button>
+          <button class="cancel-btn" onclick="toggleForm()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-strip" id="stats-strip">
+        <div class="stat-box"><div class="stat-val" id="stat-rounds">—</div><div class="stat-lbl">Rounds</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-best">—</div><div class="stat-lbl">Best</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-avg">—</div><div class="stat-lbl">Avg Score</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-putts">—</div><div class="stat-lbl">Avg Putts</div></div>
+      </div>
+
+      <!-- Trend chart -->
+      <div class="trend-section" id="trend-section" style="display:none;">
+        <div class="trend-title">Score Trend</div>
+        <div class="trend-bar-wrap">
+          <div class="trend-bars" id="trend-bars"></div>
+        </div>
+      </div>
+
+      <!-- Rounds list -->
+      <div id="rounds-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ROUNDS_KEY = 'golf_vault_rounds';
+
+window.addEventListener('load', () => {
+  initApp();
+});
+
+// ── CLUB DATA ──
+const clubs = [
+  { name:'Driver', loft:'10.5°', ballPosition:'Inside lead heel', bpPct:15,
+    stance:'Shoulder-width+', weight:'50/50 → shift to lead', path:'Inside-out / slight upswing',
+    handPosition:'Neutral, slight tilt away', keyThought:'Sweep up. Drop trail elbow into slot. 80% effort.',
+    watchOut:'Pop-up right = steep + open face. Tee higher, shallow the path.',
+    faldo:'The driver is not a weapon — it\'s a precision instrument. You must load into the right side on the backswing, then unwind smoothly. Power comes from the sequence, not the effort. If you\'re swinging at 100%, you\'ve already lost control.',
+    gripPressure:4, gripPressureLabel:'Light-Medium (4/10)',
+    gripStyle:'Neutral — 2 knuckles visible on lead hand. Trail hand relaxed, covering the thumb. No white knuckles.',
+    gripTip:'Hold it like a tube of toothpaste — firm enough it won\'t slip, light enough to not squeeze any out.',
+    chris:'Tour twist it. Takeaway slow, lag it down, then EXIT LOW LEFT and release. Simple. You\'re overthinking it — this is supposed to be fun, man.',
+    color:'#1a3a2a', accent:'#4ade80', badge:'Driver' },
+  { name:'3 Hybrid', loft:'19°', ballPosition:'1–2" inside lead heel', bpPct:20,
+    stance:'Hip-width+', weight:'50/50', path:'Slight inside-out, level to slight upswing',
+    handPosition:'Neutral — don\'t press forward', keyThought:'Sweep and through. Not a dig. Trust the loft.',
+    watchOut:'Going left = face closing. Logo to sky through impact. Check grip strength.',
+    faldo:'The hybrid demands respect. It wants to be swept, not struck. Keep your hands passive through the hitting zone — the moment you try to guide it, the face closes and you\'re left of your target wondering what happened.',
+    gripPressure:5, gripPressureLabel:'Medium (5/10)',
+    gripStyle:'Neutral to slightly weak lead hand — avoid strong grip here. Strong grip will close the face, which is your exact miss. 2 knuckles max on lead hand.',
+    gripTip:'If you\'re going left, loosen the lead hand one notch and feel the face stay open through impact.',
+    chris:'Pull it through. Weight forward, flex your knees, SLOW the whole thing down. You\'re rushing it because you\'re nervous. Relax — nobody\'s watching. Well, I am. But I\'ve had a beer so my standards are lower.',
+    color:'#1a2a3a', accent:'#60a5fa', badge:'Long' },
+  { name:'5 Iron', loft:'27°', ballPosition:'Just forward of center', bpPct:30,
+    stance:'Shoulder-width', weight:'55/45 lead', path:'Inside-out, slight downswing',
+    handPosition:'Slightly forward at address', keyThought:'Compress and through. Divot after the ball.',
+    watchOut:'Thin shots = hanging back. Stay over the ball.',
+    faldo:'Long irons expose every weakness in your swing. Address is everything — get your weight forward, hands ahead of the ball, and commit to hitting down. A proper 5-iron divot starts in front of the ball. That\'s your proof of a good strike.',
+    gripPressure:6, gripPressureLabel:'Medium-Firm (6/10)',
+    gripStyle:'Neutral, 2 knuckles on lead hand. Slightly firmer than woods to maintain shaft lean through impact. Both hands equally firm.',
+    gripTip:'Firm enough to feel control on the downswing. Squeeze slightly at the start of the downswing to lock in the lag.',
+    chris:'Lag it. LAG IT. Then pull it forward to the target. Tour twist through. This isn\'t a delicate club — commit to it. Also we\'re like 45 minutes in and nobody\'s laughed yet, what are we doing.',
+    color:'#2a1a3a', accent:'#c084fc', badge:'Mid' },
+  { name:'7 Iron', loft:'34°', ballPosition:'Center to just forward', bpPct:38,
+    stance:'Shoulder-width', weight:'60/40 lead', path:'Inside-out, downward strike',
+    handPosition:'Hands forward, shaft lean toward target', keyThought:'Hit down to go up. Ball first, then turf.',
+    watchOut:'Scooping = fat/thin. Shaft lean fixes it.',
+    faldo:'The 7-iron is where you build your game. Master this club and everything else follows. Shaft lean at address, maintain it through impact. Do not let that right hand flip at the ball — it is the death of a good iron shot.',
+    gripPressure:6, gripPressureLabel:'Medium-Firm (6/10)',
+    gripStyle:'Neutral, 2 knuckles. Lead hand firm, trail hand matches. Key: maintain lead hand pressure through impact — don\'t let the trail hand take over and flip.',
+    gripTip:'Feel like your lead hand is "pulling" the club through the ball, not the trail hand pushing it.',
+    chris:'This is YOUR club. Vision, feel. See where it\'s going BEFORE you swing. Tour twist it low and slow, pull it through the target. Easy. I hit one of these 180 yards once. Conditions were perfect. I\'d had half a beer.',
+    color:'#3a1a1a', accent:'#f87171', badge:'Mid' },
+  { name:'9 Iron', loft:'41°', ballPosition:'Center', bpPct:50,
+    stance:'Slightly narrower', weight:'60/40 lead', path:'Steeper, more downward',
+    handPosition:'Forward press — shaft lean', keyThought:'Punch down. Loft does the work. Don\'t help it up.',
+    watchOut:'Thin = ball too far forward or flipping wrists.',
+    faldo:'A 9-iron should be struck with authority. Narrow your stance, press your hands forward, and attack the back of the ball. The loft will do everything else. Amateurs try to lift it — professionals trap it. Be a professional.',
+    gripPressure:6, gripPressureLabel:'Medium-Firm (6/10)',
+    gripStyle:'Neutral. Consider gripping down 1 inch for better control and feel at shorter distances. Consistent with your irons — don\'t change grip style between 7i and 9i.',
+    gripTip:'Gripping down slightly on the 9i gives you a "feel" club — useful for partial shots and punch shots.',
+    chris:'Flex it. Weight forward. Pull it through and release — don\'t hold on. Exit low left every time. If you chunk this one I\'m going to need you to explain to me what you were thinking. Slowly.',
+    color:'#3a2a1a', accent:'#fb923c', badge:'Mid' },
+  { name:'Pitching Wedge', loft:'46°', ballPosition:'Center', bpPct:50,
+    stance:'Hip-width', weight:'60/40 lead', path:'Steep, descending',
+    handPosition:'Forward press', keyThought:'Rotate body, quiet wrists. Arms and body together.',
+    watchOut:'Chunking = decelerating. Commit to the shot.',
+    faldo:'The pitching wedge is your scoring club. Quiet the hands, rotate the body, and commit to the finish. I see so many amateurs decelerate into the ball — that is where the chunk lives. Pick a target, trust your distance, and swing through it.',
+    gripPressure:6, gripPressureLabel:'Medium-Firm (6/10)',
+    gripStyle:'Neutral. Firm enough to maintain shaft lean. Wrists quiet — the firmness should prevent the trail hand flip that causes fat shots.',
+    gripTip:'If you\'re chunking it, your grip is too loose at impact. Firm up the lead hand and drive through the ball.',
+    chris:'Don\'t open your shoulders on the chip! LOCK IT UP. Weight forward, pull it, slow takeaway. That\'s it. That\'s the whole thing. I wrote it on a napkin and everything.',
+    color:'#2a3a1a', accent:'#a3e635', badge:'Short' },
+  { name:'Gap / SW', loft:'52–56°', ballPosition:'Center to slightly back', bpPct:55,
+    stance:'Narrow — hip-width', weight:'65/35 lead', path:'Steep, V-shaped',
+    handPosition:'Pressed forward', keyThought:'Small backswing, accelerate through. Never decelerate.',
+    watchOut:'Skulled shots = trying to lift it. Hit down, trust loft.',
+    faldo:'From 60 to 90 yards, this is where rounds are made or lost. Keep the backswing short and controlled, then accelerate through impact without hesitation. The hands lead, the face stays square, and you must — I repeat, must — hit through the ball, not at it.',
+    gripPressure:7, gripPressureLabel:'Firm (7/10)',
+    gripStyle:'Neutral to slightly firm. Firmer grip here controls distance better on partial shots. Grip down 1–2 inches for shorter distances — changes trajectory and feel significantly.',
+    gripTip:'For 50-yard half shots, grip down to the steel. Shorter grip = more control, less distance.',
+    chris:'Pitch it down. Weight WAY forward. Flex it, pull it, release it. Tour twist through. You know what\'s better than a perfect wedge shot? A decent wedge shot followed by a cold one at the turn.',
+    color:'#1a3a3a', accent:'#2dd4bf', badge:'Short' },
+  { name:'Lob Wedge', loft:'60°', ballPosition:'Slightly forward of center', bpPct:35,
+    stance:'Narrow, open stance', weight:'70/30 lead', path:'Outside-in with open face',
+    handPosition:'Neutral — don\'t press for flop shots', keyThought:'Open face, open stance. Slide under the ball. Soft hands.',
+    watchOut:'Avoid lob wedge from tight lies. Use 9i bump-run instead.',
+    faldo:'The lob wedge is a club that punishes overconfidence. Open the face before you grip it, align left, and slide the bounce under the ball with soft hands. But I will tell you plainly — until your short game is reliable, the bump-and-run with a 9-iron will save you far more strokes.',
+    gripPressure:3, gripPressureLabel:'Very Light (3/10)',
+    gripStyle:'Soft hands are everything here. Open the face FIRST, then re-grip. If you grip and then open, the face will close at impact. Trail hand especially soft.',
+    gripTip:'Imagine holding a baby bird. Any tension and the face shuts — you skull it across the green.',
+    chris:'Chip it — don\'t open your shoulders. Lock it up, toe it in, SLOW. Release it easy. Honestly if you\'re pulling out a lob wedge right now we need to have a different conversation about your life choices.',
+    color:'#3a3a1a', accent:'#facc15', badge:'Short' },
+  { name:'Putter', loft:'3–4°', ballPosition:'Just forward of center', bpPct:35,
+    stance:'Shoulder-width, eyes over ball', weight:'50/50', path:'Slight arc, square at impact',
+    handPosition:'Neutral — light grip pressure', keyThought:'Shoulders rock, not wrists. Pendulum. Consistent tempo.',
+    watchOut:'3-putts = distance control. Practice 20ft lag putts more than 3-footers.',
+    faldo:'Putting is 40% of your game and most amateurs practice it last. Eyes directly over the ball, shoulders rocking like a pendulum, and tempo that never changes whether it\'s two feet or forty. Lag putting — getting it close from distance — will drop more shots off your handicap than any other single skill.',
+    gripPressure:3, gripPressureLabel:'Very Light (3/10)',
+    gripStyle:'Use a different grip style than full swing — reverse overlap (lead index finger over trail fingers) or claw grip. Palms facing each other, both thumbs down the flat part of the grip.',
+    gripTip:'Equal pressure in both hands. Any tightening in the trail hand causes a pushed or pulled putt. Think "dead hands."',
+    chris:'Vision. Feel. Stroke up. Pull it forward to the target, 3-finger grip, always inside the box. Gimme anything inside that — life is short. LAG everything else. It\'s putting. We are outside. The sun is out. This is supposed to be the best part of the day.',
+    color:'#2a2a2a', accent:'#e2e8f0', badge:'Putter' },
+];
+
+let currentClub = 0;
+
+function initApp() {
+  buildClubTabs();
+  renderClub(0);
+  renderScores();
+  // Set today as default date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('f-date').value = today;
+}
+
+function buildClubTabs() {
+  const wrap = document.getElementById('club-tabs');
+  wrap.innerHTML = clubs.map((c, i) => `
+    <button class="club-tab" id="ctab-${i}" onclick="renderClub(${i})"
+      style="border-color:${i===0?c.accent:'var(--border)'};color:${i===0?c.accent:'var(--muted)'};background:${i===0?c.color+'33':'transparent'}"
+    >${c.name}</button>
+  `).join('');
+}
+
+function renderClub(idx) {
+  currentClub = idx;
+  const c = clubs[idx];
+
+  // Update tabs
+  clubs.forEach((cl, i) => {
+    const t = document.getElementById(`ctab-${i}`);
+    if (!t) return;
+    if (i === idx) {
+      t.style.borderColor = cl.accent;
+      t.style.color = cl.accent;
+      t.style.background = cl.color + '44';
+    } else {
+      t.style.borderColor = 'var(--border)';
+      t.style.color = 'var(--muted)';
+      t.style.background = 'transparent';
+    }
+  });
+
+  document.getElementById('club-detail').innerHTML = `
+    <!-- Hero -->
+    <div class="hero-card" style="--club-color:${c.color};border:1px solid ${c.accent}33;">
+      <div class="hero-top">
+        <div>
+          <div class="hero-name" style="color:${c.accent}">${c.name}</div>
+          <div class="hero-loft">Loft: ${c.loft}</div>
+        </div>
+        <div class="club-badge" style="background:${c.accent}22;border:1px solid ${c.accent}44;color:${c.accent}">${c.badge}</div>
+      </div>
+      <div class="bp-label">Ball Position in Stance</div>
+      <div class="bp-track">
+        <div class="bp-bar"></div>
+        <div class="bp-foot lead">L</div>
+        <div class="bp-foot trail">T</div>
+        <div class="bp-ball" style="left:${c.bpPct}%;background:${c.accent};color:${c.accent}"></div>
+        <div class="bp-center"></div>
+      </div>
+      <div class="bp-text">${c.ballPosition}</div>
+    </div>
+
+    <!-- Grid -->
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="info-icon">↔</div>
+        <div class="info-lbl">Stance Width</div>
+        <div class="info-val">${c.stance}</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-icon">⚖</div>
+        <div class="info-lbl">Weight</div>
+        <div class="info-val">${c.weight}</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-icon">↗</div>
+        <div class="info-lbl">Swing Path</div>
+        <div class="info-val">${c.path}</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-icon">✋</div>
+        <div class="info-lbl">Hand Position</div>
+        <div class="info-val">${c.handPosition}</div>
+      </div>
+    </div>
+
+    <!-- Key thought -->
+    <div class="thought-card" style="background:${c.accent}11;border:1px solid ${c.accent}33;">
+      <div class="thought-lbl" style="color:${c.accent}">🧠 Key Swing Thought</div>
+      <div class="thought-text">"${c.keyThought}"</div>
+    </div>
+
+    <!-- Watch out -->
+    <div class="warn-card">
+      <div class="warn-lbl">⚠ Watch Out For</div>
+      <div class="warn-text">${c.watchOut}</div>
+    </div>
+
+    <!-- Grip -->
+    <div class="grip-card">
+      <div class="grip-header">
+        <div class="grip-lbl">🤜 Grip Pressure</div>
+        <div class="grip-pressure-badge">${c.gripPressureLabel}</div>
+      </div>
+      <div class="grip-meter">
+        ${Array.from({length:10},(_,i) => {
+          const filled = i < c.gripPressure;
+          const cls = filled ? (c.gripPressure <= 4 ? 'filled-low' : c.gripPressure <= 6 ? 'filled-mid' : 'filled-high') : '';
+          return `<div class="grip-dot ${cls}"></div>`;
+        }).join('')}
+      </div>
+      <div class="grip-style">${c.gripStyle}</div>
+      <div class="grip-tip">"${c.gripTip}"</div>
+    </div>
+
+    <!-- Faldo -->
+    <div class="faldo-card">
+      <div class="faldo-header">
+        <div class="faldo-avatar">NF</div>
+        <div>
+          <div class="faldo-name">Nick Faldo Says</div>
+          <div class="faldo-title">6x Major Champion</div>
+        </div>
+      </div>
+      <div class="faldo-quote">"${c.faldo}"</div>
+    </div>
+
+    <!-- Chris -->
+    <div class="chris-card">
+      <div class="chris-header">
+        <div class="chris-avatar">🛹</div>
+        <div>
+          <div class="chris-name">Chris Pickard Says</div>
+          <div class="chris-title">Self-appointed swing guru · 👟 white Ping shoes</div>
+        </div>
+      </div>
+      <div class="chris-quote">"${c.chris}"</div>
+    </div>
+
+    <!-- Nav -->
+    <div class="club-nav">
+      <button class="nav-btn" onclick="renderClub(${idx-1})" ${idx===0?'disabled':''}>
+        ← ${idx > 0 ? clubs[idx-1].name : '—'}
+      </button>
+      <button class="nav-btn" onclick="renderClub(${idx+1})" ${idx===clubs.length-1?'disabled':''}>
+        ${idx < clubs.length-1 ? clubs[idx+1].name : '—'} →
+      </button>
+    </div>
+  `;
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  document.getElementById('tab-cheatsheet').style.display = tab === 'cheatsheet' ? 'block' : 'none';
+  document.getElementById('tab-field').style.display     = tab === 'field'       ? 'block' : 'none';
+  document.getElementById('tab-caddy').style.display     = tab === 'caddy'       ? 'block' : 'none';
+  document.getElementById('tab-gps').style.display       = tab === 'gps'         ? 'block' : 'none';
+  document.getElementById('tab-scores').style.display    = tab === 'scores'      ? 'block' : 'none';
+  document.getElementById('btn-cheatsheet').classList.toggle('active', tab === 'cheatsheet');
+  document.getElementById('btn-field').classList.toggle('active', tab === 'field');
+  document.getElementById('btn-caddy').classList.toggle('active', tab === 'caddy');
+  document.getElementById('btn-gps').classList.toggle('active', tab === 'gps');
+  document.getElementById('btn-scores').classList.toggle('active', tab === 'scores');
+  if (tab === 'scores') renderScores();
+  if (tab === 'field') renderFieldGuide();
+  if (tab === 'gps') initGPS();
+}
+
+// ── SCORE TRACKER ──
+function getRounds() {
+  return JSON.parse(localStorage.getItem(ROUNDS_KEY) || '[]');
+}
+function saveRounds(rounds) {
+  localStorage.setItem(ROUNDS_KEY, JSON.stringify(rounds));
+}
+
+let formOpen = false;
+function toggleForm() {
+  formOpen = !formOpen;
+  document.getElementById('round-form').classList.toggle('open', formOpen);
+  if (formOpen) document.getElementById('f-course').focus();
+}
+
+function saveRound() {
+  const course = document.getElementById('f-course').value.trim();
+  const date = document.getElementById('f-date').value;
+  const score = parseInt(document.getElementById('f-score').value);
+  const par = parseInt(document.getElementById('f-par').value) || 72;
+  const fir = document.getElementById('f-fir').value.trim();
+  const putts = parseInt(document.getElementById('f-putts').value) || null;
+  const notes = document.getElementById('f-notes').value.trim();
+
+  if (!course || !date || isNaN(score)) {
+    alert('Please fill in Course, Date, and Score at minimum.');
+    return;
+  }
+
+  const rounds = getRounds();
+  rounds.unshift({ id: Date.now(), course, date, score, par, fir, putts, notes });
+  saveRounds(rounds);
+
+  // Reset form
+  ['f-course','f-score','f-fir','f-putts','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-par').value = '72';
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('f-date').value = today;
+
+  toggleForm();
+  renderScores();
+}
+
+function deleteRound(id) {
+  if (!confirm('Delete this round?')) return;
+  const rounds = getRounds().filter(r => r.id !== id);
+  saveRounds(rounds);
+  renderScores();
+}
+
+function renderScores() {
+  const rounds = getRounds();
+
+  // Stats
+  if (rounds.length === 0) {
+    document.getElementById('stat-rounds').textContent = '0';
+    document.getElementById('stat-best').textContent = '—';
+    document.getElementById('stat-avg').textContent = '—';
+    document.getElementById('stat-putts').textContent = '—';
+  } else {
+    const scores = rounds.map(r => r.score);
+    const avg = Math.round(scores.reduce((a,b)=>a+b,0) / scores.length);
+    const best = Math.min(...scores);
+    const puttRounds = rounds.filter(r => r.putts);
+    const avgPutts = puttRounds.length ? Math.round(puttRounds.reduce((a,r)=>a+r.putts,0)/puttRounds.length) : null;
+    document.getElementById('stat-rounds').textContent = rounds.length;
+    document.getElementById('stat-best').textContent = best;
+    document.getElementById('stat-avg').textContent = avg;
+    document.getElementById('stat-putts').textContent = avgPutts || '—';
+  }
+
+  // Trend chart
+  const trendSection = document.getElementById('trend-section');
+  const trendBars = document.getElementById('trend-bars');
+  if (rounds.length >= 2) {
+    trendSection.style.display = 'block';
+    const last10 = [...rounds].reverse().slice(-10);
+    const scores = last10.map(r => r.score);
+    const minS = Math.min(...scores) - 3;
+    const maxS = Math.max(...scores) + 3;
+    const range = maxS - minS || 1;
+    trendBars.innerHTML = last10.map(r => {
+      const heightPct = ((r.score - minS) / range) * 100;
+      const h = Math.max(8, Math.round(heightPct * 0.55));
+      const diff = r.score - r.par;
+      const color = diff <= 0 ? '#4ade80' : diff <= 5 ? '#fb923c' : diff <= 10 ? '#f87171' : '#e05555';
+      const d = new Date(r.date + 'T00:00:00');
+      const lbl = `${d.getMonth()+1}/${d.getDate()}`;
+      return `<div class="t-bar-wrap">
+        <div class="t-bar" style="height:${h}px;background:${color}" title="${r.course}: ${r.score}"></div>
+        <div class="t-bar-lbl">${r.score}</div>
+        <div class="t-bar-lbl">${lbl}</div>
+      </div>`;
+    }).join('');
+  } else {
+    trendSection.style.display = 'none';
+  }
+
+  // Rounds list
+  const list = document.getElementById('rounds-list');
+  if (rounds.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div>🏌️</div>No rounds logged yet.<br>Hit "Add Round" to track your first score.</div>`;
+    return;
+  }
+
+  list.innerHTML = rounds.map(r => {
+    const diff = r.score - r.par;
+    const sign = diff > 0 ? '+' : '';
+    const color = diff <= 0 ? '#4ade80' : diff <= 5 ? '#fb923c' : diff <= 10 ? '#f87171' : '#e05555';
+    const bg = diff <= 0 ? '#0d2a0d' : diff <= 5 ? '#2a1a0a' : '#2a0d0d';
+    const d = new Date(r.date + 'T00:00:00');
+    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const meta = [dateStr, r.fir ? `FIR: ${r.fir}` : null, r.putts ? `Putts: ${r.putts}` : null].filter(Boolean).join(' · ');
+    return `<div class="round-card">
+      <button class="round-delete" onclick="deleteRound(${r.id})" title="Delete">✕</button>
+      <div class="round-top">
+        <div class="round-course">${r.course}</div>
+        <div class="round-score-badge" style="background:${bg};color:${color}">${r.score} <span style="font-size:11px;opacity:0.7">(${sign}${diff})</span></div>
+      </div>
+      <div class="round-meta">${meta}</div>
+      ${r.notes ? `<div class="round-note">"${r.notes}"</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── FIELD GUIDE ──
+const fieldCategories = ['Lies & Situations', 'Distances', 'Rules & Drops', 'Course Management'];
+let activeFGCat = 0;
+
+const fieldData = {
+  'Lies & Situations': [
+    {
+      icon: '🌿', title: 'Tall Grass / Rough', sub: 'Deep rough, fescue, thick lies',
+      steps: [
+        { t: 'Club down', b: '<strong>Take more club than you think</strong> — rough grabs the hosel and kills distance. A 6i shot may only travel 7i distance.' },
+        { t: 'Grip firmer', b: '<strong>Firm up your grip (7-8/10)</strong> to prevent the club twisting at impact. Rough will try to close the face.' },
+        { t: 'Ball back', b: '<strong>Move ball slightly back</strong> in stance — promotes steeper attack angle to cut through grass rather than getting tangled.' },
+        { t: 'Shorter swing', b: '<strong>3/4 swing max.</strong> A full swing in thick rough usually leads to a fat shot or a complete miss.' },
+        { t: 'Commit hard', b: '<strong>Accelerate aggressively through the ball.</strong> The single biggest mistake is decelerating when you feel the resistance.' },
+      ],
+      tip: 'In very thick rough, just get it back in the fairway. A punch out sideways is always smarter than a hero shot.',
+      rule: null
+    },
+    {
+      icon: '🏖', title: 'Greenside Sand Bunker', sub: 'Standard bunker, good lie',
+      steps: [
+        { t: 'Open stance', b: '<strong>Align your body 20–30° left of target.</strong> Your feet, hips, and shoulders open — but aim the clubface at the target.' },
+        { t: 'Open face', b: '<strong>Open the sand wedge face before gripping.</strong> This exposes the bounce so the club slides under the ball, not digs.' },
+        { t: 'Ball forward', b: '<strong>Ball off lead heel.</strong> You\'re hitting the sand 2 inches behind the ball — not the ball itself.' },
+        { t: 'Weight forward', b: '<strong>70% weight on lead foot.</strong> Dig your feet in for stability and lower your center of gravity.' },
+        { t: 'Swing along body line', b: '<strong>Swing along your foot line</strong> (left), not toward the target. The open face redirects the ball right.' },
+        { t: 'Finish high', b: '<strong>Full follow-through.</strong> Never quit on a bunker shot — acceleration is the difference between getting out and not.' },
+      ],
+      tip: 'Think of it as a splash — hit the sand, not the ball. The sand pushes the ball out.',
+      rule: null
+    },
+    {
+      icon: '⛱', title: 'Fairway Bunker', sub: 'Distance shot from sand',
+      steps: [
+        { t: 'Take one more club', b: '<strong>Club up</strong> — you\'ll lose distance and can\'t make full contact. A fairway 5i shot becomes a 6i.' },
+        { t: 'Grip down', b: '<strong>Choke down 1 inch</strong> for control and to avoid hitting too far behind the ball.' },
+        { t: 'Ball center-back', b: '<strong>Move ball slightly back</strong> to promote a ball-first strike. Forward ball position leads to fat shots.' },
+        { t: 'Quiet lower body', b: '<strong>Minimal hip turn.</strong> The sand makes your footing unstable — rely more on arms and upper body rotation.' },
+        { t: 'Pick it clean', b: '<strong>Hit the ball first.</strong> Unlike greenside, you do NOT want to hit sand first from a fairway bunker.' },
+      ],
+      tip: 'If the lip is high, safety first — use enough loft to guarantee you clear it. One bad swing in a fairway bunker can turn a bogey into a triple.',
+      rule: null
+    },
+    {
+      icon: '⛰', title: 'Uphill Lie', sub: 'Ball below feet or slope going up',
+      steps: [
+        { t: 'Aim right', b: '<strong>Ball will go left</strong> on an uphill lie — aim one to two clubs right to compensate.' },
+        { t: 'Take more club', b: '<strong>Club up 1–2.</strong> Uphill slopes add effective loft, reducing distance.' },
+        { t: 'Tilt with the slope', b: '<strong>Set your spine perpendicular to the hill</strong>, not vertical. Let your lead shoulder be higher.' },
+        { t: 'Weight on trail foot', b: '<strong>60% weight on trail foot</strong> to match the slope and avoid falling forward.' },
+        { t: 'Shorter swing', b: '<strong>3/4 swing</strong> — full swing on a hill usually leads to poor contact and loss of balance.' },
+      ],
+      tip: 'Uphill shots = more loft + less distance + left tendency. Adjust for all three.',
+      rule: null
+    },
+    {
+      icon: '🏔', title: 'Downhill Lie', sub: 'Slope going away from you',
+      steps: [
+        { t: 'Aim left', b: '<strong>Ball will go right</strong> on a downhill lie — aim slightly left to compensate.' },
+        { t: 'Take less club', b: '<strong>Club down 1.</strong> Downhill slopes reduce effective loft, adding distance.' },
+        { t: 'Tilt with slope', b: '<strong>Spine perpendicular to hill.</strong> Trail shoulder lower than lead — go with gravity, not against it.' },
+        { t: 'Weight on lead foot', b: '<strong>60% weight on lead foot</strong> to prevent hanging back and hitting fat.' },
+        { t: 'Follow through down the slope', b: '<strong>Chase the ball down the hill</strong> in your follow-through. Fighting it leads to a topped or thin shot.' },
+      ],
+      tip: 'Downhill shots are harder than uphill. Practice these on the range — most amateurs never do.',
+      rule: null
+    },
+    {
+      icon: '🌲', title: 'Under Trees / Punch Shot', sub: 'Low trajectory escape',
+      steps: [
+        { t: 'Take less loft', b: '<strong>Use a 4–7 iron</strong> depending on how low you need to go. Lower loft = lower flight.' },
+        { t: 'Ball back', b: '<strong>Ball well back in stance</strong> — this delofts the club further and promotes a descending strike.' },
+        { t: 'Hands way forward', b: '<strong>Hands 4–5 inches ahead</strong> of the ball at address — more forward press than any other shot.' },
+        { t: 'Abbreviated backswing', b: '<strong>Half backswing max.</strong> You don\'t need power — you need control and low flight.' },
+        { t: 'Firm wrists through', b: '<strong>Keep wrists firm and low through impact.</strong> No follow-through — stop the club after impact to keep it low.' },
+      ],
+      tip: 'The punch shot is a scoring saver. Practice it — you\'ll use it several times per round at your level.',
+      rule: null
+    },
+    {
+      icon: '💧', title: 'Wet / Muddy Conditions', sub: 'Soft ground, mud on ball',
+      steps: [
+        { t: 'Club up', b: '<strong>Wet turf kills distance</strong> — take one more club and expect 10–15% less carry.' },
+        { t: 'Steeper angle', b: '<strong>Ball slightly back</strong> to hit down more steeply and avoid the club skidding off wet turf.' },
+        { t: 'Mud ball adjustment', b: '<strong>Mud on the right side curves left</strong>, mud on the left side curves right. Aim accordingly.' },
+        { t: 'Slow greens', b: '<strong>Hit putts 20–30% harder</strong> on wet greens — the ball checks up much faster and rolls less.' },
+      ],
+      tip: 'Under preferred lies ("lift, clean, place") rules, always clean your ball and replace it carefully. Check if your course has this in play.',
+      rule: { label: 'Rule 16.3 — Embedded Ball', text: 'If your ball is embedded in the fairway (plugged lie), you get FREE relief — lift, clean, and drop within one club length of the spot, no closer to the hole.' }
+    },
+    {
+      icon: '🐦', title: 'Hardpan / Bare Lie', sub: 'Tight lie, no grass, baked ground',
+      steps: [
+        { t: 'No bounce club', b: '<strong>Avoid high-bounce wedges</strong> — the bounce will cause the club to skip off the hard ground and skull it. Use a low-bounce wedge or a bump-and-run with a 9i.' },
+        { t: 'Ball center to back', b: '<strong>Center stance or slightly back</strong> — you need to catch the ball before the ground, not after.' },
+        { t: 'Shallow angle', b: '<strong>Sweep it.</strong> A steep descending blow on hardpan bounces unpredictably. Stay shallow.' },
+        { t: 'Light grip', b: '<strong>Soft hands</strong> — hardpan shots require feel. Tension leads to skulled shots.' },
+        { t: 'Bump and run preferred', b: '<strong>When in doubt, bump it.</strong> A 7 or 9 iron running onto the green is far more predictable than a lob wedge off hardpan.' },
+      ],
+      tip: 'Hardpan is where high handicappers lose the most strokes. Commit to the low-percentage shot rule: if it\'s risky, go conservative.',
+      rule: null
+    },
+  ],
+  'Distances': [
+    {
+      icon: '📏', title: 'Estimated Club Distances', sub: 'For a 20+ HCP, moderate swing speed',
+      steps: [],
+      tip: 'These are carry distances, not total. Add 5–10 yards roll on firm fairways. Always err toward more club.',
+      rule: null,
+      table: {
+        headers: ['Club', 'Carry Yds', 'With Roll'],
+        rows: [
+          ['Driver', '180–210', '195–225'],
+          ['3 Hybrid', '160–185', '170–195'],
+          ['5 Iron', '145–165', '155–175'],
+          ['6 Iron', '135–155', '145–165'],
+          ['7 Iron', '125–145', '133–153'],
+          ['8 Iron', '115–135', '122–142'],
+          ['9 Iron', '105–125', '110–130'],
+          ['Pitching Wedge', '90–110', '94–114'],
+          ['Gap Wedge', '70–90', '73–93'],
+          ['Sand Wedge', '55–75', '57–77'],
+          ['Lob Wedge', '40–60', '41–62'],
+        ]
+      }
+    },
+    {
+      icon: '🎯', title: 'Partial Shot Distances', sub: 'Half and 3/4 swing yardages',
+      steps: [
+        { t: '3/4 Swing', b: '<strong>Subtract ~15–20%</strong> from your full distance. A full PW of 100 yards becomes ~82–85 at 3/4.' },
+        { t: 'Half Swing', b: '<strong>Subtract ~35–40%.</strong> Full PW of 100 yards = ~60–65 at half swing.' },
+        { t: 'Clock method', b: 'Think of your backswing as a clock. <strong>7 o\'clock = short</strong>, 9 o\'clock = half, <strong>10 o\'clock = 3/4.</strong>' },
+        { t: 'Use wedge variety', b: '<strong>Don\'t always use the same wedge.</strong> A full 56° is less reliable than a full 52°. Know your full distances for each.' },
+      ],
+      tip: 'The most common distance mistake at 20+: being short. Most amateur golfers underclub by 1–2 clubs on every approach shot. When in doubt, take more.',
+      rule: null
+    },
+    {
+      icon: '🕳', title: 'Putting Distance Guide', sub: 'Pace control by length',
+      steps: [
+        { t: '3–6 feet', b: '<strong>Makeable range.</strong> Focus on face angle at impact — this is where the putt goes off line. Firm, committed stroke.' },
+        { t: '7–15 feet', b: '<strong>Try to make, plan to 2-putt.</strong> Pick a specific entry point on the cup and commit to the line. Speed slightly firm.' },
+        { t: '16–30 feet', b: '<strong>Lag territory.</strong> Priority is getting within 3 feet. Focus almost entirely on distance control, not line.' },
+        { t: '30+ feet', b: '<strong>Pure lag putting.</strong> Think in terms of a 3-foot circle around the hole. Getting within that circle eliminates 3-putts.' },
+        { t: 'Downhill putts', b: '<strong>Aim outside the hole</strong> on downhill putts — they break more than you think. Hit them softer and let gravity do the work.' },
+      ],
+      tip: 'At your handicap, 3-putts are the single biggest score killer. Spend at least 30% of every practice session on 20–40 foot lag putts.',
+      rule: null
+    },
+    {
+      icon: '💨', title: 'Wind Adjustments', sub: 'Adjusting club selection for wind',
+      steps: [
+        { t: 'Into wind', b: '<strong>Add 1 club per 10 mph headwind.</strong> 15 mph headwind on a 150-yard shot → play it like 165–170 yards.' },
+        { t: 'Downwind', b: '<strong>Subtract 1 club per 10–15 mph tailwind.</strong> But ball also lands hotter — account for more roll.' },
+        { t: 'Crosswind', b: '<strong>Aim into the wind</strong> and let it straighten the ball, or aim at target and expect drift. Know which you\'re doing before you swing.' },
+        { t: 'Low punch into wind', b: '<strong>Ball back, hands forward, 3/4 swing.</strong> A low boring shot is more consistent in wind than a high full shot.' },
+        { t: 'Wind on putts', b: '<strong>Strong crosswinds do affect putts</strong> on exposed greens. Account for it on long lag putts — especially at courses near water.' },
+      ],
+      tip: '"Into and against, add and subtract. Downwind and along, it won\'t go wrong." — old caddy rule of thumb.',
+      rule: null
+    },
+  ],
+  'Rules & Drops': [
+    {
+      icon: '🔴', title: 'Out of Bounds (OB)', sub: 'White stakes — stroke and distance',
+      steps: [
+        { t: 'Stroke and Distance', b: '<strong>1 penalty stroke + re-hit from original spot.</strong> If you hit OB off the tee, you\'re hitting 3 from the tee.' },
+        { t: 'Provisional ball', b: '<strong>Always hit a provisional</strong> if you think your ball might be OB. Announce it before hitting. Saves a long walk back.' },
+        { t: 'Local rule option', b: 'Many recreational courses use the <strong>Local Rule for OB</strong> — drop near where ball went OB on the edge of fairway, 2 penalty strokes. Faster pace of play.' },
+      ],
+      tip: 'Always hit a provisional. The walk of shame back to the tee adds 5 minutes and breaks your rhythm.',
+      rule: { label: 'Rule 18.2 — OB Penalty', text: 'Stroke and distance: 1 penalty stroke, and you must play again from where the previous stroke was made.' }
+    },
+    {
+      icon: '🟡', title: 'Penalty Areas (Yellow Stakes)', sub: 'Water hazards, ravines, etc.',
+      steps: [
+        { t: 'Option 1 — Stroke & distance', b: '<strong>Re-hit from original spot.</strong> 1 penalty stroke.' },
+        { t: 'Option 2 — Back on the line', b: '<strong>Drop behind the hazard</strong>, keeping where the ball last crossed the hazard margin on a line between the hole and your drop point. 1 penalty stroke. No distance limit back.' },
+        { t: 'Option 3 — Lateral (if applicable)', b: 'For lateral relief (red stakes only) — drop within <strong>2 club lengths</strong> of where ball entered hazard, not nearer hole. 1 penalty stroke.' },
+      ],
+      tip: 'When in doubt, play it safe and drop as far back as you want on the line — more distance often gives a better angle.',
+      rule: { label: 'Rule 17 — Penalty Areas', text: 'Yellow stakes = back-on-line or stroke-and-distance only. Red stakes = adds lateral relief option within 2 club lengths.' }
+    },
+    {
+      icon: '🔵', title: 'Unplayable Lie', sub: 'Ball in bush, rocks, roots, etc.',
+      steps: [
+        { t: 'Option 1 — Stroke & distance', b: '<strong>Go back to where you last hit from.</strong> 1 penalty stroke.' },
+        { t: 'Option 2 — Back on line', b: '<strong>Drop behind the unplayable lie</strong> keeping it between you and the hole. No distance limit. 1 penalty stroke.' },
+        { t: 'Option 3 — 2 club lengths', b: '<strong>Drop within 2 club lengths</strong> of the ball, not nearer the hole. 1 penalty stroke.' },
+      ],
+      tip: 'You always have 3 options for an unplayable lie. Option 3 (2 club lengths) is usually the best — it keeps you close to the hole.',
+      rule: { label: 'Rule 19 — Unplayable Ball', text: '1 penalty stroke for any unplayable option. YOU decide when a ball is unplayable — not a playing partner.' }
+    },
+    {
+      icon: '🌿', title: 'Free Relief (No Penalty)', sub: 'When you get a free drop',
+      steps: [
+        { t: 'Casual water', b: '<strong>Standing water on the course</strong> (not a penalty area) = free relief. Drop within 1 club length of nearest relief point, no closer to hole.' },
+        { t: 'Cart path / artificial obstruction', b: '<strong>Immovable artificial obstructions</strong> (cart paths, sprinkler heads, etc.) = free relief within 1 club length of nearest relief point.' },
+        { t: 'Embedded ball', b: '<strong>Ball plugged in its own pitch mark</strong> in the general area (fairway/rough) = free relief. Lift, clean, drop.' },
+        { t: 'Ground under repair', b: '<strong>Areas marked GUR</strong> (usually blue/white lines) = free relief. Must take full relief from the entire GUR area.' },
+        { t: 'Animal holes', b: '<strong>Holes made by burrowing animals</strong> (gophers, moles) = free relief if it interferes with your stance or swing.' },
+      ],
+      tip: 'Always know your free relief options — many amateur golfers take penalty strokes when they\'re actually entitled to free relief.',
+      rule: { label: 'Rule 16 — Abnormal Course Conditions', text: 'Free relief (no penalty) for: casual water, immovable obstructions, GUR, and embedded balls in the general area.' }
+    },
+    {
+      icon: '📐', title: 'How to Take a Drop', sub: 'The correct drop procedure',
+      steps: [
+        { t: 'Identify reference point', b: '<strong>Find your nearest point of complete relief</strong> first. This is the spot — not any spot you want.' },
+        { t: 'Measure relief area', b: '<strong>Measure 1 or 2 club lengths</strong> (depending on the rule) from the reference point, not closer to the hole.' },
+        { t: 'Drop from knee height', b: '<strong>Drop from knee height</strong> (as of 2019 rules). Must land in the relief area and stay there.' },
+        { t: 'If it rolls out', b: '<strong>If ball rolls outside relief area, re-drop once.</strong> If it rolls out again, place it where it first hit the ground on the re-drop.' },
+        { t: 'Use longest club', b: '<strong>Use your driver (longest club, no putter)</strong> to measure club lengths. Always maximizes your relief area.' },
+      ],
+      tip: 'Use your driver to measure drops — it\'s your longest club and gives you the most room.',
+      rule: { label: 'Rule 14.3 — Dropping a Ball', text: 'Drop from knee height. Ball must land in and remain in the relief area. Two attempts, then place.' }
+    },
+    {
+      icon: '🤝', title: 'Common Courtesy Rules', sub: 'Etiquette every golfer should know',
+      steps: [
+        { t: 'Ready golf', b: '<strong>Hit when ready</strong> in casual/recreational rounds — don\'t wait for strict honors. Speeds up pace dramatically.' },
+        { t: 'Rake bunkers', b: '<strong>Always rake bunkers</strong> after your shot. Enter and exit from the low side.' },
+        { t: 'Repair ball marks', b: '<strong>Fix your pitch mark AND one other</strong> on every green. Takes 10 seconds and keeps greens fast.' },
+        { t: 'Don\'t walk putting lines', b: '<strong>Never walk on the line</strong> between a player\'s ball and the hole. Step over or around.' },
+        { t: 'Cell phones', b: '<strong>Silent mode on the course.</strong> Step away from others if you must take a call.' },
+        { t: 'Keep pace', b: '<strong>Be ready to hit.</strong> Watch others\' shots, be at your ball, club selected before it\'s your turn.' },
+      ],
+      tip: 'Good etiquette is noticed. Bad etiquette is remembered. Both affect how often you get invited to play.',
+      rule: null
+    },
+  ],
+  'Course Management': [
+    {
+      icon: '🧠', title: 'Pre-Shot Routine', sub: 'Build a repeatable process',
+      steps: [
+        { t: 'Assess from behind', b: '<strong>Always assess from directly behind the ball</strong>, looking toward the target. See the full picture — slope, wind, hazards.' },
+        { t: 'Pick a specific target', b: '<strong>"Fairway" is not a target.</strong> Pick a tree, a cloud, a distant object. Specific target = better alignment.' },
+        { t: 'Pick an intermediate target', b: '<strong>Find a spot 1–2 feet in front of the ball</strong> on your target line — a leaf, a discolored patch of grass. Align to this, not the distant target.' },
+        { t: 'Set the club first', b: '<strong>Align the face to the target BEFORE setting your feet.</strong> Most amateurs do it backwards.' },
+        { t: 'Set your body', b: '<strong>Then align feet, hips, shoulders</strong> parallel to the target line. Body parallel, face at the target.' },
+        { t: 'One practice swing max', b: '<strong>One focused practice swing</strong> with the feel you want. Then step in and go. More than one kills tempo.' },
+      ],
+      tip: 'Your pre-shot routine should take the same amount of time on every shot. Consistency in routine = consistency in results.',
+      rule: null
+    },
+    {
+      icon: '⚠️', title: 'Course Management Principles', sub: 'How to think on the course',
+      steps: [
+        { t: 'Play away from trouble', b: '<strong>Tee up on the side of the trouble.</strong> OB right? Tee up on the right side, aim left. More fairway to work with.' },
+        { t: 'Bogey golf wins', b: '<strong>A bogey on every hole = 90.</strong> That\'s already better than your current handicap. Chase pars, not birdies.' },
+        { t: 'Miss on the correct side', b: '<strong>Know which side of the green is the "safe" miss</strong> before every approach. Miss away from hazards, short-side, OB.' },
+        { t: 'Layup to your number', b: '<strong>Don\'t layup to 100 yards if your best wedge distance is 80.</strong> Layup to YOUR yardage, not a "round number."' },
+        { t: 'Never go for it twice', b: '<strong>If you just hit a bad shot</strong> (OB, hazard, etc.) — play your next shot safely. Don\'t compound one mistake with another.' },
+        { t: 'Par 5 strategy', b: '<strong>Three comfortable shots beat two hero shots</strong> every time. Driver + hybrid + wedge into a Par 5 is birdie territory without a single risky shot.' },
+      ],
+      tip: 'The best round of golf you ever play will be the day you stop trying to be Tiger Woods and start trying to be boring.',
+      rule: null
+    },
+    {
+      icon: '📊', title: 'Stat Targets by Handicap', sub: 'What to aim for at each level',
+      steps: [],
+      tip: 'Focus on the stats in your current tier first — don\'t try to hit scratch benchmarks when you\'re at 20+.',
+      rule: null,
+      table: {
+        headers: ['Metric', '20 HCP', '15 HCP', '10 HCP'],
+        rows: [
+          ['Avg Score (Par 72)', '90–94', '85–89', '79–83'],
+          ['Fairways Hit', '35–45%', '45–55%', '55–65%'],
+          ['Greens in Regulation', '15–25%', '25–40%', '40–55%'],
+          ['Avg Putts / Round', '34–38', '31–34', '28–31'],
+          ['3-Putts / Round', '5–8', '3–5', '1–3'],
+          ['Penalty Strokes / Round', '3–6', '1–3', '0–2'],
+          ['Up & Down %', '15–25%', '25–40%', '40–55%'],
+        ]
+      }
+    },
+    {
+      icon: '🔁', title: 'Post-Round Review', sub: 'How to improve between rounds',
+      steps: [
+        { t: 'Count penalty strokes', b: '<strong>Every OB, water, lost ball = 2 shots minimum.</strong> How many did you have? That\'s your biggest opportunity.' },
+        { t: 'Count 3-putts', b: '<strong>How many 3-putts?</strong> Each one is a free stroke you gave away. More than 3 in a round = dedicate next practice to lag putting.' },
+        { t: 'Missed short putts', b: '<strong>How many putts inside 5 feet did you miss?</strong> These are automatic putts at 10 HCP. Practice them with a gate drill.' },
+        { t: 'GIR count', b: '<strong>How many greens did you hit in regulation?</strong> At 20+, you should be hitting 3–5. Work up to 6–8 for 15 HCP.' },
+        { t: 'One thing to fix', b: '<strong>Pick ONE thing from this round</strong> to work on next practice. Don\'t try to fix everything at once.' },
+      ],
+      tip: 'The golfers who improve fastest are the ones who track their stats honestly and practice with purpose, not just volume.',
+      rule: null
+    },
+  ]
+};
+
+let fgOpen = {};
+
+function renderFieldGuide() {
+  const cat = fieldCategories[activeFGCat];
+  const items = fieldData[cat];
+
+  const catTabs = fieldCategories.map((c, i) => `
+    <button class="fg-cat-btn ${i === activeFGCat ? 'active' : ''}" onclick="setFGCat(${i})">${c}</button>
+  `).join('');
+
+  const cards = items.map((item, idx) => {
+    const key = `${activeFGCat}-${idx}`;
+    const isOpen = fgOpen[key];
+
+    const stepsHTML = item.steps.map((s, si) => `
+      <div class="fg-step">
+        <div class="fg-step-num">${si + 1}</div>
+        <div class="fg-step-text"><strong>${s.t}:</strong> ${s.b}</div>
+      </div>
+    `).join('');
+
+    const tableHTML = item.table ? `
+      <table class="fg-dist-table">
+        <thead><tr>${item.table.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${item.table.rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>
+    ` : '';
+
+    const tipHTML = item.tip ? `<div class="fg-tip">💡 ${item.tip}</div>` : '';
+    const ruleHTML = item.rule ? `
+      <div class="fg-rule-box">
+        <div class="fg-rule-label">📖 ${item.rule.label}</div>
+        <div class="fg-rule-text">${item.rule.text}</div>
+      </div>` : '';
+
+    return `
+      <div class="fg-card" onclick="toggleFG('${key}')">
+        <div class="fg-card-header">
+          <div class="fg-card-left">
+            <div class="fg-icon" style="background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2)">${item.icon}</div>
+            <div>
+              <div class="fg-title">${item.title}</div>
+              <div class="fg-subtitle">${item.sub}</div>
+            </div>
+          </div>
+          <div class="fg-chevron ${isOpen ? 'open' : ''}">▼</div>
+        </div>
+        <div class="fg-body ${isOpen ? 'open' : ''}">
+          ${stepsHTML}${tableHTML}${tipHTML}${ruleHTML}
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('field-content').innerHTML = `
+    <div class="fg-category-tabs">${catTabs}</div>
+    <div style="padding:0 0 60px">${cards}</div>
+  `;
+}
+
+function setFGCat(i) {
+  activeFGCat = i;
+  fgOpen = {};
+  renderFieldGuide();
+}
+
+function toggleFG(key) {
+  fgOpen[key] = !fgOpen[key];
+  renderFieldGuide();
+}
+
+// ── GPS PIN ──
+const GPS_PIN = '1921'; // Year Glencoe Golf Club was founded — change this
+const GPS_PIN_KEY = 'gps_pin_auth';
+let pinEntry = '';
+
+function gpsTabClick() {
+  if (sessionStorage.getItem(GPS_PIN_KEY) === '1') {
+    switchTab('gps');
+    // Skip straight to content
+    document.getElementById('gps-pin-gate').style.display = 'none';
+    document.getElementById('gps-content').style.display = 'block';
+  } else {
+    switchTab('gps');
+    document.getElementById('gps-pin-gate').style.display = 'flex';
+    document.getElementById('gps-content').style.display = 'none';
+    pinEntry = '';
+    updatePinDots();
+  }
+}
+
+function pinKey(k) {
+  if (k === '⌫') {
+    pinEntry = pinEntry.slice(0, -1);
+    updatePinDots();
+    return;
+  }
+  if (k === '' || pinEntry.length >= 4) return;
+  pinEntry += k;
+  updatePinDots();
+  if (pinEntry.length === 4) {
+    setTimeout(() => checkPin(), 150);
+  }
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd' + i);
+    if (dot) dot.classList.toggle('filled', i < pinEntry.length);
+  }
+}
+
+function checkPin() {
+  if (pinEntry === GPS_PIN) {
+    sessionStorage.setItem(GPS_PIN_KEY, '1');
+    document.getElementById('gps-pin-gate').style.display = 'none';
+    document.getElementById('gps-content').style.display = 'block';
+    initGPS();
+  } else {
+    document.getElementById('gps-pin-error').textContent = 'Incorrect PIN.';
+    pinEntry = '';
+    updatePinDots();
+    setTimeout(() => {
+      document.getElementById('gps-pin-error').textContent = '';
+    }, 1500);
+  }
+}
+
+// ── GPS MAP ──
+let gpsMap = null;
+let gpsMarker = null;
+let gpsTargetMarker = null;
+let gpsWatchId = null;
+let gpsInitialized = false;
+let currentHole = 1;
+
+const GLENCOE_HOLES = [
+  { hole:1,  lat:42.1378, lng:-87.7600, par:4, yards:382 },
+  { hole:2,  lat:42.1390, lng:-87.7615, par:5, yards:525 },
+  { hole:3,  lat:42.1402, lng:-87.7598, par:4, yards:315 },
+  { hole:4,  lat:42.1415, lng:-87.7580, par:4, yards:326 },
+  { hole:5,  lat:42.1405, lng:-87.7562, par:4, yards:355 },
+  { hole:6,  lat:42.1392, lng:-87.7548, par:4, yards:350 },
+  { hole:7,  lat:42.1378, lng:-87.7558, par:3, yards:207 },
+  { hole:8,  lat:42.1365, lng:-87.7572, par:4, yards:324 },
+  { hole:9,  lat:42.1352, lng:-87.7588, par:4, yards:348 },
+  { hole:10, lat:42.1340, lng:-87.7605, par:4, yards:430 },
+  { hole:11, lat:42.1328, lng:-87.7590, par:4, yards:356 },
+  { hole:12, lat:42.1315, lng:-87.7572, par:3, yards:130 },
+  { hole:13, lat:42.1325, lng:-87.7555, par:4, yards:393 },
+  { hole:14, lat:42.1338, lng:-87.7540, par:4, yards:317 },
+  { hole:15, lat:42.1350, lng:-87.7553, par:3, yards:154 },
+  { hole:16, lat:42.1363, lng:-87.7538, par:4, yards:366 },
+  { hole:17, lat:42.1350, lng:-87.7522, par:5, yards:492 },
+  { hole:18, lat:42.1337, lng:-87.7538, par:5, yards:521 },
+];
+
+function haversineYards(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(a))*1.09361);
+}
+
+function setGpsStatus(msg) {
+  const el = document.getElementById('gps-status');
+  if (el) el.textContent = msg;
+}
+
+function initGPS() {
+  if (gpsInitialized) return;
+  gpsInitialized = true;
+  const mapEl = document.getElementById('gps-map');
+  if (!mapEl || !window.L) return;
+
+  gpsMap = L.map('gps-map', { zoomControl:true }).setView([42.1350268, -87.7581188], 16);
+
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution:'Tiles © Esri', maxZoom:19
+  }).addTo(gpsMap);
+
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom:19, opacity:0.6
+  }).addTo(gpsMap);
+
+  gpsMap.on('click', function(e) {
+    const {lat, lng} = e.latlng;
+    if (gpsTargetMarker) gpsMap.removeLayer(gpsTargetMarker);
+    gpsTargetMarker = L.circleMarker([lat, lng], {
+      radius:8, color:'#f87171', fillColor:'#f87171', fillOpacity:0.9, weight:2
+    }).addTo(gpsMap);
+    if (gpsMarker) {
+      const pos = gpsMarker.getLatLng();
+      const dist = haversineYards(pos.lat, pos.lng, lat, lng);
+      document.getElementById('gps-dist').textContent = dist;
+      setGpsStatus(`📍 ${dist} yards to tapped point`);
+    } else {
+      setGpsStatus('Tap Locate to see distance from your position.');
+    }
+  });
+
+  flyToHole(currentHole);
+  setGpsStatus('Map ready. Tap Locate for your position, or tap the map to measure distance.');
+}
+
+function flyToHole(holeNum) {
+  currentHole = holeNum;
+  document.getElementById('gps-hole-display').textContent = 'H' + holeNum;
+  document.getElementById('gps-hole').value = holeNum;
+  const h = GLENCOE_HOLES[holeNum-1];
+  if (gpsMap && h) {
+    gpsMap.flyTo([h.lat, h.lng], 17, {duration:0.8});
+    setGpsStatus(`Hole ${holeNum} — Par ${h.par}, ${h.yards} yards`);
+  }
+}
+
+function onHoleChange() {
+  flyToHole(parseInt(document.getElementById('gps-hole').value));
+}
+
+function nextHole() {
+  flyToHole(currentHole < 18 ? currentHole+1 : 1);
+}
+
+function locateMe() {
+  if (!navigator.geolocation) { setGpsStatus('GPS not supported on this device.'); return; }
+  setGpsStatus('Finding your position...');
+  if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
+  gpsWatchId = navigator.geolocation.watchPosition(
+    (pos) => {
+      const {latitude, longitude, accuracy} = pos.coords;
+      const accYards = Math.round(accuracy * 1.09361);
+      document.getElementById('gps-accuracy').textContent = accYards + 'yd';
+      if (!gpsMarker) {
+        gpsMarker = L.circleMarker([latitude, longitude], {
+          radius:10, color:'#60a5fa', fillColor:'#3b82f6', fillOpacity:0.9, weight:3
+        }).addTo(gpsMap);
+        gpsMap._accCircle = L.circle([latitude, longitude], {
+          radius:accuracy, color:'#60a5fa', fillColor:'#60a5fa', fillOpacity:0.1, weight:1
+        }).addTo(gpsMap);
+        gpsMap.setView([latitude, longitude], 17);
+      } else {
+        gpsMarker.setLatLng([latitude, longitude]);
+        if (gpsMap._accCircle) { gpsMap._accCircle.setLatLng([latitude, longitude]); gpsMap._accCircle.setRadius(accuracy); }
+      }
+      if (gpsTargetMarker) {
+        const t = gpsTargetMarker.getLatLng();
+        document.getElementById('gps-dist').textContent = haversineYards(latitude, longitude, t.lat, t.lng);
+      }
+      setGpsStatus(`Live GPS active · ±${accYards} yards accuracy`);
+    },
+    (err) => {
+      const msgs = {1:'Location access denied — allow location in browser settings.',2:'Position unavailable.',3:'GPS timed out — try again.'};
+      setGpsStatus(msgs[err.code] || 'GPS error.');
+    },
+    {enableHighAccuracy:true, maximumAge:3000, timeout:15000}
+  );
+}
+
+let courseSearchTimer = null;
+function onGpsCourseInput() {
+  clearTimeout(courseSearchTimer);
+  const val = document.getElementById('gps-course-input').value.trim();
+  const sugg = document.getElementById('gps-suggestions');
+  if (val.toLowerCase().includes('glencoe')) {
+    sugg.innerHTML = '<div class="gps-suggestion-item" onclick="selectGlencoeCourse()">⭐ Glencoe Golf Club (Hardcoded — all 18 holes)</div>';
+    sugg.classList.add('open'); return;
+  }
+  if (val.length < 3) { sugg.classList.remove('open'); return; }
+  courseSearchTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(val+' golf course')}&format=json&limit=5`, {headers:{'Accept-Language':'en'}});
+      const data = await res.json();
+      if (!data.length) { sugg.classList.remove('open'); return; }
+      sugg.innerHTML = data.map(d =>
+        `<div class="gps-suggestion-item" onclick="selectCourse(${d.lat},${d.lon},'${d.display_name.split(',').slice(0,2).join(',').replace(/'/g,"\\'")}')">
+          ${d.display_name.split(',').slice(0,2).join(',')}
+        </div>`
+      ).join('');
+      sugg.classList.add('open');
+    } catch(e) { sugg.classList.remove('open'); }
+  }, 400);
+}
+
+function selectGlencoeCourse() {
+  document.getElementById('gps-course-input').value = 'Glencoe Golf Club';
+  document.getElementById('gps-suggestions').classList.remove('open');
+  flyToHole(currentHole);
+}
+
+function selectCourse(lat, lng, name) {
+  document.getElementById('gps-course-input').value = name.trim();
+  document.getElementById('gps-suggestions').classList.remove('open');
+  if (gpsMap) gpsMap.flyTo([parseFloat(lat), parseFloat(lng)], 16, {duration:1});
+  setGpsStatus('Course set. Tap Locate to find your position.');
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.gps-ctrl-group')) {
+    const sugg = document.getElementById('gps-suggestions');
+    if (sugg) sugg.classList.remove('open');
+  }
+});
+
+// ── STEVE WILLIAMS CADDY ──
+
+const STEVE_SYSTEM = `You are Steve Williams, Tiger Woods' legendary caddy. You caddied for Tiger through 13 of his majors. You are direct, no-nonsense, occasionally blunt, deeply knowledgeable about course management, and you don't sugarcoat bad decisions. You speak like a real caddy on the bag — short, punchy, confident. You call the golfer "mate" occasionally (you're from New Zealand). You reference Tiger when relevant but focus on the task at hand.
+
+The golfer you are caddying for is Evan — a 6'2" golfer with a 20+ handicap targeting 10. Key things to know about his game:
+- He hits the driver steep with an open face, causing a pop-up to the right
+- He closes the clubface on his 3 hybrid, causing shots to go left
+- He is working on: 80% swing on driver, shallowing his path, keeping face open on hybrid
+- His estimated carry distances: Driver 190-205, 3 Hybrid 165-180, 5i 150-160, 7i 130-140, 9i 110-120, PW 95-105, GW 70-85, SW 60-70, LW 45-55
+- He tends to underclub — always push him to take more club
+- He is working on eliminating 3-putts and penalty strokes
+
+When asked for club advice, always:
+1. State the club recommendation clearly and directly first
+2. Give the yardage rationale
+3. Note any lie or wind adjustments
+4. Give ONE swing thought — his specific thought for that club
+5. End with a short Steve Williams-style motivational or blunt closing line
+
+Keep responses concise — this is on-course advice, not a lesson. He's standing over the ball. Be the voice in his ear.`;
+
+function getCaddyContext() {
+  const course = document.getElementById('cad-course').value.trim() || 'unknown course';
+  const hole = document.getElementById('cad-hole').value;
+  const yardage = document.getElementById('cad-yardage').value;
+  const lie = document.getElementById('cad-lie').value;
+  const wind = document.getElementById('cad-wind').value;
+  const score = document.getElementById('cad-score').value.trim();
+  return `Current situation — Course: ${course}, Hole: ${hole}, Yardage to pin: ${yardage || 'unknown'}, Lie: ${lie}, Wind: ${wind}${score ? ', Score so far: ' + score : ''}.`;
+}
+
+function appendMsg(role, text, loading = false) {
+  const chat = document.getElementById('caddy-chat');
+  const isSteve = role === 'steve';
+  const div = document.createElement('div');
+  div.className = `caddy-msg ${isSteve ? 'caddy-msg-steve' : 'caddy-msg-user'}`;
+  const id = 'msg-' + Date.now();
+  div.innerHTML = `
+    <div class="caddy-msg-avatar">${isSteve ? 'SW' : 'E'}</div>
+    <div class="caddy-msg-bubble ${loading ? 'loading' : ''}" id="${id}">${text}</div>
+  `;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return id;
+}
+
+function updateMsg(id, text) {
+  const el = document.getElementById(id);
+  if (el) { el.classList.remove('loading'); el.innerHTML = text; }
+  document.getElementById('caddy-chat').scrollTop = 99999;
+}
+
+async function sendCaddy() {
+  const input = document.getElementById('caddy-input');
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  const sendBtn = document.querySelector('.caddy-send');
+  sendBtn.disabled = true;
+  input.value = '';
+
+  const context = getCaddyContext();
+  const fullUserMsg = `${context}\n\nEvan says: "${userText}"`;
+
+  appendMsg('user', userText);
+  caddyHistory.push({ role: 'user', content: fullUserMsg });
+
+  const loadingId = appendMsg('steve', '...thinking...', true);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: STEVE_SYSTEM,
+        messages: caddyHistory
+      })
+    });
+
+    const data = await response.json();
+    const reply = data.content?.find(b => b.type === 'text')?.text || 'Something went wrong on my end, mate.';
+
+    caddyHistory.push({ role: 'assistant', content: reply });
+
+    // Format bold and italic for display
+    const formatted = reply
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
+
+    updateMsg(loadingId, formatted);
+  } catch (err) {
+    updateMsg(loadingId, 'Lost signal on the course, mate. Try again.');
+  }
+
+  sendBtn.disabled = false;
+  input.focus();
+}
+</script>
+</body>
+</html>
