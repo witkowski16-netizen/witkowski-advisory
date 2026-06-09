@@ -757,7 +757,24 @@
           <div class="caddy-input-group">
             <label>Hole</label>
             <select id="cad-hole">
-              ${Array.from({length:18},(_,i)=>`<option value="${i+1}">Hole ${i+1}</option>`).join('')}
+              <option value="1">Hole 1</option>
+              <option value="2">Hole 2</option>
+              <option value="3">Hole 3</option>
+              <option value="4">Hole 4</option>
+              <option value="5">Hole 5</option>
+              <option value="6">Hole 6</option>
+              <option value="7">Hole 7</option>
+              <option value="8">Hole 8</option>
+              <option value="9">Hole 9</option>
+              <option value="10">Hole 10</option>
+              <option value="11">Hole 11</option>
+              <option value="12">Hole 12</option>
+              <option value="13">Hole 13</option>
+              <option value="14">Hole 14</option>
+              <option value="15">Hole 15</option>
+              <option value="16">Hole 16</option>
+              <option value="17">Hole 17</option>
+              <option value="18">Hole 18</option>
             </select>
           </div>
           <div class="caddy-input-group">
@@ -833,7 +850,18 @@
           <div class="pin-dot" id="pd3"></div>
         </div>
         <div class="gps-pin-pad">
-          ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k => `<button class="pin-key" onclick="pinKey('${k}')">${k}</button>`).join('')}
+          <button class="pin-key" onclick="pinKey('1')">1</button>
+          <button class="pin-key" onclick="pinKey('2')">2</button>
+          <button class="pin-key" onclick="pinKey('3')">3</button>
+          <button class="pin-key" onclick="pinKey('4')">4</button>
+          <button class="pin-key" onclick="pinKey('5')">5</button>
+          <button class="pin-key" onclick="pinKey('6')">6</button>
+          <button class="pin-key" onclick="pinKey('7')">7</button>
+          <button class="pin-key" onclick="pinKey('8')">8</button>
+          <button class="pin-key" onclick="pinKey('9')">9</button>
+          <button class="pin-key" style="background:transparent;border:none;cursor:default;"></button>
+          <button class="pin-key" onclick="pinKey('0')">0</button>
+          <button class="pin-key" onclick="pinKey('⌫')">⌫</button>
         </div>
         <div id="gps-pin-error" style="font-size:11px; color:#f87171; text-align:center; margin-top:10px; min-height:16px;"></div>
       </div>
@@ -855,7 +883,24 @@
           <div class="gps-ctrl-group" style="flex:1">
             <label>Hole</label>
             <select id="gps-hole" onchange="onHoleChange()">
-              ${Array.from({length:18},(_,i)=>`<option value="${i+1}">Hole ${i+1}</option>`).join('')}
+              <option value="1">Hole 1</option>
+              <option value="2">Hole 2</option>
+              <option value="3">Hole 3</option>
+              <option value="4">Hole 4</option>
+              <option value="5">Hole 5</option>
+              <option value="6">Hole 6</option>
+              <option value="7">Hole 7</option>
+              <option value="8">Hole 8</option>
+              <option value="9">Hole 9</option>
+              <option value="10">Hole 10</option>
+              <option value="11">Hole 11</option>
+              <option value="12">Hole 12</option>
+              <option value="13">Hole 13</option>
+              <option value="14">Hole 14</option>
+              <option value="15">Hole 15</option>
+              <option value="16">Hole 16</option>
+              <option value="17">Hole 17</option>
+              <option value="18">Hole 18</option>
             </select>
           </div>
           <div class="gps-ctrl-group" style="flex:1">
