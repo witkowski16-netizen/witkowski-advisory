@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Golf — Witkowski Advisory</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -527,6 +529,177 @@
     .fg-badge-pen { background: rgba(224,85,85,0.2); color: #f87171; }
     .fg-badge-free { background: rgba(74,222,128,0.2); color: #4ade80; }
     .fg-badge-choice { background: rgba(251,146,60,0.2); color: #fb923c; }
+    /* ── CADDY ── */
+    .caddy-shell {
+      display: flex; flex-direction: column;
+      height: calc(100vh - 58px); overflow: hidden;
+    }
+    .caddy-intro {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px; background: #0a120a;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .caddy-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, #1a3a1a, #0d1f0d);
+      border: 1.5px solid #3a6a3a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .caddy-name { font-family: 'Playfair Display', serif; font-size: 15px; color: #c8e6c8; }
+    .caddy-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; margin-top: 1px; }
+
+    .caddy-context {
+      padding: 12px 16px; background: var(--surface);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .caddy-context-title {
+      font-size: 9px; color: var(--muted); letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .caddy-inputs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 7px;
+    }
+    .caddy-input-group { display: flex; flex-direction: column; gap: 3px; }
+    .caddy-input-group label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .caddy-input-group input, .caddy-input-group select {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 7px 9px;
+      font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text);
+      outline: none; transition: border-color 0.2s; width: 100%;
+    }
+    .caddy-input-group input:focus, .caddy-input-group select:focus { border-color: #3a6a3a; }
+    .caddy-input-group select option { background: #0d130d; }
+
+    .caddy-chat {
+      flex: 1; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .caddy-msg { display: flex; gap: 10px; align-items: flex-start; }
+    .caddy-msg-steve { }
+    .caddy-msg-user { flex-direction: row-reverse; }
+    .caddy-msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #1a3a1a, #0d1f0d);
+      border: 1px solid #3a6a3a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #7acc7a; margin-top: 2px;
+    }
+    .caddy-msg-user .caddy-msg-avatar {
+      background: #1a2a3a; border-color: #2a4a6a; color: #6aaaca;
+    }
+    .caddy-msg-bubble {
+      max-width: 82%; padding: 11px 14px; border-radius: 14px;
+      font-size: 13px; line-height: 1.6; color: #c8e6c8;
+      background: #0d1f0d; border: 1px solid #1e3a1e;
+    }
+    .caddy-msg-user .caddy-msg-bubble {
+      background: #0d1a2a; border-color: #1a3050; color: #a8c8e8;
+      text-align: right;
+    }
+    .caddy-msg-bubble.loading {
+      color: var(--muted); font-style: italic;
+    }
+    .caddy-msg-bubble strong { color: #4ade80; font-weight: 600; }
+    .caddy-msg-bubble em { color: #c9a84c; font-style: normal; }
+
+    .caddy-input-bar {
+      display: flex; gap: 8px; padding: 12px 16px;
+      background: var(--surface); border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .caddy-input-bar input {
+      flex: 1; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 24px; padding: 10px 16px;
+      font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text);
+      outline: none; transition: border-color 0.2s;
+    }
+    .caddy-input-bar input:focus { border-color: #3a6a3a; }
+    .caddy-send {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: #1a3a1a; border: 1px solid #3a6a3a;
+      color: #7acc7a; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.2s;
+    }
+    .caddy-send:hover { background: #243a24; }
+    .caddy-send:disabled { opacity: 0.4; cursor: default; }
+    /* ── GPS ── */
+    .gps-shell { display: flex; flex-direction: column; height: calc(100vh - 58px); }
+    .gps-controls {
+      padding: 12px 16px; background: var(--surface);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .gps-controls-title { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .gps-controls-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
+    .gps-ctrl-group { display: flex; flex-direction: column; gap: 3px; position: relative; }
+    .gps-ctrl-group label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .gps-ctrl-group input, .gps-ctrl-group select {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 8px 10px;
+      font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text);
+      outline: none; transition: border-color 0.2s; width: 100%;
+    }
+    .gps-ctrl-group input:focus, .gps-ctrl-group select:focus { border-color: #3a6a3a; }
+    .gps-locate-btn {
+      background: #1a3a1a; border: 1px solid #3a6a3a;
+      border-radius: 6px; padding: 8px 10px;
+      font-family: 'DM Mono', monospace; font-size: 11px; color: #7acc7a;
+      cursor: pointer; white-space: nowrap; width: 100%;
+    }
+    .gps-locate-btn:hover { background: #243a24; }
+    .gps-suggestions {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
+      background: #0d1f0d; border: 1px solid #3a6a3a;
+      border-radius: 6px; margin-top: 2px; display: none;
+    }
+    .gps-suggestions.open { display: block; }
+    .gps-suggestion-item {
+      padding: 8px 12px; font-size: 12px; color: #a8c8a8;
+      cursor: pointer; border-bottom: 1px solid var(--border);
+    }
+    .gps-suggestion-item:last-child { border-bottom: none; }
+    .gps-suggestion-item:hover { background: #1a3a1a; color: #c8e6c8; }
+    .gps-info-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    }
+    .gps-info-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px; text-align: center;
+    }
+    .gps-info-val { font-family: 'Playfair Display', serif; font-size: 18px; color: #c8e6c8; line-height: 1; margin-bottom: 3px; }
+    .gps-info-lbl { font-size: 8px; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; }
+    .gps-next-btn {
+      background: #1a2a3a; border: 1px solid #2a4a6a;
+      border-radius: 6px; padding: 6px 8px; width: 100%;
+      font-family: 'DM Mono', monospace; font-size: 10px; color: #6aaaca;
+      cursor: pointer; margin-top: 2px;
+    }
+    #gps-map { flex: 1; width: 100%; min-height: 300px; }
+    .gps-status {
+      padding: 8px 16px; font-size: 11px; color: var(--muted);
+      text-align: center; background: var(--surface);
+      border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    /* ── GPS PIN ── */
+    .gps-pin-dots { display:flex; justify-content:center; gap:14px; margin-bottom:20px; }
+    .pin-dot {
+      width:14px; height:14px; border-radius:50%;
+      border:2px solid #3a6a3a; background:transparent;
+      transition:background 0.15s;
+    }
+    .pin-dot.filled { background:#4ade80; border-color:#4ade80; }
+    .gps-pin-pad {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+    }
+    .pin-key {
+      background:var(--bg); border:1px solid var(--border);
+      border-radius:10px; padding:14px 0;
+      font-family:'Playfair Display',serif; font-size:20px; color:#c8e6c8;
+      cursor:pointer; transition:all 0.15s; text-align:center;
+    }
+    .pin-key:hover { background:#1a3a1a; border-color:#3a6a3a; }
+    .pin-key:empty { background:transparent; border:none; cursor:default; }
   </style>
 </head>
 <body>
@@ -543,6 +716,8 @@
     <div class="header-right">
       <button class="tab-btn active" id="btn-cheatsheet" onclick="switchTab('cheatsheet')">Clubs</button>
       <button class="tab-btn" id="btn-field" onclick="switchTab('field')">Field Guide</button>
+      <button class="tab-btn" id="btn-caddy" onclick="switchTab('caddy')">🎙 Caddy</button>
+      <button class="tab-btn" id="btn-gps" onclick="gpsTabClick()">📍 GPS</button>
       <button class="tab-btn" id="btn-scores" onclick="switchTab('scores')">Scores</button>
     </div>
   </div>
@@ -556,6 +731,155 @@
   <!-- ── FIELD GUIDE TAB ── -->
   <div id="tab-field" style="display:none;">
     <div class="main-pad" id="field-content"></div>
+  </div>
+
+  <!-- ── CADDY TAB ── -->
+  <div id="tab-caddy" style="display:none;">
+    <div class="caddy-shell">
+
+      <!-- Caddy header -->
+      <div class="caddy-intro">
+        <div class="caddy-avatar">🏌️</div>
+        <div>
+          <div class="caddy-name">Steve Williams</div>
+          <div class="caddy-sub">Tiger's caddy · 13 majors · No nonsense</div>
+        </div>
+      </div>
+
+      <!-- Context inputs -->
+      <div class="caddy-context">
+        <div class="caddy-context-title">SET THE SCENE</div>
+        <div class="caddy-inputs">
+          <div class="caddy-input-group">
+            <label>Course</label>
+            <input type="text" id="cad-course" placeholder="Glencoe Golf Club" />
+          </div>
+          <div class="caddy-input-group">
+            <label>Hole</label>
+            <select id="cad-hole">
+              ${Array.from({length:18},(_,i)=>`<option value="${i+1}">Hole ${i+1}</option>`).join('')}
+            </select>
+          </div>
+          <div class="caddy-input-group">
+            <label>Yardage</label>
+            <input type="number" id="cad-yardage" placeholder="165" min="50" max="650" />
+          </div>
+          <div class="caddy-input-group">
+            <label>Lie</label>
+            <select id="cad-lie">
+              <option>Fairway</option>
+              <option>Rough</option>
+              <option>Tee box</option>
+              <option>Sand bunker</option>
+              <option>Fairway bunker</option>
+              <option>Hardpan</option>
+              <option>Uphill lie</option>
+              <option>Downhill lie</option>
+              <option>Under trees</option>
+              <option>Fringe</option>
+              <option>Green</option>
+            </select>
+          </div>
+          <div class="caddy-input-group">
+            <label>Wind</label>
+            <select id="cad-wind">
+              <option>Calm</option>
+              <option>Light breeze (5 mph)</option>
+              <option>Into wind (10-15 mph)</option>
+              <option>Downwind (10-15 mph)</option>
+              <option>Strong into (20+ mph)</option>
+              <option>Strong down (20+ mph)</option>
+              <option>Crosswind left</option>
+              <option>Crosswind right</option>
+            </select>
+          </div>
+          <div class="caddy-input-group">
+            <label>Score so far</label>
+            <input type="text" id="cad-score" placeholder="e.g. +4 thru 7" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat window -->
+      <div class="caddy-chat" id="caddy-chat">
+        <div class="caddy-msg caddy-msg-steve">
+          <div class="caddy-msg-avatar">SW</div>
+          <div class="caddy-msg-bubble">Right. Set the scene up top — course, hole, yardage, lie, wind. Tell me what you're working with and I'll tell you exactly what to do. No guessing. No second chances on the course.</div>
+        </div>
+      </div>
+
+      <!-- Input bar -->
+      <div class="caddy-input-bar">
+        <input type="text" id="caddy-input" placeholder="Ask Steve anything..." onkeydown="if(event.key==='Enter')sendCaddy()" />
+        <button class="caddy-send" onclick="sendCaddy()">↑</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── GPS TAB ── -->
+  <div id="tab-gps" style="display:none;">
+
+    <!-- PIN Gate -->
+    <div id="gps-pin-gate" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 58px); padding:24px; background:radial-gradient(ellipse at 50% 40%, #0d1f0d 0%, #080c08 70%);">
+      <div style="font-size:32px; margin-bottom:16px;">📍</div>
+      <div style="font-family:'Playfair Display',serif; font-size:20px; color:#c8e6c8; margin-bottom:6px;">GPS Access</div>
+      <div style="font-size:11px; color:var(--muted); margin-bottom:28px; letter-spacing:0.5px;">Private — enter PIN to continue</div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px 24px; width:100%; max-width:300px;">
+        <div class="gps-pin-dots" id="gps-pin-dots">
+          <div class="pin-dot" id="pd0"></div>
+          <div class="pin-dot" id="pd1"></div>
+          <div class="pin-dot" id="pd2"></div>
+          <div class="pin-dot" id="pd3"></div>
+        </div>
+        <div class="gps-pin-pad">
+          ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k => `<button class="pin-key" onclick="pinKey('${k}')">${k}</button>`).join('')}
+        </div>
+        <div id="gps-pin-error" style="font-size:11px; color:#f87171; text-align:center; margin-top:10px; min-height:16px;"></div>
+      </div>
+    </div>
+
+    <!-- GPS Shell (hidden until PIN correct) -->
+    <div id="gps-content" style="display:none;">
+    <div class="gps-shell">
+
+      <!-- Controls -->
+      <div class="gps-controls">
+        <div class="gps-controls-title">COURSE & HOLE</div>
+        <div class="gps-controls-row">
+          <div class="gps-ctrl-group" style="flex:2">
+            <label>Course</label>
+            <input type="text" id="gps-course-input" placeholder="e.g. Glencoe Golf Club" oninput="onGpsCourseInput()" />
+            <div class="gps-suggestions" id="gps-suggestions"></div>
+          </div>
+          <div class="gps-ctrl-group" style="flex:1">
+            <label>Hole</label>
+            <select id="gps-hole" onchange="onHoleChange()">
+              ${Array.from({length:18},(_,i)=>`<option value="${i+1}">Hole ${i+1}</option>`).join('')}
+            </select>
+          </div>
+          <div class="gps-ctrl-group" style="flex:1">
+            <button class="gps-locate-btn" onclick="locateMe()">📍 Locate</button>
+          </div>
+        </div>
+        <div class="gps-info-strip">
+          <div class="gps-info-box"><div class="gps-info-val" id="gps-dist">—</div><div class="gps-info-lbl">Yards to marker</div></div>
+          <div class="gps-info-box"><div class="gps-info-val" id="gps-accuracy">—</div><div class="gps-info-lbl">GPS accuracy</div></div>
+          <div class="gps-info-box"><div class="gps-info-val" id="gps-hole-display">H1</div><div class="gps-info-lbl">Current hole</div></div>
+          <div class="gps-info-box">
+            <button class="gps-next-btn" onclick="nextHole()">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div id="gps-map"></div>
+
+      <!-- Status -->
+      <div class="gps-status" id="gps-status">Tap Locate to find your position on the course.</div>
+
+    </div>
+    </div> <!-- /gps-content -->
   </div>
 
   <!-- ── SCORES TAB ── -->
@@ -888,12 +1212,17 @@ function renderClub(idx) {
 function switchTab(tab) {
   document.getElementById('tab-cheatsheet').style.display = tab === 'cheatsheet' ? 'block' : 'none';
   document.getElementById('tab-field').style.display     = tab === 'field'       ? 'block' : 'none';
+  document.getElementById('tab-caddy').style.display     = tab === 'caddy'       ? 'block' : 'none';
+  document.getElementById('tab-gps').style.display       = tab === 'gps'         ? 'block' : 'none';
   document.getElementById('tab-scores').style.display    = tab === 'scores'      ? 'block' : 'none';
   document.getElementById('btn-cheatsheet').classList.toggle('active', tab === 'cheatsheet');
   document.getElementById('btn-field').classList.toggle('active', tab === 'field');
+  document.getElementById('btn-caddy').classList.toggle('active', tab === 'caddy');
+  document.getElementById('btn-gps').classList.toggle('active', tab === 'gps');
   document.getElementById('btn-scores').classList.toggle('active', tab === 'scores');
   if (tab === 'scores') renderScores();
   if (tab === 'field') renderFieldGuide();
+  if (tab === 'gps') initGPS();
 }
 
 // ── SCORE TRACKER ──
@@ -1380,6 +1709,346 @@ function setFGCat(i) {
 function toggleFG(key) {
   fgOpen[key] = !fgOpen[key];
   renderFieldGuide();
+}
+
+// ── GPS PIN ──
+const GPS_PIN = '1921'; // Year Glencoe Golf Club was founded — change this
+const GPS_PIN_KEY = 'gps_pin_auth';
+let pinEntry = '';
+
+function gpsTabClick() {
+  if (sessionStorage.getItem(GPS_PIN_KEY) === '1') {
+    switchTab('gps');
+    // Skip straight to content
+    document.getElementById('gps-pin-gate').style.display = 'none';
+    document.getElementById('gps-content').style.display = 'block';
+  } else {
+    switchTab('gps');
+    document.getElementById('gps-pin-gate').style.display = 'flex';
+    document.getElementById('gps-content').style.display = 'none';
+    pinEntry = '';
+    updatePinDots();
+  }
+}
+
+function pinKey(k) {
+  if (k === '⌫') {
+    pinEntry = pinEntry.slice(0, -1);
+    updatePinDots();
+    return;
+  }
+  if (k === '' || pinEntry.length >= 4) return;
+  pinEntry += k;
+  updatePinDots();
+  if (pinEntry.length === 4) {
+    setTimeout(() => checkPin(), 150);
+  }
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd' + i);
+    if (dot) dot.classList.toggle('filled', i < pinEntry.length);
+  }
+}
+
+function checkPin() {
+  if (pinEntry === GPS_PIN) {
+    sessionStorage.setItem(GPS_PIN_KEY, '1');
+    document.getElementById('gps-pin-gate').style.display = 'none';
+    document.getElementById('gps-content').style.display = 'block';
+    initGPS();
+  } else {
+    document.getElementById('gps-pin-error').textContent = 'Incorrect PIN.';
+    pinEntry = '';
+    updatePinDots();
+    setTimeout(() => {
+      document.getElementById('gps-pin-error').textContent = '';
+    }, 1500);
+  }
+}
+
+      document.getElementById('gps-pin-error').textContent = '';
+    }, 1500);
+  }
+}
+
+// ── GPS MAP ──
+let gpsMap = null;
+let gpsMarker = null;
+let gpsTargetMarker = null;
+let gpsWatchId = null;
+let gpsInitialized = false;
+let currentHole = 1;
+
+const GLENCOE_HOLES = [
+  { hole:1,  lat:42.1378, lng:-87.7600, par:4, yards:382 },
+  { hole:2,  lat:42.1390, lng:-87.7615, par:5, yards:525 },
+  { hole:3,  lat:42.1402, lng:-87.7598, par:4, yards:315 },
+  { hole:4,  lat:42.1415, lng:-87.7580, par:4, yards:326 },
+  { hole:5,  lat:42.1405, lng:-87.7562, par:4, yards:355 },
+  { hole:6,  lat:42.1392, lng:-87.7548, par:4, yards:350 },
+  { hole:7,  lat:42.1378, lng:-87.7558, par:3, yards:207 },
+  { hole:8,  lat:42.1365, lng:-87.7572, par:4, yards:324 },
+  { hole:9,  lat:42.1352, lng:-87.7588, par:4, yards:348 },
+  { hole:10, lat:42.1340, lng:-87.7605, par:4, yards:430 },
+  { hole:11, lat:42.1328, lng:-87.7590, par:4, yards:356 },
+  { hole:12, lat:42.1315, lng:-87.7572, par:3, yards:130 },
+  { hole:13, lat:42.1325, lng:-87.7555, par:4, yards:393 },
+  { hole:14, lat:42.1338, lng:-87.7540, par:4, yards:317 },
+  { hole:15, lat:42.1350, lng:-87.7553, par:3, yards:154 },
+  { hole:16, lat:42.1363, lng:-87.7538, par:4, yards:366 },
+  { hole:17, lat:42.1350, lng:-87.7522, par:5, yards:492 },
+  { hole:18, lat:42.1337, lng:-87.7538, par:5, yards:521 },
+];
+
+function haversineYards(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(a))*1.09361);
+}
+
+function setGpsStatus(msg) {
+  const el = document.getElementById('gps-status');
+  if (el) el.textContent = msg;
+}
+
+function initGPS() {
+  if (gpsInitialized) return;
+  gpsInitialized = true;
+  const mapEl = document.getElementById('gps-map');
+  if (!mapEl || !window.L) return;
+
+  gpsMap = L.map('gps-map', { zoomControl:true }).setView([42.1350268, -87.7581188], 16);
+
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution:'Tiles © Esri', maxZoom:19
+  }).addTo(gpsMap);
+
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom:19, opacity:0.6
+  }).addTo(gpsMap);
+
+  gpsMap.on('click', function(e) {
+    const {lat, lng} = e.latlng;
+    if (gpsTargetMarker) gpsMap.removeLayer(gpsTargetMarker);
+    gpsTargetMarker = L.circleMarker([lat, lng], {
+      radius:8, color:'#f87171', fillColor:'#f87171', fillOpacity:0.9, weight:2
+    }).addTo(gpsMap);
+    if (gpsMarker) {
+      const pos = gpsMarker.getLatLng();
+      const dist = haversineYards(pos.lat, pos.lng, lat, lng);
+      document.getElementById('gps-dist').textContent = dist;
+      setGpsStatus(`📍 ${dist} yards to tapped point`);
+    } else {
+      setGpsStatus('Tap Locate to see distance from your position.');
+    }
+  });
+
+  flyToHole(currentHole);
+  setGpsStatus('Map ready. Tap Locate for your position, or tap the map to measure distance.');
+}
+
+function flyToHole(holeNum) {
+  currentHole = holeNum;
+  document.getElementById('gps-hole-display').textContent = 'H' + holeNum;
+  document.getElementById('gps-hole').value = holeNum;
+  const h = GLENCOE_HOLES[holeNum-1];
+  if (gpsMap && h) {
+    gpsMap.flyTo([h.lat, h.lng], 17, {duration:0.8});
+    setGpsStatus(`Hole ${holeNum} — Par ${h.par}, ${h.yards} yards`);
+  }
+}
+
+function onHoleChange() {
+  flyToHole(parseInt(document.getElementById('gps-hole').value));
+}
+
+function nextHole() {
+  flyToHole(currentHole < 18 ? currentHole+1 : 1);
+}
+
+function locateMe() {
+  if (!navigator.geolocation) { setGpsStatus('GPS not supported on this device.'); return; }
+  setGpsStatus('Finding your position...');
+  if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
+  gpsWatchId = navigator.geolocation.watchPosition(
+    (pos) => {
+      const {latitude, longitude, accuracy} = pos.coords;
+      const accYards = Math.round(accuracy * 1.09361);
+      document.getElementById('gps-accuracy').textContent = accYards + 'yd';
+      if (!gpsMarker) {
+        gpsMarker = L.circleMarker([latitude, longitude], {
+          radius:10, color:'#60a5fa', fillColor:'#3b82f6', fillOpacity:0.9, weight:3
+        }).addTo(gpsMap);
+        gpsMap._accCircle = L.circle([latitude, longitude], {
+          radius:accuracy, color:'#60a5fa', fillColor:'#60a5fa', fillOpacity:0.1, weight:1
+        }).addTo(gpsMap);
+        gpsMap.setView([latitude, longitude], 17);
+      } else {
+        gpsMarker.setLatLng([latitude, longitude]);
+        if (gpsMap._accCircle) { gpsMap._accCircle.setLatLng([latitude, longitude]); gpsMap._accCircle.setRadius(accuracy); }
+      }
+      if (gpsTargetMarker) {
+        const t = gpsTargetMarker.getLatLng();
+        document.getElementById('gps-dist').textContent = haversineYards(latitude, longitude, t.lat, t.lng);
+      }
+      setGpsStatus(`Live GPS active · ±${accYards} yards accuracy`);
+    },
+    (err) => {
+      const msgs = {1:'Location access denied — allow location in browser settings.',2:'Position unavailable.',3:'GPS timed out — try again.'};
+      setGpsStatus(msgs[err.code] || 'GPS error.');
+    },
+    {enableHighAccuracy:true, maximumAge:3000, timeout:15000}
+  );
+}
+
+let courseSearchTimer = null;
+function onGpsCourseInput() {
+  clearTimeout(courseSearchTimer);
+  const val = document.getElementById('gps-course-input').value.trim();
+  const sugg = document.getElementById('gps-suggestions');
+  if (val.toLowerCase().includes('glencoe')) {
+    sugg.innerHTML = '<div class="gps-suggestion-item" onclick="selectGlencoeCourse()">⭐ Glencoe Golf Club (Hardcoded — all 18 holes)</div>';
+    sugg.classList.add('open'); return;
+  }
+  if (val.length < 3) { sugg.classList.remove('open'); return; }
+  courseSearchTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(val+' golf course')}&format=json&limit=5`, {headers:{'Accept-Language':'en'}});
+      const data = await res.json();
+      if (!data.length) { sugg.classList.remove('open'); return; }
+      sugg.innerHTML = data.map(d =>
+        `<div class="gps-suggestion-item" onclick="selectCourse(${d.lat},${d.lon},'${d.display_name.split(',').slice(0,2).join(',').replace(/'/g,"\\'")}')">
+          ${d.display_name.split(',').slice(0,2).join(',')}
+        </div>`
+      ).join('');
+      sugg.classList.add('open');
+    } catch(e) { sugg.classList.remove('open'); }
+  }, 400);
+}
+
+function selectGlencoeCourse() {
+  document.getElementById('gps-course-input').value = 'Glencoe Golf Club';
+  document.getElementById('gps-suggestions').classList.remove('open');
+  flyToHole(currentHole);
+}
+
+function selectCourse(lat, lng, name) {
+  document.getElementById('gps-course-input').value = name.trim();
+  document.getElementById('gps-suggestions').classList.remove('open');
+  if (gpsMap) gpsMap.flyTo([parseFloat(lat), parseFloat(lng)], 16, {duration:1});
+  setGpsStatus('Course set. Tap Locate to find your position.');
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.gps-ctrl-group')) {
+    const sugg = document.getElementById('gps-suggestions');
+    if (sugg) sugg.classList.remove('open');
+  }
+});
+
+// ── STEVE WILLIAMS CADDY ──
+
+const STEVE_SYSTEM = `You are Steve Williams, Tiger Woods' legendary caddy. You caddied for Tiger through 13 of his majors. You are direct, no-nonsense, occasionally blunt, deeply knowledgeable about course management, and you don't sugarcoat bad decisions. You speak like a real caddy on the bag — short, punchy, confident. You call the golfer "mate" occasionally (you're from New Zealand). You reference Tiger when relevant but focus on the task at hand.
+
+The golfer you are caddying for is Evan — a 6'2" golfer with a 20+ handicap targeting 10. Key things to know about his game:
+- He hits the driver steep with an open face, causing a pop-up to the right
+- He closes the clubface on his 3 hybrid, causing shots to go left
+- He is working on: 80% swing on driver, shallowing his path, keeping face open on hybrid
+- His estimated carry distances: Driver 190-205, 3 Hybrid 165-180, 5i 150-160, 7i 130-140, 9i 110-120, PW 95-105, GW 70-85, SW 60-70, LW 45-55
+- He tends to underclub — always push him to take more club
+- He is working on eliminating 3-putts and penalty strokes
+
+When asked for club advice, always:
+1. State the club recommendation clearly and directly first
+2. Give the yardage rationale
+3. Note any lie or wind adjustments
+4. Give ONE swing thought — his specific thought for that club
+5. End with a short Steve Williams-style motivational or blunt closing line
+
+Keep responses concise — this is on-course advice, not a lesson. He's standing over the ball. Be the voice in his ear.`;
+
+function getCaddyContext() {
+  const course = document.getElementById('cad-course').value.trim() || 'unknown course';
+  const hole = document.getElementById('cad-hole').value;
+  const yardage = document.getElementById('cad-yardage').value;
+  const lie = document.getElementById('cad-lie').value;
+  const wind = document.getElementById('cad-wind').value;
+  const score = document.getElementById('cad-score').value.trim();
+  return `Current situation — Course: ${course}, Hole: ${hole}, Yardage to pin: ${yardage || 'unknown'}, Lie: ${lie}, Wind: ${wind}${score ? ', Score so far: ' + score : ''}.`;
+}
+
+function appendMsg(role, text, loading = false) {
+  const chat = document.getElementById('caddy-chat');
+  const isSteve = role === 'steve';
+  const div = document.createElement('div');
+  div.className = `caddy-msg ${isSteve ? 'caddy-msg-steve' : 'caddy-msg-user'}`;
+  const id = 'msg-' + Date.now();
+  div.innerHTML = `
+    <div class="caddy-msg-avatar">${isSteve ? 'SW' : 'E'}</div>
+    <div class="caddy-msg-bubble ${loading ? 'loading' : ''}" id="${id}">${text}</div>
+  `;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return id;
+}
+
+function updateMsg(id, text) {
+  const el = document.getElementById(id);
+  if (el) { el.classList.remove('loading'); el.innerHTML = text; }
+  document.getElementById('caddy-chat').scrollTop = 99999;
+}
+
+async function sendCaddy() {
+  const input = document.getElementById('caddy-input');
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  const sendBtn = document.querySelector('.caddy-send');
+  sendBtn.disabled = true;
+  input.value = '';
+
+  const context = getCaddyContext();
+  const fullUserMsg = `${context}\n\nEvan says: "${userText}"`;
+
+  appendMsg('user', userText);
+  caddyHistory.push({ role: 'user', content: fullUserMsg });
+
+  const loadingId = appendMsg('steve', '...thinking...', true);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: STEVE_SYSTEM,
+        messages: caddyHistory
+      })
+    });
+
+    const data = await response.json();
+    const reply = data.content?.find(b => b.type === 'text')?.text || 'Something went wrong on my end, mate.';
+
+    caddyHistory.push({ role: 'assistant', content: reply });
+
+    // Format bold and italic for display
+    const formatted = reply
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
+
+    updateMsg(loadingId, formatted);
+  } catch (err) {
+    updateMsg(loadingId, 'Lost signal on the course, mate. Try again.');
+  }
+
+  sendBtn.disabled = false;
+  input.focus();
 }
 </script>
 </body>
