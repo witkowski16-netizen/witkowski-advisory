@@ -283,6 +283,30 @@
     .warn-lbl { font-size: 9px; color: var(--red); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
     .warn-text { font-size: 12px; color: #d4aaaa; line-height: 1.5; }
 
+    /* Grip */
+    .grip-card {
+      background: #0a1520;
+      border: 1px solid #1a3050;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .grip-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .grip-lbl { font-size: 9px; color: #5a9adf; letter-spacing: 1.5px; text-transform: uppercase; }
+    .grip-pressure-badge {
+      font-size: 10px; color: #7ab8f0;
+      background: rgba(90,154,223,0.15);
+      border: 1px solid rgba(90,154,223,0.3);
+      border-radius: 20px; padding: 3px 10px;
+    }
+    .grip-meter { display: flex; gap: 3px; margin-bottom: 10px; }
+    .grip-dot { flex: 1; height: 6px; border-radius: 3px; background: #1a2a3a; }
+    .grip-dot.filled-low { background: #4ade80; }
+    .grip-dot.filled-mid { background: #5a9adf; }
+    .grip-dot.filled-high { background: #f87171; }
+    .grip-style { font-size: 12px; color: #a8c8e8; line-height: 1.6; margin-bottom: 8px; }
+    .grip-tip { font-size: 11px; color: #7ab8f0; font-style: italic; border-left: 2px solid #2a5a8a; padding-left: 10px; }
+
     /* Faldo */
     .faldo-card {
       background: linear-gradient(135deg, #1a1608 0%, #0f0e0a 100%);
@@ -302,6 +326,28 @@
     .faldo-quote {
       font-size: 12px; color: #e8d88a; line-height: 1.7; font-style: italic;
       border-left: 2px solid var(--gold); padding-left: 12px;
+    }
+
+    /* Chris */
+    .chris-card {
+      background: linear-gradient(135deg, #12100e 0%, #0d0c0a 100%);
+      border: 1px solid #3a2a1a;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .chris-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .chris-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #5a3a1a, #3a2510);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0;
+    }
+    .chris-name { font-size: 10px; color: #c87a3a; letter-spacing: 1.5px; text-transform: uppercase; }
+    .chris-title { font-size: 9px; color: #5a3a1a; }
+    .chris-quote {
+      font-size: 12px; color: #d4aa88; line-height: 1.7; font-style: italic;
+      border-left: 2px solid #5a3a1a; padding-left: 12px;
     }
 
     /* Nav */
@@ -477,6 +523,96 @@
       min-height: 4px;
     }
     .t-bar-lbl { font-size: 8px; color: var(--muted); white-space: nowrap; }
+    /* ── FIELD GUIDE ── */
+    .fg-category-tabs {
+      display: flex; overflow-x: auto; gap: 6px;
+      padding: 12px 16px; background: var(--surface);
+      border-bottom: 1px solid var(--border); scrollbar-width: none;
+      position: sticky; top: 60px; z-index: 50;
+    }
+    .fg-category-tabs::-webkit-scrollbar { display: none; }
+    .fg-cat-btn {
+      flex-shrink: 0; padding: 7px 13px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: transparent;
+      color: var(--muted); font-family: 'DM Mono', monospace;
+      font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .fg-cat-btn.active {
+      border-color: #c9a84c; color: #c9a84c; background: rgba(201,168,76,0.1);
+    }
+    .fg-section { margin-bottom: 10px; }
+    .fg-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin: 0 0 10px; padding: 16px 0 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .fg-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; margin-bottom: 8px; overflow: hidden;
+      cursor: pointer;
+    }
+    .fg-card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px;
+    }
+    .fg-card-left { display: flex; align-items: center; gap: 12px; }
+    .fg-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .fg-title { font-size: 13px; color: #c8e6c8; margin-bottom: 2px; }
+    .fg-subtitle { font-size: 10px; color: var(--muted); }
+    .fg-chevron { font-size: 10px; color: var(--muted); transition: transform 0.2s; }
+    .fg-chevron.open { transform: rotate(180deg); }
+    .fg-body {
+      display: none; padding: 0 16px 16px; border-top: 1px solid var(--border);
+    }
+    .fg-body.open { display: block; }
+    .fg-step {
+      display: flex; gap: 12px; padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .fg-step:last-child { border-bottom: none; }
+    .fg-step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: #c9a84c; flex-shrink: 0; margin-top: 1px;
+    }
+    .fg-step-text { font-size: 12px; color: #a8c8a8; line-height: 1.6; }
+    .fg-step-text strong { color: #c8e6c8; font-weight: 500; }
+    .fg-tip {
+      margin-top: 10px; padding: 10px 12px;
+      background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 8px; font-size: 11px; color: #e8d88a; font-style: italic;
+    }
+    .fg-rule-box {
+      margin-top: 10px; padding: 10px 12px;
+      background: rgba(224,85,85,0.08); border: 1px solid rgba(224,85,85,0.2);
+      border-radius: 8px;
+    }
+    .fg-rule-label { font-size: 9px; color: #f87171; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+    .fg-rule-text { font-size: 11px; color: #d4aaaa; line-height: 1.6; }
+    .fg-dist-table { width: 100%; margin-top: 10px; border-collapse: collapse; }
+    .fg-dist-table th {
+      font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+      padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left;
+    }
+    .fg-dist-table td {
+      font-size: 12px; color: #a8c8a8; padding: 8px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .fg-dist-table tr:last-child td { border-bottom: none; }
+    .fg-dist-table td:first-child { color: #c8e6c8; }
+    .fg-badge {
+      display: inline-block; font-size: 9px; letter-spacing: 1px;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 10px; margin-left: 6px;
+    }
+    .fg-badge-pen { background: rgba(224,85,85,0.2); color: #f87171; }
+    .fg-badge-free { background: rgba(74,222,128,0.2); color: #4ade80; }
+    .fg-badge-choice { background: rgba(251,146,60,0.2); color: #fb923c; }
   </style>
 </head>
 <body>
@@ -502,7 +638,8 @@
       <p>6'2" · Targeting 10 HCP</p>
     </div>
     <div class="header-right">
-      <button class="tab-btn active" id="btn-cheatsheet" onclick="switchTab('cheatsheet')">Cheat Sheet</button>
+      <button class="tab-btn active" id="btn-cheatsheet" onclick="switchTab('cheatsheet')">Clubs</button>
+      <button class="tab-btn" id="btn-field" onclick="switchTab('field')">Field Guide</button>
       <button class="tab-btn" id="btn-scores" onclick="switchTab('scores')">Scores</button>
       <button class="logout-btn" onclick="logout()">Log out</button>
     </div>
@@ -512,6 +649,11 @@
   <div id="tab-cheatsheet">
     <div class="club-tabs" id="club-tabs"></div>
     <div class="main-pad" id="club-detail"></div>
+  </div>
+
+  <!-- ── FIELD GUIDE TAB ── -->
+  <div id="tab-field" style="display:none;">
+    <div class="main-pad" id="field-content"></div>
   </div>
 
   <!-- ── SCORES TAB ── -->
@@ -634,54 +776,90 @@ const clubs = [
     handPosition:'Neutral, slight tilt away', keyThought:'Sweep up. Drop trail elbow into slot. 80% effort.',
     watchOut:'Pop-up right = steep + open face. Tee higher, shallow the path.',
     faldo:'The driver is not a weapon — it\'s a precision instrument. You must load into the right side on the backswing, then unwind smoothly. Power comes from the sequence, not the effort. If you\'re swinging at 100%, you\'ve already lost control.',
+    gripPressure:4, gripPressureLabel:'Light-Medium (4/10)',
+    gripStyle:'Neutral — 2 knuckles visible on lead hand. Trail hand relaxed, covering the thumb. No white knuckles.',
+    gripTip:'Hold it like a tube of toothpaste — firm enough it won\'t slip, light enough to not squeeze any out.',
+    chris:'Tour twist it. Takeaway slow, lag it down, then EXIT LOW LEFT and release. Simple. You\'re overthinking it — this is supposed to be fun, man.',
     color:'#1a3a2a', accent:'#4ade80', badge:'Driver' },
   { name:'3 Hybrid', loft:'19°', ballPosition:'1–2" inside lead heel', bpPct:20,
     stance:'Hip-width+', weight:'50/50', path:'Slight inside-out, level to slight upswing',
     handPosition:'Neutral — don\'t press forward', keyThought:'Sweep and through. Not a dig. Trust the loft.',
     watchOut:'Going left = face closing. Logo to sky through impact. Check grip strength.',
     faldo:'The hybrid demands respect. It wants to be swept, not struck. Keep your hands passive through the hitting zone — the moment you try to guide it, the face closes and you\'re left of your target wondering what happened.',
+    gripPressure:5, gripPressureLabel:'Medium (5/10)',
+    gripStyle:'Neutral to slightly weak lead hand — avoid strong grip here. Strong grip will close the face, which is your exact miss. 2 knuckles max on lead hand.',
+    gripTip:'If you\'re going left, loosen the lead hand one notch and feel the face stay open through impact.',
+    chris:'Pull it through. Weight forward, flex your knees, SLOW the whole thing down. You\'re rushing it because you\'re nervous. Relax — nobody\'s watching. Well, I am. But I\'ve had a beer so my standards are lower.',
     color:'#1a2a3a', accent:'#60a5fa', badge:'Long' },
   { name:'5 Iron', loft:'27°', ballPosition:'Just forward of center', bpPct:30,
     stance:'Shoulder-width', weight:'55/45 lead', path:'Inside-out, slight downswing',
     handPosition:'Slightly forward at address', keyThought:'Compress and through. Divot after the ball.',
     watchOut:'Thin shots = hanging back. Stay over the ball.',
     faldo:'Long irons expose every weakness in your swing. Address is everything — get your weight forward, hands ahead of the ball, and commit to hitting down. A proper 5-iron divot starts in front of the ball. That\'s your proof of a good strike.',
+    gripPressure:6, gripPressureLabel:'Medium-Firm (6/10)',
+    gripStyle:'Neutral, 2 knuckles on lead hand. Slightly firmer than woods to maintain shaft lean through impact. Both hands equally firm.',
+    gripTip:'Firm enough to feel control on the downswing. Squeeze slightly at the start of the downswing to lock in the lag.',
+    chris:'Lag it. LAG IT. Then pull it forward to the target. Tour twist through. This isn\'t a delicate club — commit to it. Also we\'re like 45 minutes in and nobody\'s laughed yet, what are we doing.',
     color:'#2a1a3a', accent:'#c084fc', badge:'Mid' },
   { name:'7 Iron', loft:'34°', ballPosition:'Center to just forward', bpPct:38,
     stance:'Shoulder-width', weight:'60/40 lead', path:'Inside-out, downward strike',
     handPosition:'Hands forward, shaft lean toward target', keyThought:'Hit down to go up. Ball first, then turf.',
     watchOut:'Scooping = fat/thin. Shaft lean fixes it.',
     faldo:'The 7-iron is where you build your game. Master this club and everything else follows. Shaft lean at address, maintain it through impact. Do not let that right hand flip at the ball — it is the death of a good iron shot.',
+    gripPressure:6, gripPressureLabel:'Medium-Firm (6/10)',
+    gripStyle:'Neutral, 2 knuckles. Lead hand firm, trail hand matches. Key: maintain lead hand pressure through impact — don\'t let the trail hand take over and flip.',
+    gripTip:'Feel like your lead hand is "pulling" the club through the ball, not the trail hand pushing it.',
+    chris:'This is YOUR club. Vision, feel. See where it\'s going BEFORE you swing. Tour twist it low and slow, pull it through the target. Easy. I hit one of these 180 yards once. Conditions were perfect. I\'d had half a beer.',
     color:'#3a1a1a', accent:'#f87171', badge:'Mid' },
   { name:'9 Iron', loft:'41°', ballPosition:'Center', bpPct:50,
     stance:'Slightly narrower', weight:'60/40 lead', path:'Steeper, more downward',
     handPosition:'Forward press — shaft lean', keyThought:'Punch down. Loft does the work. Don\'t help it up.',
     watchOut:'Thin = ball too far forward or flipping wrists.',
     faldo:'A 9-iron should be struck with authority. Narrow your stance, press your hands forward, and attack the back of the ball. The loft will do everything else. Amateurs try to lift it — professionals trap it. Be a professional.',
+    gripPressure:6, gripPressureLabel:'Medium-Firm (6/10)',
+    gripStyle:'Neutral. Consider gripping down 1 inch for better control and feel at shorter distances. Consistent with your irons — don\'t change grip style between 7i and 9i.',
+    gripTip:'Gripping down slightly on the 9i gives you a "feel" club — useful for partial shots and punch shots.',
+    chris:'Flex it. Weight forward. Pull it through and release — don\'t hold on. Exit low left every time. If you chunk this one I\'m going to need you to explain to me what you were thinking. Slowly.',
     color:'#3a2a1a', accent:'#fb923c', badge:'Mid' },
   { name:'Pitching Wedge', loft:'46°', ballPosition:'Center', bpPct:50,
     stance:'Hip-width', weight:'60/40 lead', path:'Steep, descending',
     handPosition:'Forward press', keyThought:'Rotate body, quiet wrists. Arms and body together.',
     watchOut:'Chunking = decelerating. Commit to the shot.',
     faldo:'The pitching wedge is your scoring club. Quiet the hands, rotate the body, and commit to the finish. I see so many amateurs decelerate into the ball — that is where the chunk lives. Pick a target, trust your distance, and swing through it.',
+    gripPressure:6, gripPressureLabel:'Medium-Firm (6/10)',
+    gripStyle:'Neutral. Firm enough to maintain shaft lean. Wrists quiet — the firmness should prevent the trail hand flip that causes fat shots.',
+    gripTip:'If you\'re chunking it, your grip is too loose at impact. Firm up the lead hand and drive through the ball.',
+    chris:'Don\'t open your shoulders on the chip! LOCK IT UP. Weight forward, pull it, slow takeaway. That\'s it. That\'s the whole thing. I wrote it on a napkin and everything.',
     color:'#2a3a1a', accent:'#a3e635', badge:'Short' },
   { name:'Gap / SW', loft:'52–56°', ballPosition:'Center to slightly back', bpPct:55,
     stance:'Narrow — hip-width', weight:'65/35 lead', path:'Steep, V-shaped',
     handPosition:'Pressed forward', keyThought:'Small backswing, accelerate through. Never decelerate.',
     watchOut:'Skulled shots = trying to lift it. Hit down, trust loft.',
     faldo:'From 60 to 90 yards, this is where rounds are made or lost. Keep the backswing short and controlled, then accelerate through impact without hesitation. The hands lead, the face stays square, and you must — I repeat, must — hit through the ball, not at it.',
+    gripPressure:7, gripPressureLabel:'Firm (7/10)',
+    gripStyle:'Neutral to slightly firm. Firmer grip here controls distance better on partial shots. Grip down 1–2 inches for shorter distances — changes trajectory and feel significantly.',
+    gripTip:'For 50-yard half shots, grip down to the steel. Shorter grip = more control, less distance.',
+    chris:'Pitch it down. Weight WAY forward. Flex it, pull it, release it. Tour twist through. You know what\'s better than a perfect wedge shot? A decent wedge shot followed by a cold one at the turn.',
     color:'#1a3a3a', accent:'#2dd4bf', badge:'Short' },
   { name:'Lob Wedge', loft:'60°', ballPosition:'Slightly forward of center', bpPct:35,
     stance:'Narrow, open stance', weight:'70/30 lead', path:'Outside-in with open face',
     handPosition:'Neutral — don\'t press for flop shots', keyThought:'Open face, open stance. Slide under the ball. Soft hands.',
     watchOut:'Avoid lob wedge from tight lies. Use 9i bump-run instead.',
     faldo:'The lob wedge is a club that punishes overconfidence. Open the face before you grip it, align left, and slide the bounce under the ball with soft hands. But I will tell you plainly — until your short game is reliable, the bump-and-run with a 9-iron will save you far more strokes.',
+    gripPressure:3, gripPressureLabel:'Very Light (3/10)',
+    gripStyle:'Soft hands are everything here. Open the face FIRST, then re-grip. If you grip and then open, the face will close at impact. Trail hand especially soft.',
+    gripTip:'Imagine holding a baby bird. Any tension and the face shuts — you skull it across the green.',
+    chris:'Chip it — don\'t open your shoulders. Lock it up, toe it in, SLOW. Release it easy. Honestly if you\'re pulling out a lob wedge right now we need to have a different conversation about your life choices.',
     color:'#3a3a1a', accent:'#facc15', badge:'Short' },
   { name:'Putter', loft:'3–4°', ballPosition:'Just forward of center', bpPct:35,
     stance:'Shoulder-width, eyes over ball', weight:'50/50', path:'Slight arc, square at impact',
     handPosition:'Neutral — light grip pressure', keyThought:'Shoulders rock, not wrists. Pendulum. Consistent tempo.',
     watchOut:'3-putts = distance control. Practice 20ft lag putts more than 3-footers.',
     faldo:'Putting is 40% of your game and most amateurs practice it last. Eyes directly over the ball, shoulders rocking like a pendulum, and tempo that never changes whether it\'s two feet or forty. Lag putting — getting it close from distance — will drop more shots off your handicap than any other single skill.',
+    gripPressure:3, gripPressureLabel:'Very Light (3/10)',
+    gripStyle:'Use a different grip style than full swing — reverse overlap (lead index finger over trail fingers) or claw grip. Palms facing each other, both thumbs down the flat part of the grip.',
+    gripTip:'Equal pressure in both hands. Any tightening in the trail hand causes a pushed or pulled putt. Think "dead hands."',
+    chris:'Vision. Feel. Stroke up. Pull it forward to the target, 3-finger grip, always inside the box. Gimme anything inside that — life is short. LAG everything else. It\'s putting. We are outside. The sun is out. This is supposed to be the best part of the day.',
     color:'#2a2a2a', accent:'#e2e8f0', badge:'Putter' },
 ];
 
@@ -781,6 +959,23 @@ function renderClub(idx) {
       <div class="warn-text">${c.watchOut}</div>
     </div>
 
+    <!-- Grip -->
+    <div class="grip-card">
+      <div class="grip-header">
+        <div class="grip-lbl">🤜 Grip Pressure</div>
+        <div class="grip-pressure-badge">${c.gripPressureLabel}</div>
+      </div>
+      <div class="grip-meter">
+        ${Array.from({length:10},(_,i) => {
+          const filled = i < c.gripPressure;
+          const cls = filled ? (c.gripPressure <= 4 ? 'filled-low' : c.gripPressure <= 6 ? 'filled-mid' : 'filled-high') : '';
+          return `<div class="grip-dot ${cls}"></div>`;
+        }).join('')}
+      </div>
+      <div class="grip-style">${c.gripStyle}</div>
+      <div class="grip-tip">"${c.gripTip}"</div>
+    </div>
+
     <!-- Faldo -->
     <div class="faldo-card">
       <div class="faldo-header">
@@ -791,6 +986,18 @@ function renderClub(idx) {
         </div>
       </div>
       <div class="faldo-quote">"${c.faldo}"</div>
+    </div>
+
+    <!-- Chris -->
+    <div class="chris-card">
+      <div class="chris-header">
+        <div class="chris-avatar">🛹</div>
+        <div>
+          <div class="chris-name">Chris Pickard Says</div>
+          <div class="chris-title">Self-appointed swing guru · 👟 white Ping shoes</div>
+        </div>
+      </div>
+      <div class="chris-quote">"${c.chris}"</div>
     </div>
 
     <!-- Nav -->
@@ -808,10 +1015,13 @@ function renderClub(idx) {
 // ── TABS ──
 function switchTab(tab) {
   document.getElementById('tab-cheatsheet').style.display = tab === 'cheatsheet' ? 'block' : 'none';
-  document.getElementById('tab-scores').style.display = tab === 'scores' ? 'block' : 'none';
+  document.getElementById('tab-field').style.display     = tab === 'field'       ? 'block' : 'none';
+  document.getElementById('tab-scores').style.display    = tab === 'scores'      ? 'block' : 'none';
   document.getElementById('btn-cheatsheet').classList.toggle('active', tab === 'cheatsheet');
+  document.getElementById('btn-field').classList.toggle('active', tab === 'field');
   document.getElementById('btn-scores').classList.toggle('active', tab === 'scores');
   if (tab === 'scores') renderScores();
+  if (tab === 'field') renderFieldGuide();
 }
 
 // ── SCORE TRACKER ──
@@ -937,6 +1147,367 @@ function renderScores() {
       ${r.notes ? `<div class="round-note">"${r.notes}"</div>` : ''}
     </div>`;
   }).join('');
+}
+
+// ── FIELD GUIDE ──
+const fieldCategories = ['Lies & Situations', 'Distances', 'Rules & Drops', 'Course Management'];
+let activeFGCat = 0;
+
+const fieldData = {
+  'Lies & Situations': [
+    {
+      icon: '🌿', title: 'Tall Grass / Rough', sub: 'Deep rough, fescue, thick lies',
+      steps: [
+        { t: 'Club down', b: '<strong>Take more club than you think</strong> — rough grabs the hosel and kills distance. A 6i shot may only travel 7i distance.' },
+        { t: 'Grip firmer', b: '<strong>Firm up your grip (7-8/10)</strong> to prevent the club twisting at impact. Rough will try to close the face.' },
+        { t: 'Ball back', b: '<strong>Move ball slightly back</strong> in stance — promotes steeper attack angle to cut through grass rather than getting tangled.' },
+        { t: 'Shorter swing', b: '<strong>3/4 swing max.</strong> A full swing in thick rough usually leads to a fat shot or a complete miss.' },
+        { t: 'Commit hard', b: '<strong>Accelerate aggressively through the ball.</strong> The single biggest mistake is decelerating when you feel the resistance.' },
+      ],
+      tip: 'In very thick rough, just get it back in the fairway. A punch out sideways is always smarter than a hero shot.',
+      rule: null
+    },
+    {
+      icon: '🏖', title: 'Greenside Sand Bunker', sub: 'Standard bunker, good lie',
+      steps: [
+        { t: 'Open stance', b: '<strong>Align your body 20–30° left of target.</strong> Your feet, hips, and shoulders open — but aim the clubface at the target.' },
+        { t: 'Open face', b: '<strong>Open the sand wedge face before gripping.</strong> This exposes the bounce so the club slides under the ball, not digs.' },
+        { t: 'Ball forward', b: '<strong>Ball off lead heel.</strong> You\'re hitting the sand 2 inches behind the ball — not the ball itself.' },
+        { t: 'Weight forward', b: '<strong>70% weight on lead foot.</strong> Dig your feet in for stability and lower your center of gravity.' },
+        { t: 'Swing along body line', b: '<strong>Swing along your foot line</strong> (left), not toward the target. The open face redirects the ball right.' },
+        { t: 'Finish high', b: '<strong>Full follow-through.</strong> Never quit on a bunker shot — acceleration is the difference between getting out and not.' },
+      ],
+      tip: 'Think of it as a splash — hit the sand, not the ball. The sand pushes the ball out.',
+      rule: null
+    },
+    {
+      icon: '⛱', title: 'Fairway Bunker', sub: 'Distance shot from sand',
+      steps: [
+        { t: 'Take one more club', b: '<strong>Club up</strong> — you\'ll lose distance and can\'t make full contact. A fairway 5i shot becomes a 6i.' },
+        { t: 'Grip down', b: '<strong>Choke down 1 inch</strong> for control and to avoid hitting too far behind the ball.' },
+        { t: 'Ball center-back', b: '<strong>Move ball slightly back</strong> to promote a ball-first strike. Forward ball position leads to fat shots.' },
+        { t: 'Quiet lower body', b: '<strong>Minimal hip turn.</strong> The sand makes your footing unstable — rely more on arms and upper body rotation.' },
+        { t: 'Pick it clean', b: '<strong>Hit the ball first.</strong> Unlike greenside, you do NOT want to hit sand first from a fairway bunker.' },
+      ],
+      tip: 'If the lip is high, safety first — use enough loft to guarantee you clear it. One bad swing in a fairway bunker can turn a bogey into a triple.',
+      rule: null
+    },
+    {
+      icon: '⛰', title: 'Uphill Lie', sub: 'Ball below feet or slope going up',
+      steps: [
+        { t: 'Aim right', b: '<strong>Ball will go left</strong> on an uphill lie — aim one to two clubs right to compensate.' },
+        { t: 'Take more club', b: '<strong>Club up 1–2.</strong> Uphill slopes add effective loft, reducing distance.' },
+        { t: 'Tilt with the slope', b: '<strong>Set your spine perpendicular to the hill</strong>, not vertical. Let your lead shoulder be higher.' },
+        { t: 'Weight on trail foot', b: '<strong>60% weight on trail foot</strong> to match the slope and avoid falling forward.' },
+        { t: 'Shorter swing', b: '<strong>3/4 swing</strong> — full swing on a hill usually leads to poor contact and loss of balance.' },
+      ],
+      tip: 'Uphill shots = more loft + less distance + left tendency. Adjust for all three.',
+      rule: null
+    },
+    {
+      icon: '🏔', title: 'Downhill Lie', sub: 'Slope going away from you',
+      steps: [
+        { t: 'Aim left', b: '<strong>Ball will go right</strong> on a downhill lie — aim slightly left to compensate.' },
+        { t: 'Take less club', b: '<strong>Club down 1.</strong> Downhill slopes reduce effective loft, adding distance.' },
+        { t: 'Tilt with slope', b: '<strong>Spine perpendicular to hill.</strong> Trail shoulder lower than lead — go with gravity, not against it.' },
+        { t: 'Weight on lead foot', b: '<strong>60% weight on lead foot</strong> to prevent hanging back and hitting fat.' },
+        { t: 'Follow through down the slope', b: '<strong>Chase the ball down the hill</strong> in your follow-through. Fighting it leads to a topped or thin shot.' },
+      ],
+      tip: 'Downhill shots are harder than uphill. Practice these on the range — most amateurs never do.',
+      rule: null
+    },
+    {
+      icon: '🌲', title: 'Under Trees / Punch Shot', sub: 'Low trajectory escape',
+      steps: [
+        { t: 'Take less loft', b: '<strong>Use a 4–7 iron</strong> depending on how low you need to go. Lower loft = lower flight.' },
+        { t: 'Ball back', b: '<strong>Ball well back in stance</strong> — this delofts the club further and promotes a descending strike.' },
+        { t: 'Hands way forward', b: '<strong>Hands 4–5 inches ahead</strong> of the ball at address — more forward press than any other shot.' },
+        { t: 'Abbreviated backswing', b: '<strong>Half backswing max.</strong> You don\'t need power — you need control and low flight.' },
+        { t: 'Firm wrists through', b: '<strong>Keep wrists firm and low through impact.</strong> No follow-through — stop the club after impact to keep it low.' },
+      ],
+      tip: 'The punch shot is a scoring saver. Practice it — you\'ll use it several times per round at your level.',
+      rule: null
+    },
+    {
+      icon: '💧', title: 'Wet / Muddy Conditions', sub: 'Soft ground, mud on ball',
+      steps: [
+        { t: 'Club up', b: '<strong>Wet turf kills distance</strong> — take one more club and expect 10–15% less carry.' },
+        { t: 'Steeper angle', b: '<strong>Ball slightly back</strong> to hit down more steeply and avoid the club skidding off wet turf.' },
+        { t: 'Mud ball adjustment', b: '<strong>Mud on the right side curves left</strong>, mud on the left side curves right. Aim accordingly.' },
+        { t: 'Slow greens', b: '<strong>Hit putts 20–30% harder</strong> on wet greens — the ball checks up much faster and rolls less.' },
+      ],
+      tip: 'Under preferred lies ("lift, clean, place") rules, always clean your ball and replace it carefully. Check if your course has this in play.',
+      rule: { label: 'Rule 16.3 — Embedded Ball', text: 'If your ball is embedded in the fairway (plugged lie), you get FREE relief — lift, clean, and drop within one club length of the spot, no closer to the hole.' }
+    },
+    {
+      icon: '🐦', title: 'Hardpan / Bare Lie', sub: 'Tight lie, no grass, baked ground',
+      steps: [
+        { t: 'No bounce club', b: '<strong>Avoid high-bounce wedges</strong> — the bounce will cause the club to skip off the hard ground and skull it. Use a low-bounce wedge or a bump-and-run with a 9i.' },
+        { t: 'Ball center to back', b: '<strong>Center stance or slightly back</strong> — you need to catch the ball before the ground, not after.' },
+        { t: 'Shallow angle', b: '<strong>Sweep it.</strong> A steep descending blow on hardpan bounces unpredictably. Stay shallow.' },
+        { t: 'Light grip', b: '<strong>Soft hands</strong> — hardpan shots require feel. Tension leads to skulled shots.' },
+        { t: 'Bump and run preferred', b: '<strong>When in doubt, bump it.</strong> A 7 or 9 iron running onto the green is far more predictable than a lob wedge off hardpan.' },
+      ],
+      tip: 'Hardpan is where high handicappers lose the most strokes. Commit to the low-percentage shot rule: if it\'s risky, go conservative.',
+      rule: null
+    },
+  ],
+  'Distances': [
+    {
+      icon: '📏', title: 'Estimated Club Distances', sub: 'For a 20+ HCP, moderate swing speed',
+      steps: [],
+      tip: 'These are carry distances, not total. Add 5–10 yards roll on firm fairways. Always err toward more club.',
+      rule: null,
+      table: {
+        headers: ['Club', 'Carry Yds', 'With Roll'],
+        rows: [
+          ['Driver', '180–210', '195–225'],
+          ['3 Hybrid', '160–185', '170–195'],
+          ['5 Iron', '145–165', '155–175'],
+          ['6 Iron', '135–155', '145–165'],
+          ['7 Iron', '125–145', '133–153'],
+          ['8 Iron', '115–135', '122–142'],
+          ['9 Iron', '105–125', '110–130'],
+          ['Pitching Wedge', '90–110', '94–114'],
+          ['Gap Wedge', '70–90', '73–93'],
+          ['Sand Wedge', '55–75', '57–77'],
+          ['Lob Wedge', '40–60', '41–62'],
+        ]
+      }
+    },
+    {
+      icon: '🎯', title: 'Partial Shot Distances', sub: 'Half and 3/4 swing yardages',
+      steps: [
+        { t: '3/4 Swing', b: '<strong>Subtract ~15–20%</strong> from your full distance. A full PW of 100 yards becomes ~82–85 at 3/4.' },
+        { t: 'Half Swing', b: '<strong>Subtract ~35–40%.</strong> Full PW of 100 yards = ~60–65 at half swing.' },
+        { t: 'Clock method', b: 'Think of your backswing as a clock. <strong>7 o\'clock = short</strong>, 9 o\'clock = half, <strong>10 o\'clock = 3/4.</strong>' },
+        { t: 'Use wedge variety', b: '<strong>Don\'t always use the same wedge.</strong> A full 56° is less reliable than a full 52°. Know your full distances for each.' },
+      ],
+      tip: 'The most common distance mistake at 20+: being short. Most amateur golfers underclub by 1–2 clubs on every approach shot. When in doubt, take more.',
+      rule: null
+    },
+    {
+      icon: '🕳', title: 'Putting Distance Guide', sub: 'Pace control by length',
+      steps: [
+        { t: '3–6 feet', b: '<strong>Makeable range.</strong> Focus on face angle at impact — this is where the putt goes off line. Firm, committed stroke.' },
+        { t: '7–15 feet', b: '<strong>Try to make, plan to 2-putt.</strong> Pick a specific entry point on the cup and commit to the line. Speed slightly firm.' },
+        { t: '16–30 feet', b: '<strong>Lag territory.</strong> Priority is getting within 3 feet. Focus almost entirely on distance control, not line.' },
+        { t: '30+ feet', b: '<strong>Pure lag putting.</strong> Think in terms of a 3-foot circle around the hole. Getting within that circle eliminates 3-putts.' },
+        { t: 'Downhill putts', b: '<strong>Aim outside the hole</strong> on downhill putts — they break more than you think. Hit them softer and let gravity do the work.' },
+      ],
+      tip: 'At your handicap, 3-putts are the single biggest score killer. Spend at least 30% of every practice session on 20–40 foot lag putts.',
+      rule: null
+    },
+    {
+      icon: '💨', title: 'Wind Adjustments', sub: 'Adjusting club selection for wind',
+      steps: [
+        { t: 'Into wind', b: '<strong>Add 1 club per 10 mph headwind.</strong> 15 mph headwind on a 150-yard shot → play it like 165–170 yards.' },
+        { t: 'Downwind', b: '<strong>Subtract 1 club per 10–15 mph tailwind.</strong> But ball also lands hotter — account for more roll.' },
+        { t: 'Crosswind', b: '<strong>Aim into the wind</strong> and let it straighten the ball, or aim at target and expect drift. Know which you\'re doing before you swing.' },
+        { t: 'Low punch into wind', b: '<strong>Ball back, hands forward, 3/4 swing.</strong> A low boring shot is more consistent in wind than a high full shot.' },
+        { t: 'Wind on putts', b: '<strong>Strong crosswinds do affect putts</strong> on exposed greens. Account for it on long lag putts — especially at courses near water.' },
+      ],
+      tip: '"Into and against, add and subtract. Downwind and along, it won\'t go wrong." — old caddy rule of thumb.',
+      rule: null
+    },
+  ],
+  'Rules & Drops': [
+    {
+      icon: '🔴', title: 'Out of Bounds (OB)', sub: 'White stakes — stroke and distance',
+      steps: [
+        { t: 'Stroke and Distance', b: '<strong>1 penalty stroke + re-hit from original spot.</strong> If you hit OB off the tee, you\'re hitting 3 from the tee.' },
+        { t: 'Provisional ball', b: '<strong>Always hit a provisional</strong> if you think your ball might be OB. Announce it before hitting. Saves a long walk back.' },
+        { t: 'Local rule option', b: 'Many recreational courses use the <strong>Local Rule for OB</strong> — drop near where ball went OB on the edge of fairway, 2 penalty strokes. Faster pace of play.' },
+      ],
+      tip: 'Always hit a provisional. The walk of shame back to the tee adds 5 minutes and breaks your rhythm.',
+      rule: { label: 'Rule 18.2 — OB Penalty', text: 'Stroke and distance: 1 penalty stroke, and you must play again from where the previous stroke was made.' }
+    },
+    {
+      icon: '🟡', title: 'Penalty Areas (Yellow Stakes)', sub: 'Water hazards, ravines, etc.',
+      steps: [
+        { t: 'Option 1 — Stroke & distance', b: '<strong>Re-hit from original spot.</strong> 1 penalty stroke.' },
+        { t: 'Option 2 — Back on the line', b: '<strong>Drop behind the hazard</strong>, keeping where the ball last crossed the hazard margin on a line between the hole and your drop point. 1 penalty stroke. No distance limit back.' },
+        { t: 'Option 3 — Lateral (if applicable)', b: 'For lateral relief (red stakes only) — drop within <strong>2 club lengths</strong> of where ball entered hazard, not nearer hole. 1 penalty stroke.' },
+      ],
+      tip: 'When in doubt, play it safe and drop as far back as you want on the line — more distance often gives a better angle.',
+      rule: { label: 'Rule 17 — Penalty Areas', text: 'Yellow stakes = back-on-line or stroke-and-distance only. Red stakes = adds lateral relief option within 2 club lengths.' }
+    },
+    {
+      icon: '🔵', title: 'Unplayable Lie', sub: 'Ball in bush, rocks, roots, etc.',
+      steps: [
+        { t: 'Option 1 — Stroke & distance', b: '<strong>Go back to where you last hit from.</strong> 1 penalty stroke.' },
+        { t: 'Option 2 — Back on line', b: '<strong>Drop behind the unplayable lie</strong> keeping it between you and the hole. No distance limit. 1 penalty stroke.' },
+        { t: 'Option 3 — 2 club lengths', b: '<strong>Drop within 2 club lengths</strong> of the ball, not nearer the hole. 1 penalty stroke.' },
+      ],
+      tip: 'You always have 3 options for an unplayable lie. Option 3 (2 club lengths) is usually the best — it keeps you close to the hole.',
+      rule: { label: 'Rule 19 — Unplayable Ball', text: '1 penalty stroke for any unplayable option. YOU decide when a ball is unplayable — not a playing partner.' }
+    },
+    {
+      icon: '🌿', title: 'Free Relief (No Penalty)', sub: 'When you get a free drop',
+      steps: [
+        { t: 'Casual water', b: '<strong>Standing water on the course</strong> (not a penalty area) = free relief. Drop within 1 club length of nearest relief point, no closer to hole.' },
+        { t: 'Cart path / artificial obstruction', b: '<strong>Immovable artificial obstructions</strong> (cart paths, sprinkler heads, etc.) = free relief within 1 club length of nearest relief point.' },
+        { t: 'Embedded ball', b: '<strong>Ball plugged in its own pitch mark</strong> in the general area (fairway/rough) = free relief. Lift, clean, drop.' },
+        { t: 'Ground under repair', b: '<strong>Areas marked GUR</strong> (usually blue/white lines) = free relief. Must take full relief from the entire GUR area.' },
+        { t: 'Animal holes', b: '<strong>Holes made by burrowing animals</strong> (gophers, moles) = free relief if it interferes with your stance or swing.' },
+      ],
+      tip: 'Always know your free relief options — many amateur golfers take penalty strokes when they\'re actually entitled to free relief.',
+      rule: { label: 'Rule 16 — Abnormal Course Conditions', text: 'Free relief (no penalty) for: casual water, immovable obstructions, GUR, and embedded balls in the general area.' }
+    },
+    {
+      icon: '📐', title: 'How to Take a Drop', sub: 'The correct drop procedure',
+      steps: [
+        { t: 'Identify reference point', b: '<strong>Find your nearest point of complete relief</strong> first. This is the spot — not any spot you want.' },
+        { t: 'Measure relief area', b: '<strong>Measure 1 or 2 club lengths</strong> (depending on the rule) from the reference point, not closer to the hole.' },
+        { t: 'Drop from knee height', b: '<strong>Drop from knee height</strong> (as of 2019 rules). Must land in the relief area and stay there.' },
+        { t: 'If it rolls out', b: '<strong>If ball rolls outside relief area, re-drop once.</strong> If it rolls out again, place it where it first hit the ground on the re-drop.' },
+        { t: 'Use longest club', b: '<strong>Use your driver (longest club, no putter)</strong> to measure club lengths. Always maximizes your relief area.' },
+      ],
+      tip: 'Use your driver to measure drops — it\'s your longest club and gives you the most room.',
+      rule: { label: 'Rule 14.3 — Dropping a Ball', text: 'Drop from knee height. Ball must land in and remain in the relief area. Two attempts, then place.' }
+    },
+    {
+      icon: '🤝', title: 'Common Courtesy Rules', sub: 'Etiquette every golfer should know',
+      steps: [
+        { t: 'Ready golf', b: '<strong>Hit when ready</strong> in casual/recreational rounds — don\'t wait for strict honors. Speeds up pace dramatically.' },
+        { t: 'Rake bunkers', b: '<strong>Always rake bunkers</strong> after your shot. Enter and exit from the low side.' },
+        { t: 'Repair ball marks', b: '<strong>Fix your pitch mark AND one other</strong> on every green. Takes 10 seconds and keeps greens fast.' },
+        { t: 'Don\'t walk putting lines', b: '<strong>Never walk on the line</strong> between a player\'s ball and the hole. Step over or around.' },
+        { t: 'Cell phones', b: '<strong>Silent mode on the course.</strong> Step away from others if you must take a call.' },
+        { t: 'Keep pace', b: '<strong>Be ready to hit.</strong> Watch others\' shots, be at your ball, club selected before it\'s your turn.' },
+      ],
+      tip: 'Good etiquette is noticed. Bad etiquette is remembered. Both affect how often you get invited to play.',
+      rule: null
+    },
+  ],
+  'Course Management': [
+    {
+      icon: '🧠', title: 'Pre-Shot Routine', sub: 'Build a repeatable process',
+      steps: [
+        { t: 'Assess from behind', b: '<strong>Always assess from directly behind the ball</strong>, looking toward the target. See the full picture — slope, wind, hazards.' },
+        { t: 'Pick a specific target', b: '<strong>"Fairway" is not a target.</strong> Pick a tree, a cloud, a distant object. Specific target = better alignment.' },
+        { t: 'Pick an intermediate target', b: '<strong>Find a spot 1–2 feet in front of the ball</strong> on your target line — a leaf, a discolored patch of grass. Align to this, not the distant target.' },
+        { t: 'Set the club first', b: '<strong>Align the face to the target BEFORE setting your feet.</strong> Most amateurs do it backwards.' },
+        { t: 'Set your body', b: '<strong>Then align feet, hips, shoulders</strong> parallel to the target line. Body parallel, face at the target.' },
+        { t: 'One practice swing max', b: '<strong>One focused practice swing</strong> with the feel you want. Then step in and go. More than one kills tempo.' },
+      ],
+      tip: 'Your pre-shot routine should take the same amount of time on every shot. Consistency in routine = consistency in results.',
+      rule: null
+    },
+    {
+      icon: '⚠️', title: 'Course Management Principles', sub: 'How to think on the course',
+      steps: [
+        { t: 'Play away from trouble', b: '<strong>Tee up on the side of the trouble.</strong> OB right? Tee up on the right side, aim left. More fairway to work with.' },
+        { t: 'Bogey golf wins', b: '<strong>A bogey on every hole = 90.</strong> That\'s already better than your current handicap. Chase pars, not birdies.' },
+        { t: 'Miss on the correct side', b: '<strong>Know which side of the green is the "safe" miss</strong> before every approach. Miss away from hazards, short-side, OB.' },
+        { t: 'Layup to your number', b: '<strong>Don\'t layup to 100 yards if your best wedge distance is 80.</strong> Layup to YOUR yardage, not a "round number."' },
+        { t: 'Never go for it twice', b: '<strong>If you just hit a bad shot</strong> (OB, hazard, etc.) — play your next shot safely. Don\'t compound one mistake with another.' },
+        { t: 'Par 5 strategy', b: '<strong>Three comfortable shots beat two hero shots</strong> every time. Driver + hybrid + wedge into a Par 5 is birdie territory without a single risky shot.' },
+      ],
+      tip: 'The best round of golf you ever play will be the day you stop trying to be Tiger Woods and start trying to be boring.',
+      rule: null
+    },
+    {
+      icon: '📊', title: 'Stat Targets by Handicap', sub: 'What to aim for at each level',
+      steps: [],
+      tip: 'Focus on the stats in your current tier first — don\'t try to hit scratch benchmarks when you\'re at 20+.',
+      rule: null,
+      table: {
+        headers: ['Metric', '20 HCP', '15 HCP', '10 HCP'],
+        rows: [
+          ['Avg Score (Par 72)', '90–94', '85–89', '79–83'],
+          ['Fairways Hit', '35–45%', '45–55%', '55–65%'],
+          ['Greens in Regulation', '15–25%', '25–40%', '40–55%'],
+          ['Avg Putts / Round', '34–38', '31–34', '28–31'],
+          ['3-Putts / Round', '5–8', '3–5', '1–3'],
+          ['Penalty Strokes / Round', '3–6', '1–3', '0–2'],
+          ['Up & Down %', '15–25%', '25–40%', '40–55%'],
+        ]
+      }
+    },
+    {
+      icon: '🔁', title: 'Post-Round Review', sub: 'How to improve between rounds',
+      steps: [
+        { t: 'Count penalty strokes', b: '<strong>Every OB, water, lost ball = 2 shots minimum.</strong> How many did you have? That\'s your biggest opportunity.' },
+        { t: 'Count 3-putts', b: '<strong>How many 3-putts?</strong> Each one is a free stroke you gave away. More than 3 in a round = dedicate next practice to lag putting.' },
+        { t: 'Missed short putts', b: '<strong>How many putts inside 5 feet did you miss?</strong> These are automatic putts at 10 HCP. Practice them with a gate drill.' },
+        { t: 'GIR count', b: '<strong>How many greens did you hit in regulation?</strong> At 20+, you should be hitting 3–5. Work up to 6–8 for 15 HCP.' },
+        { t: 'One thing to fix', b: '<strong>Pick ONE thing from this round</strong> to work on next practice. Don\'t try to fix everything at once.' },
+      ],
+      tip: 'The golfers who improve fastest are the ones who track their stats honestly and practice with purpose, not just volume.',
+      rule: null
+    },
+  ]
+};
+
+let fgOpen = {};
+
+function renderFieldGuide() {
+  const cat = fieldCategories[activeFGCat];
+  const items = fieldData[cat];
+
+  const catTabs = fieldCategories.map((c, i) => `
+    <button class="fg-cat-btn ${i === activeFGCat ? 'active' : ''}" onclick="setFGCat(${i})">${c}</button>
+  `).join('');
+
+  const cards = items.map((item, idx) => {
+    const key = `${activeFGCat}-${idx}`;
+    const isOpen = fgOpen[key];
+
+    const stepsHTML = item.steps.map((s, si) => `
+      <div class="fg-step">
+        <div class="fg-step-num">${si + 1}</div>
+        <div class="fg-step-text"><strong>${s.t}:</strong> ${s.b}</div>
+      </div>
+    `).join('');
+
+    const tableHTML = item.table ? `
+      <table class="fg-dist-table">
+        <thead><tr>${item.table.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${item.table.rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>
+    ` : '';
+
+    const tipHTML = item.tip ? `<div class="fg-tip">💡 ${item.tip}</div>` : '';
+    const ruleHTML = item.rule ? `
+      <div class="fg-rule-box">
+        <div class="fg-rule-label">📖 ${item.rule.label}</div>
+        <div class="fg-rule-text">${item.rule.text}</div>
+      </div>` : '';
+
+    return `
+      <div class="fg-card" onclick="toggleFG('${key}')">
+        <div class="fg-card-header">
+          <div class="fg-card-left">
+            <div class="fg-icon" style="background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2)">${item.icon}</div>
+            <div>
+              <div class="fg-title">${item.title}</div>
+              <div class="fg-subtitle">${item.sub}</div>
+            </div>
+          </div>
+          <div class="fg-chevron ${isOpen ? 'open' : ''}">▼</div>
+        </div>
+        <div class="fg-body ${isOpen ? 'open' : ''}">
+          ${stepsHTML}${tableHTML}${tipHTML}${ruleHTML}
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('field-content').innerHTML = `
+    <div class="fg-category-tabs">${catTabs}</div>
+    <div style="padding:0 0 60px">${cards}</div>
+  `;
+}
+
+function setFGCat(i) {
+  activeFGCat = i;
+  fgOpen = {};
+  renderFieldGuide();
+}
+
+function toggleFG(key) {
+  fgOpen[key] = !fgOpen[key];
+  renderFieldGuide();
 }
 </script>
 </body>
