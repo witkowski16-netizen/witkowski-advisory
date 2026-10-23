@@ -1718,6 +1718,10 @@
         body: JSON.stringify(payload)
       });
       if(res.ok) {
+        // Google Ads conversion: Discovery Intake Submitted
+        if (typeof gtag === 'function') {
+          gtag('event', 'conversion', {'send_to': 'AW-18137607928/vd0XCKaWtKYdEPjd18hD'});
+        }
         document.getElementById('formWrap').style.display='none';
         document.getElementById('successMsg').classList.add('show');
       } else {

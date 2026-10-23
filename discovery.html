@@ -466,11 +466,15 @@ async function submitIntake() {
   };
 
   try {
-    await fetch('https://formspree.io/f/xwvaznev', {
+    const res = await fetch('https://formspree.io/f/xwvaznev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(payload)
     });
+    // Google Ads conversion: Discovery Intake Submitted
+    if (res.ok && typeof gtag === 'function') {
+      gtag('event', 'conversion', {'send_to': 'AW-18137607928/vd0XCKaWtKYdEPjd18hD'});
+    }
   } catch(e) { /* silent — show success regardless */ }
 
   // Show Calendly
