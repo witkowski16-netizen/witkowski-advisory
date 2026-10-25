@@ -482,6 +482,21 @@ async function submitIntake() {
   document.getElementById('successSection').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// Google Ads conversion: Calendly Booking Clicked (fires when Calendly reports a scheduled event)
+window.addEventListener('message', function(e){
+  if (e.origin === 'https://calendly.com' && e.data && e.data.event === 'calendly.event_scheduled' && typeof gtag === 'function') {
+    gtag('event', 'conversion', {'send_to': 'AW-18137607928/KJWxCMS2yakdEPjd18hD'});
+  }
+});
+
+// Google Ads conversion: Call Link Tapped
+document.addEventListener('click', function(e){
+  var a = e.target.closest ? e.target.closest('a[href^="tel:"]') : null;
+  if (a && typeof gtag === 'function') {
+    gtag('event', 'conversion', {'send_to': 'AW-18137607928/ACStCMe2yakdEPjd18hD'});
+  }
+});
 </script>
 </body>
 </html>
