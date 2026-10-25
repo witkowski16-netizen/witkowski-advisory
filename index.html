@@ -1015,6 +1015,7 @@
     <a href="blog.html">Insights</a>
     <a href="golf.html" title="Golf Vault">⛳</a>
     <a href="login.html" style="color:var(--muted2);border:1px solid var(--border);padding:8px 16px;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='rgba(61,184,154,.4)';this.style.color='var(--cream)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">Client Login</a>
+    <a href="tel:+13127669506" title="Call (312) 766-9506">Call</a>
     <a href="discovery.html" class="nav-cta">Book a Discovery Call</a>
   </div>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
@@ -1608,6 +1609,9 @@
   <div class="footer-right">
     <a href="https://www.linkedin.com/in/evan-witkowski-cipm-fsa-credential-holder-322a221b/" target="_blank">LinkedIn</a>
     <a href="https://www.instagram.com/finfluencer_91" target="_blank">Instagram</a>
+    <a href="tel:+13127669506">Call (312) 766-9506</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
     <a href="#contact">Contact</a>
     <span class="footer-copy">© 2026 Evan Witkowski</span>
   </div>
@@ -1718,6 +1722,7 @@
         body: JSON.stringify(payload)
       });
       if(res.ok) {
+        fetch('/.netlify/functions/notify', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ name: payload.name, email: payload.email, organization: payload.organization, interest: payload.interest }) }).catch(function(){});
         // Google Ads conversion: Discovery Intake Submitted
         if (typeof gtag === 'function') {
           gtag('event', 'conversion', {'send_to': 'AW-18137607928/vd0XCKaWtKYdEPjd18hD'});
@@ -1847,35 +1852,6 @@
   }
 
   // ── CHATBOT ──
-  const SYSTEM_PROMPT = `You are a knowledgeable AI assistant for Witkowski Advisory Group, representing Evan Witkowski. You ALWAYS answer questions fully and helpfully. Never deflect to email unless a user is explicitly asking to book a meeting or make a purchase decision.
-
-About Evan Witkowski:
-- CIPM certified, FSA Credential Holder
-- Currently: Director of Institutional Relationships at Wespath Benefits & Investments (Feb 2025–Present)
-- Previously: Institutional Relationship Manager at Wespath (2021–2025), Manager Institutional Investment Services at Wespath (2020–2021)
-- State of Wisconsin Investment Board — Performance Operations Manager (2019–2020)
-- Northern Trust Corporation — 6 years: Manager VP, Consultant, Team Leader, Senior Analyst Investment Performance (2013–2019)
-- 5+ years of OCIO (Outsourced Chief Investment Officer) experience
-- Managed individual client relationships from $25M to $250M AUM; over $2.5B in client AUM managed historically across 30+ endowments and foundations
-- Led a firm through full GIPS compliance and verification end-to-end
-- Nonprofit investing and balance sheet expert — brings holistic portfolio view connecting investment strategy, liquidity, liabilities and mission
-- Expert in Microsoft 365 automation: Power Automate, SharePoint, Teams, Excel, Power BI
-- Expert VBA developer for Excel and Access — macros, reporting, financial models
-- Python scripting: data pipelines, API integrations, report automation, pandas
-- Autonomous AI agent setup and deployment (n8n, Make, LLM integrations)
-- Business development strategy, CRM optimization (Salesforce), outreach systems
-- Based in Glenview, Illinois
-
-Services:
-1. Microsoft 365 Automation — Power Automate flows, SharePoint, Teams, Excel automation
-2. VBA Development — Custom Excel/Access macros, financial model automation
-3. Python Scripting & Automation — Data pipelines, APIs, scheduling
-4. Business Development Strategy — CRM, Salesforce, outreach, pipeline management
-5. Autonomous AI Agent Setup — AI agents that monitor, trigger, summarize and complete tasks
-
-Note: Evan's background includes OCIO experience, GIPS compliance, and nonprofit investing — but these are credentials and context, not active consulting services he offers independently.
-
-Personality: Professional, direct, knowledgeable. You speak with authority on both finance and technology. Keep answers concise (2-4 sentences) unless the user asks for detail. Only suggest contacting Evan when a user is ready to engage or asks how to get started.`;
 
   let chatHistory = [];
   let chatOpen = false;
@@ -1923,7 +1899,6 @@ Personality: Professional, direct, knowledgeable. You speak with authority on bo
     document.getElementById('chatSuggestions').style.display = 'none';
     addUserMessage(text);
     chatHistory.push({ role:'user', content:text });
-    notifyEvan(text);
     getResponse();
   }
 
@@ -1934,37 +1909,9 @@ Personality: Professional, direct, knowledgeable. You speak with authority on bo
     input.value = '';
     addUserMessage(text);
     chatHistory.push({ role:'user', content:text });
-    notifyEvan(text);
     getResponse();
   }
 
-  // Fire-and-forget SMS via Verizon email-to-text gateway
-  async function notifyEvan(userMessage) {
-    // Only notify on first message and every 3rd after (avoid spam)
-    const msgCount = chatHistory.filter(m => m.role === 'user').length;
-    if(msgCount > 1 && msgCount % 3 !== 0) return;
-
-    const isFirst = msgCount === 1;
-    const subject = isFirst
-      ? 'New chat visitor on witkowskiadvisory.com'
-      : 'Chat continues on witkowskiadvisory.com';
-    const body = isFirst
-      ? `New visitor started a chat.\n\nFirst message: "${userMessage}"\n\nVisit witkowskiadvisory.com to follow along.`
-      : `Chat update: "${userMessage}"`;
-
-    try {
-      await fetch('https://formspree.io/f/xwvaznev', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          _replyto: 'noreply@witkowskiadvisory.com',
-          email:    '4403649876@vtext.com',
-          _subject: subject,
-          message:  body
-        })
-      });
-    } catch(e) { /* silent fail — don't interrupt chat */ }
-  }
 
   async function getResponse() {
     const typing = addTyping();
@@ -1973,20 +1920,19 @@ Personality: Professional, direct, knowledgeable. You speak with authority on bo
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({
-          system: SYSTEM_PROMPT,
           messages: chatHistory
         })
       });
       const data = await res.json();
       if (data.error) {
         typing.remove();
-        addBotMessage('⚠ API error: ' + data.error);
+        addBotMessage(typeof data.error === 'string' ? data.error : 'Sorry, something went wrong. Please use the contact form and Evan will follow up.');
         return;
       }
       const reply = data.content?.[0]?.text;
       if (!reply) {
         typing.remove();
-        addBotMessage('⚠ No reply received. Raw: ' + JSON.stringify(data).slice(0, 120));
+        addBotMessage('Sorry, something went wrong. Please use the contact form and Evan will follow up.');
         return;
       }
       typing.remove();
@@ -1994,7 +1940,7 @@ Personality: Professional, direct, knowledgeable. You speak with authority on bo
       chatHistory.push({ role:'assistant', content:reply });
     } catch(e) {
       typing.remove();
-      addBotMessage('⚠ Network error: ' + e.message);
+      addBotMessage('Sorry, I could not connect. Please use the contact form and Evan will follow up.');
     }
   }
   // ── HOMEPAGE INSIGHTS TEASER ──
