@@ -1869,7 +1869,17 @@
     const msgs = document.getElementById('chatMessages');
     const div = document.createElement('div');
     div.className = 'msg bot';
-    div.textContent = text;
+    var clean = String(text).replace(/\*\*/g, '');
+    var urlRe = /(https?:\/\/[^\s<>"')]+[^\s<>"').,;:!?])/g, last = 0, m;
+    while ((m = urlRe.exec(clean)) !== null) {
+      div.appendChild(document.createTextNode(clean.slice(last, m.index)));
+      var a = document.createElement('a');
+      a.href = m[1]; a.textContent = m[1]; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      a.style.color = 'inherit'; a.style.textDecoration = 'underline'; a.style.wordBreak = 'break-all';
+      div.appendChild(a);
+      last = m.index + m[1].length;
+    }
+    div.appendChild(document.createTextNode(clean.slice(last)));
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
   }
