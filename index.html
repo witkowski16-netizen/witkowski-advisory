@@ -1698,6 +1698,8 @@
       else el.classList.remove('err');
     });
     if(!ok) return;
+    const emailEl = document.getElementById('email');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) { emailEl.classList.add('err'); alert('Please enter a valid email address so Evan can reply.'); return; }
 
     const btn = document.querySelector('.submit-btn');
     btn.disabled = true;
@@ -1715,7 +1717,7 @@
 
     try {
       // Formspree endpoint — replace YOUR_FORM_ID after signing up at formspree.io
-      // with your email witkowski.16@gmail.com to get your unique form ID.
+      // with your email evan@witkowskiadvisory.com to get your unique form ID.
       const res = await fetch('https://formspree.io/f/xwvaznev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -1735,7 +1737,7 @@
     } catch(e) {
       btn.disabled = false;
       btn.querySelector('span').textContent = 'Send Inquiry →';
-      alert('Something went wrong. Please email witkowski.16@gmail.com directly.');
+      alert('Something went wrong. Please email evan@witkowskiadvisory.com directly.');
     }
   }
   // ── ANNOUNCEMENT BAR — Live Yahoo Finance + News ──
