@@ -1724,7 +1724,6 @@
         body: JSON.stringify(payload)
       });
       if(res.ok) {
-        fetch('/.netlify/functions/notify', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ name: payload.name, email: payload.email, organization: payload.organization, interest: payload.interest }) }).catch(function(){});
         // Google Ads conversion: Discovery Intake Submitted
         if (typeof gtag === 'function') {
           gtag('event', 'conversion', {'send_to': 'AW-18137607928/vd0XCKaWtKYdEPjd18hD'});
