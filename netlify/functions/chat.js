@@ -2,7 +2,7 @@
 // The system prompt, model, limits, and tools live here on the server. The browser sends only the
 // visitor's messages, so nobody can use this endpoint as a free general-purpose Claude proxy.
 //
-// Required Netlify environment variables: ANTHROPIC_API_KEY (plus the Twilio variables used by notify.js).
+// Required Netlify environment variables: ANTHROPIC_API_KEY. Owner alerts are emailed through Formspree (see notify.js).
 // Optional: CALENDLY_URL (booking link), CLAUDE_MODEL (defaults to claude-sonnet-4-5).
 
 const { sendAlert, rateLimited, clean, clientIp, originAllowed, json } = require('./notify');
@@ -98,18 +98,19 @@ async function runTool(name, input, ip) {
     return process.env.CALENDLY_URL || 'https://witkowskiadvisory.com/discovery';
   }
   if (name === 'notify_owner' || name === 'flag_unanswered_question') {
-    if (rateLimited('sms:' + ip, 3, 60 * 60 * 1000) || rateLimited('sms:all', 30, 24 * 60 * 60 * 1000)) {
+    if (rateLimited('alert:' + ip, 3, 60 * 60 * 1000) || rateLimited('alert:all', 30, 24 * 60 * 60 * 1000)) {
       return 'Alert limit reached. Ask the visitor to use the contact form at witkowskiadvisory.com/discovery.';
     }
-    let text;
+    let text, replyEmail;
     if (name === 'notify_owner') {
       const email = clean(input.email, 80);
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'That email address looks invalid. Ask the visitor to re-enter it.';
+      replyEmail = email;
       text = `New website inquiry from ${clean(input.name, 60) || 'Unknown'} at ${clean(input.organization, 80) || 'n/a'}, ${email}. Topic: ${clean(input.topic, 120)}.`;
     } else {
       text = `A visitor to witkowskiadvisory.com asked a question the assistant couldn't answer: "${clean(input.question, 160)}".`;
     }
-    const r = await sendAlert(text);
+    const r = await sendAlert(text, replyEmail);
     return r.ok
       ? 'Evan has been notified. Tell the visitor he will follow up within one business day.'
       : 'The alert could not be sent. Ask the visitor to use the contact form at witkowskiadvisory.com/discovery.';
