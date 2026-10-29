@@ -1,12 +1,6 @@
 // Shared helpers + HTTP endpoint for owner alerts.
-// - sendAlert(): texts the business owner through Twilio (registered messaging service).
-// - handler: POST endpoint used by the contact/discovery form.
-//
-// Required Netlify environment variables (never commit these):
-//   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_MESSAGING_SERVICE_SID, OWNER_PHONE (E.164, e.g. +13125550123)
-
-const PREFIX = 'Collins 2022 LLC (Witkowski Advisory): ';
-const SUFFIX = ' Reply STOP to opt out.';
+// - sendAlert(): emails the business owner through the Formspree inbox (no environment variables needed).
+// - handler: POST endpoint for owner alerts.
 
 const buckets = new Map();
 
@@ -64,34 +58,24 @@ function json(statusCode, body) {
   return { statusCode, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
 }
 
-async function sendAlert(text) {
-  const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_MESSAGING_SERVICE_SID, OWNER_PHONE } = process.env;
-  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_MESSAGING_SERVICE_SID || !OWNER_PHONE) {
-    console.error('Twilio environment variables are not fully set; alert not sent.');
-    return { ok: false, reason: 'not_configured' };
-  }
-  if (!/^\+1\d{10}$/.test(OWNER_PHONE)) {
-    console.error('OWNER_PHONE must be E.164 format, for example +13125550123.');
-    return { ok: false, reason: 'bad_owner_phone' };
-  }
-  const body = PREFIX + clean(text, 240) + SUFFIX;
+async function sendAlert(text, replyEmail) {
+  // Delivers the alert as an email through the site's existing Formspree inbox.
+  const payload = { _subject: 'Website lead alert', message: clean(text, 400), source: 'witkowskiadvisory.com' };
+  if (replyEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyEmail)) payload.email = replyEmail;
   try {
-    const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`, {
+    const res = await fetch('https://formspree.io/f/xwvaznev', {
       method: 'POST',
-      headers: {
-        Authorization: 'Basic ' + Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString('base64'),
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({ To: OWNER_PHONE, MessagingServiceSid: TWILIO_MESSAGING_SERVICE_SID, Body: body }),
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
       signal: AbortSignal.timeout(6000)
     });
     if (!res.ok) {
-      console.error('Twilio send failed', res.status, (await res.text()).slice(0, 300));
-      return { ok: false, reason: 'twilio_error' };
+      console.error('Formspree alert failed', res.status, (await res.text()).slice(0, 300));
+      return { ok: false, reason: 'formspree_error' };
     }
     return { ok: true };
   } catch (e) {
-    console.error('Twilio request error', e && e.message);
+    console.error('Alert request error', e && e.message);
     return { ok: false, reason: 'network' };
   }
 }
@@ -114,7 +98,7 @@ exports.handler = async function (event) {
   const topic = clean(data.interest || data.message, 120) || 'not specified';
   if (!email) return json(400, { error: 'Missing email' });
 
-  await sendAlert(`New website inquiry from ${name} at ${org}, ${email}. Topic: ${topic}.`);
+  await sendAlert(`New website inquiry from ${name} at ${org}, ${email}. Topic: ${topic}.`, email);
   // Always report success so the visitor-facing form is never broken by an alert problem.
   return json(200, { ok: true });
 };
